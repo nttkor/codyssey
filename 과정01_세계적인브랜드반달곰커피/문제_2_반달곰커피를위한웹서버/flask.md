@@ -33,12 +33,14 @@ def create_app(config_name):
     return app
 ```
 이 예제에서 config_name은 Flask 애플리케이션의 구성을 결정하는 데 사용되며, 이를 통해 개발, 테스트 및 프로덕션과 같은 환경마다 다른 구성을 사용할 수 있습니다. Flask 애플리케이션을 시작하려면 다음과 같이 하면 됩니다.
+```python
 from your_flask_package import create_app
 
 app = create_app('development')
 
 if __name__ == "__main__":
     app.run()
+        ```
 이 패턴의 장점은 다음과 같습니다.
 
 테스트: 다양한 설정으로 애플리케이션의 테스트 인스턴스를 생성하여 제대로 테스트할 수 있습니다.
