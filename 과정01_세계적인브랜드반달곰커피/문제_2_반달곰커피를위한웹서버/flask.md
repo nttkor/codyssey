@@ -1,43 +1,43 @@
 ## Flask Tutorial Links Update
-- [Flask °­ÀÇ 1 - »ýÈ°ÄÚµù](https://opentutorials.org/course/4904)
-- [Flask °­ÀÇ 2 - Easy IT Wanner ºí·Î±×](https://easyitwanner.tistory.com/347)
+- [Flask ê°•ì˜ 1 - ìƒí™œì½”ë”©](https://opentutorials.org/course/4904)
+- [Flask ê°•ì˜ 2 - Easy IT Wanner ë¸”ë¡œê·¸](https://easyitwanner.tistory.com/347)
 
-## ¾Û ÆÑÅä¸®¿Í ºí·ç ÇÁ¸°Æ®
-###  ¸ñÂ÷
-- ÇÃ¶ó½ºÅ© ¾Û ÆÑÅä¸®(Flask Application Factory)
-- ºí·ç ÇÁ¸°Æ®(Blue print)
-- ¿¹½Ã
+## ì•± íŒ©í† ë¦¬ì™€ ë¸”ë£¨ í”„ë¦°íŠ¸
+###  ëª©ì°¨
+- í”Œë¼ìŠ¤í¬ ì•± íŒ©í† ë¦¬(Flask Application Factory)
+- ë¸”ë£¨ í”„ë¦°íŠ¸(Blue print)
+- ì˜ˆì‹œ
 
-#### ÇÃ¶ó½ºÅ© ¾Û ÆÑÅä¸®
-Flask ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÆÑÅä¸®(Application Factory)´Â À¯¿¬¼ºÀ» Á¦°øÇÏ°í ¿ì¼öÇÑ ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ¼³°è¸¦ ÃËÁøÇÏ´Â ¹æ½ÄÀ¸·Î ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀ» ±¸Á¶È­ÇÏ±â À§ÇØ Flask°¡ ±ÇÀåÇÏ´Â µðÀÚÀÎ ÆÐÅÏÀÔ´Ï´Ù. ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÆÑÅä¸®ÀÇ ±âº» °³³äÀº ¾ÛÀ» ¼³Á¤ÇÏ±â À§ÇØ È£ÃâÇÒ ¼ö ÀÖ´Â ÇÔ¼ö(ÀÏ¹ÝÀûÀ¸·Î create_app()¶ó´Â ÀÌ¸§)·Î Flask ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀ» »ý¼ºÇÏ´Â °ÍÀÔ´Ï´Ù. ÀÌ¸¦ ÅëÇØ ¼­·Î ´Ù¸¥ ¼³Á¤À¸·Î µ¿ÀÏÇÑ ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ ¿©·¯ ÀÎ½ºÅÏ½º¸¦ ¸¸µé ¼ö ÀÖ½À´Ï´Ù.?´ÙÀ½Àº ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÆÑÅä¸®°¡ ¾î¶»°Ô º¸ÀÌ´ÂÁö º¸¿©ÁÖ´Â ¿¹½ÃÀÔ´Ï´Ù.
+#### í”Œë¼ìŠ¤í¬ ì•± íŒ©í† ë¦¬
+Flask ì• í”Œë¦¬ì¼€ì´ì…˜ íŒ©í† ë¦¬(Application Factory)ëŠ” ìœ ì—°ì„±ì„ ì œê³µí•˜ê³  ìš°ìˆ˜í•œ ì• í”Œë¦¬ì¼€ì´ì…˜ ì„¤ê³„ë¥¼ ì´‰ì§„í•˜ëŠ” ë°©ì‹ìœ¼ë¡œ ì• í”Œë¦¬ì¼€ì´ì…˜ì„ êµ¬ì¡°í™”í•˜ê¸° ìœ„í•´ Flaskê°€ ê¶Œìž¥í•˜ëŠ” ë””ìžì¸ íŒ¨í„´ìž…ë‹ˆë‹¤. ì• í”Œë¦¬ì¼€ì´ì…˜ íŒ©í† ë¦¬ì˜ ê¸°ë³¸ ê°œë…ì€ ì•±ì„ ì„¤ì •í•˜ê¸° ìœ„í•´ í˜¸ì¶œí•  ìˆ˜ ìžˆëŠ” í•¨ìˆ˜(ì¼ë°˜ì ìœ¼ë¡œ create_app()ë¼ëŠ” ì´ë¦„)ë¡œ Flask ì• í”Œë¦¬ì¼€ì´ì…˜ì„ ìƒì„±í•˜ëŠ” ê²ƒìž…ë‹ˆë‹¤. ì´ë¥¼ í†µí•´ ì„œë¡œ ë‹¤ë¥¸ ì„¤ì •ìœ¼ë¡œ ë™ì¼í•œ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ì—¬ëŸ¬ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ë§Œë“¤ ìˆ˜ ìžˆìŠµë‹ˆë‹¤.Â ë‹¤ìŒì€ ì• í”Œë¦¬ì¼€ì´ì…˜ íŒ©í† ë¦¬ê°€ ì–´ë–»ê²Œ ë³´ì´ëŠ”ì§€ ë³´ì—¬ì£¼ëŠ” ì˜ˆì‹œìž…ë‹ˆë‹¤.
 from flask import Flask
 
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
-    # ¿©±â¼­ È®ÀåÀ» ÃÊ±âÈ­ÇÕ´Ï´Ù...
+    # ì—¬ê¸°ì„œ í™•ìž¥ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤...
 
-    # ¿©±â¿¡ ºí·çÇÁ¸°Æ® µî·Ï...
+    # ì—¬ê¸°ì— ë¸”ë£¨í”„ë¦°íŠ¸ ë“±ë¡...
 
       return app
-ÀÌ?¿¹Á¦¿¡¼­?config_nameÀº?Flask?¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ?±¸¼ºÀ»?°áÁ¤ÇÏ´Â?µ¥?»ç¿ëµÇ¸ç,?ÀÌ¸¦?ÅëÇØ?°³¹ß,?Å×½ºÆ®?¹×?ÇÁ·Î´ö¼Ç°ú?°°Àº?È¯°æ¸¶´Ù?´Ù¸¥?±¸¼ºÀ»?»ç¿ëÇÒ?¼ö?ÀÖ½À´Ï´Ù. Flask ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀ» ½ÃÀÛÇÏ·Á¸é ´ÙÀ½°ú °°ÀÌ ÇÏ¸é µË´Ï´Ù.
+ì´Â ì˜ˆì œì—ì„œÂ config_nameì€Â FlaskÂ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜Â êµ¬ì„±ì„Â ê²°ì •í•˜ëŠ”Â ë°Â ì‚¬ìš©ë˜ë©°,Â ì´ë¥¼Â í†µí•´Â ê°œë°œ,Â í…ŒìŠ¤íŠ¸Â ë°Â í”„ë¡œë•ì…˜ê³¼Â ê°™ì€Â í™˜ê²½ë§ˆë‹¤Â ë‹¤ë¥¸Â êµ¬ì„±ì„Â ì‚¬ìš©í• Â ìˆ˜Â ìžˆìŠµë‹ˆë‹¤. Flask ì• í”Œë¦¬ì¼€ì´ì…˜ì„ ì‹œìž‘í•˜ë ¤ë©´ ë‹¤ìŒê³¼ ê°™ì´ í•˜ë©´ ë©ë‹ˆë‹¤.
 from your_flask_package import create_app
 
 app = create_app('development')
 
 if __name__ == "__main__":
     app.run()
-ÀÌ ÆÐÅÏÀÇ ÀåÁ¡Àº ´ÙÀ½°ú °°½À´Ï´Ù.
+ì´ íŒ¨í„´ì˜ ìž¥ì ì€ ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 
-Å×½ºÆ®:?´Ù¾çÇÑ?¼³Á¤À¸·Î?¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ?Å×½ºÆ®?ÀÎ½ºÅÏ½º¸¦?»ý¼ºÇÏ¿©?Á¦´ë·Î?Å×½ºÆ®ÇÒ?¼ö?ÀÖ½À´Ï´Ù.
-¿©·¯?ÀÎ½ºÅÏ½º:?µ¿ÀÏÇÑ?ÇÁ·Î¼¼½º¿¡¼­?µ¿ÀÏÇÑ?¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ?ÀÎ½ºÅÏ½º¸¦?¿©·¯?°³?»ý¼ºÇÒ?¼ö?ÀÖ½À´Ï´Ù.
-ºí·çÇÁ¸°Æ®:?¾ÖÇÃ¸®ÄÉÀÌ¼Ç?ÆÑÅä¸®¿¡?ºí·çÇÁ¸°Æ®¸¦?µî·ÏÇÒ?¼ö?ÀÖÀ¸¹Ç·Î?¾ÖÇÃ¸®ÄÉÀÌ¼Ç?µðÀÚÀÎ¿¡?ºí·çÇÁ¸°Æ®?¹×?¸ðµâ¼ºÀ»?»ç¿ëÇÒ?¼ö?ÀÖ½À´Ï´Ù.
-È®Àå:?¾ÖÇÃ¸®ÄÉÀÌ¼Ç?ÆÑÅä¸®¿¡¼­?È®ÀåÀ»?ÃÊ±âÈ­ÇÒ?¼öµµ?ÀÖ½À´Ï´Ù.
+í…ŒìŠ¤íŠ¸:Â ë‹¤ì–‘í•œÂ ì„¤ì •ìœ¼ë¡œÂ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜Â í…ŒìŠ¤íŠ¸Â ì¸ìŠ¤í„´ìŠ¤ë¥¼Â ìƒì„±í•˜ì—¬Â ì œëŒ€ë¡œÂ í…ŒìŠ¤íŠ¸í• Â ìˆ˜Â ìžˆìŠµë‹ˆë‹¤.
+ì—¬ëŸ¬Â ì¸ìŠ¤í„´ìŠ¤:Â ë™ì¼í•œÂ í”„ë¡œì„¸ìŠ¤ì—ì„œÂ ë™ì¼í•œÂ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜Â ì¸ìŠ¤í„´ìŠ¤ë¥¼Â ì—¬ëŸ¬Â ê°œÂ ìƒì„±í• Â ìˆ˜Â ìžˆìŠµë‹ˆë‹¤.
+ë¸”ë£¨í”„ë¦°íŠ¸:Â ì• í”Œë¦¬ì¼€ì´ì…˜Â íŒ©í† ë¦¬ì—Â ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼Â ë“±ë¡í• Â ìˆ˜Â ìžˆìœ¼ë¯€ë¡œÂ ì• í”Œë¦¬ì¼€ì´ì…˜Â ë””ìžì¸ì—Â ë¸”ë£¨í”„ë¦°íŠ¸Â ë°Â ëª¨ë“ˆì„±ì„Â ì‚¬ìš©í• Â ìˆ˜Â ìžˆìŠµë‹ˆë‹¤.
+í™•ìž¥:Â ì• í”Œë¦¬ì¼€ì´ì…˜Â íŒ©í† ë¦¬ì—ì„œÂ í™•ìž¥ì„Â ì´ˆê¸°í™”í• Â ìˆ˜ë„Â ìžˆìŠµë‹ˆë‹¤.
 
 
-#### ºí·ç ÇÁ¸°Æ®(Blue print)
-FlaskÀÇ?ºí·çÇÁ¸°Æ®´Â?°ü·Ã?°æ·Î,?¿À·ù?Ã³¸®±â?¹×?±âÅ¸?HTTP?°ü·Ã?±â´ÉÀ»?Àç»ç¿ë?°¡´ÉÇÑ?º°µµÀÇ?Python?¸ðµâ·Î?±×·ìÈ­ÇÏ´Â?¹æ¹ýÀÔ´Ï´Ù.?¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÌ?º¹ÀâÇØÁú?¶§?Æ¯È÷?À¯¿ëÇÒ?¼ö?ÀÖ½À´Ï´Ù. ºí·çÇÁ¸°Æ®¸¦ ¸¸µå´Â ¹æ¹ýÀº ´ÙÀ½°ú °°½À´Ï´Ù.
+#### ë¸”ë£¨ í”„ë¦°íŠ¸(Blue print)
+Flaskì˜Â ë¸”ë£¨í”„ë¦°íŠ¸ëŠ”Â ê´€ë ¨Â ê²½ë¡œ,Â ì˜¤ë¥˜Â ì²˜ë¦¬ê¸°Â ë°Â ê¸°íƒ€Â HTTPÂ ê´€ë ¨Â ê¸°ëŠ¥ì„Â ìž¬ì‚¬ìš©Â ê°€ëŠ¥í•œÂ ë³„ë„ì˜Â PythonÂ ëª¨ë“ˆë¡œÂ ê·¸ë£¹í™”í•˜ëŠ”Â ë°©ë²•ìž…ë‹ˆë‹¤.Â ì• í”Œë¦¬ì¼€ì´ì…˜ì´Â ë³µìž¡í•´ì§ˆÂ ë•ŒÂ íŠ¹ížˆÂ ìœ ìš©í• Â ìˆ˜Â ìžˆìŠµë‹ˆë‹¤. ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ë§Œë“œëŠ” ë°©ë²•ì€ ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 from flask import Blueprint
 
 my_blueprint = Blueprint('my_blueprint', __name__)
@@ -45,12 +45,12 @@ my_blueprint = Blueprint('my_blueprint', __name__)
 @my_blueprint.route('/hello')
 def hello():
     return 'Hello, World!'
-ÀÌ?¿¹Á¦¿¡¼­´Â?'my_blueprint'¶ó´Â?ÀÌ¸§ÀÇ?»õ?ºí·çÇÁ¸°Æ®¸¦?»ý¼ºÇÕ´Ï´Ù.?±×·±?´ÙÀ½?ÇØ´ç?ºí·çÇÁ¸°Æ®¿¡?°æ·Î¸¦?Á¤ÀÇÇÕ´Ï´Ù.?ÀÌ?ºí·çÇÁ¸°Æ®¸¦?ÇÃ¶ó½ºÅ©?¾ÖÇÃ¸®ÄÉÀÌ¼Ç¿¡?µî·ÏÇÏ¸é?¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ?ÀÏºÎ·Î?°æ·Î¸¦?»ç¿ëÇÒ?¼ö?ÀÖ½À´Ï´Ù. ºí·çÇÁ¸°Æ®¿¡´Â ¿©·¯ °¡Áö ±â´ÉÀÌ ÀÖÀ¸¸ç ¸î °¡Áö ´Ù¸¥ ¹æ½ÄÀ¸·Î »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.1. URL Á¢µÎ»çºí·çÇÁ¸°Æ®¸¦ µî·ÏÇÒ ¶§ URL Á¢µÎ»ç¸¦ Á¦°øÇÒ ¼ö ÀÖ½À´Ï´Ù. ºí·çÇÁ¸°Æ®¿¡ Á¤ÀÇµÈ ¸ðµç °æ·Î¿¡´Â ÀÌ Á¢µÎ»ç°¡ ºÙ½À´Ï´Ù. °ü·Ã °æ·Î¸¦ ÇÔ²² ±×·ìÈ­ÇÒ ¶§ À¯¿ëÇÕ´Ï´Ù. 
+ì´Â ì˜ˆì œì—ì„œëŠ”Â 'my_blueprint'ë¼ëŠ”Â ì´ë¦„ì˜Â ìƒˆÂ ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼Â ìƒì„±í•©ë‹ˆë‹¤.Â ê·¸ëŸ°Â ë‹¤ìŒÂ í•´ë‹¹Â ë¸”ë£¨í”„ë¦°íŠ¸ì—Â ê²½ë¡œë¥¼Â ì •ì˜í•©ë‹ˆë‹¤.Â ì´Â ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼Â í”Œë¼ìŠ¤í¬Â ì• í”Œë¦¬ì¼€ì´ì…˜ì—Â ë“±ë¡í•˜ë©´Â ì• í”Œë¦¬ì¼€ì´ì…˜ì˜Â ì¼ë¶€ë¡œÂ ê²½ë¡œë¥¼Â ì‚¬ìš©í• Â ìˆ˜Â ìžˆìŠµë‹ˆë‹¤. ë¸”ë£¨í”„ë¦°íŠ¸ì—ëŠ” ì—¬ëŸ¬ ê°€ì§€ ê¸°ëŠ¥ì´ ìžˆìœ¼ë©° ëª‡ ê°€ì§€ ë‹¤ë¥¸ ë°©ì‹ìœ¼ë¡œ ì‚¬ìš©í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.1. URL ì ‘ë‘ì‚¬ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ë“±ë¡í•  ë•Œ URL ì ‘ë‘ì‚¬ë¥¼ ì œê³µí•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤. ë¸”ë£¨í”„ë¦°íŠ¸ì— ì •ì˜ëœ ëª¨ë“  ê²½ë¡œì—ëŠ” ì´ ì ‘ë‘ì‚¬ê°€ ë¶™ìŠµë‹ˆë‹¤. ê´€ë ¨ ê²½ë¡œë¥¼ í•¨ê»˜ ê·¸ë£¹í™”í•  ë•Œ ìœ ìš©í•©ë‹ˆë‹¤. 
 app.register_blueprint(my_blueprint, url_prefix='/prefix')
-ÀÌ?°æ¿ì?¾Õ¼­?Á¤ÀÇÇÑ?'/hello'?°æ·Î´Â?½ÇÁ¦·Î?¾ÖÇÃ¸®ÄÉÀÌ¼Ç¿¡¼­?'/prefix/hello'¿¡?À§Ä¡ÇÏ°Ô?µË´Ï´Ù. 2. ÇÏÀ§ µµ¸ÞÀÎ¸¶Âù°¡Áö·Î ºí·çÇÁ¸°Æ®¸¦ µî·ÏÇÒ ¶§ ÇÏÀ§ µµ¸ÞÀÎÀ» ÁöÁ¤ÇÒ ¼öµµ ÀÖ½À´Ï´Ù. ±×·¯¸é ºí·çÇÁ¸°Æ®ÀÇ ¸ðµç °æ·Î¸¦ ÇØ´ç ÇÏÀ§ µµ¸ÞÀÎ¿¡¼­ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù. 3. ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÀüÃ¼ ¿¡·¯ ÇÚµé·¯ºí·çÇÁ¸°Æ®´Â ¾ÖÇÃ¸®ÄÉÀÌ¼Ç¿¡¼­ ¿À·ù Ã³¸®±â¸¦ Á¤ÀÇÇÏ´Â ¹æ¹ý°ú À¯»çÇÏ°Ô ¿À·ù Ã³¸®±â¸¦ Á¤ÀÇÇÒ ¼ö ÀÖ½À´Ï´Ù. ºí·çÇÁ¸°Æ®¿¡ ¿À·ù Ã³¸®±â°¡ Á¤ÀÇµÇ¾î ÀÖÀ¸¸é ÇØ´ç ºí·çÇÁ¸°Æ®¿¡ Á¤ÀÇµÈ °æ·Î¿¡¼­ ¿äÃ»À» Ã³¸®ÇÒ ¶§ ¹ß»ýÇÏ´Â ¿À·ù¿¡ »ç¿ëµË´Ï´Ù. 4. ¿äÃ» Àü/¿äÃ» ÈÄ/ÇØÃ¼ ¿äÃ» ÇÚµé·¯¿¡·¯ ÇÚµé·¯¿Í ¸¶Âù°¡Áö·Î ºí·çÇÁ¸°Æ®¿¡µµ ÀÌ·¯ÇÑ Æ¯¼öÇÑ À¯ÇüÀÇ ÇÚµé·¯¸¦ Á¤ÀÇÇÒ ¼ö ÀÖ½À´Ï´Ù. 5. ÅÛÇÃ¸´ ¹× ½ºÅÂÆ½ ÆÄÀÏºí·çÇÁ¸°Æ®¿¡´Â ÀÚÃ¼ ÅÛÇÃ¸´°ú ½ºÅÂÆ½ ÆÄÀÏÀÌ ÀÖÀ» ¼ö ÀÖÀ¸¸ç, ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ Æ¯Á¤ ºÎºÐ°ú °ü·ÃµÈ ¸®¼Ò½º¸¦ ±¸¼ºÇÏ´Â µ¥ À¯¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.
+ì´Â ê²½ìš°Â ì•žì„œÂ ì •ì˜í•œÂ '/hello'Â ê²½ë¡œëŠ”Â ì‹¤ì œë¡œÂ ì• í”Œë¦¬ì¼€ì´ì…˜ì—ì„œÂ '/prefix/hello'ì—Â ìœ„ì¹˜í•˜ê²ŒÂ ë©ë‹ˆë‹¤. 2. í•˜ìœ„ ë„ë©”ì¸ë§ˆì°¬ê°€ì§€ë¡œ ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ë“±ë¡í•  ë•Œ í•˜ìœ„ ë„ë©”ì¸ì„ ì§€ì •í•  ìˆ˜ë„ ìžˆìŠµë‹ˆë‹¤. ê·¸ëŸ¬ë©´ ë¸”ë£¨í”„ë¦°íŠ¸ì˜ ëª¨ë“  ê²½ë¡œë¥¼ í•´ë‹¹ í•˜ìœ„ ë„ë©”ì¸ì—ì„œ ì‚¬ìš©í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤. 3. ì• í”Œë¦¬ì¼€ì´ì…˜ ì „ì²´ ì—ëŸ¬ í•¸ë“¤ëŸ¬ë¸”ë£¨í”„ë¦°íŠ¸ëŠ” ì• í”Œë¦¬ì¼€ì´ì…˜ì—ì„œ ì˜¤ë¥˜ ì²˜ë¦¬ê¸°ë¥¼ ì •ì˜í•˜ëŠ” ë°©ë²•ê³¼ ìœ ì‚¬í•˜ê²Œ ì˜¤ë¥˜ ì²˜ë¦¬ê¸°ë¥¼ ì •ì˜í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤. ë¸”ë£¨í”„ë¦°íŠ¸ì— ì˜¤ë¥˜ ì²˜ë¦¬ê¸°ê°€ ì •ì˜ë˜ì–´ ìžˆìœ¼ë©´ í•´ë‹¹ ë¸”ë£¨í”„ë¦°íŠ¸ì— ì •ì˜ëœ ê²½ë¡œì—ì„œ ìš”ì²­ì„ ì²˜ë¦¬í•  ë•Œ ë°œìƒí•˜ëŠ” ì˜¤ë¥˜ì— ì‚¬ìš©ë©ë‹ˆë‹¤. 4. ìš”ì²­ ì „/ìš”ì²­ í›„/í•´ì²´ ìš”ì²­ í•¸ë“¤ëŸ¬ì—ëŸ¬ í•¸ë“¤ëŸ¬ì™€ ë§ˆì°¬ê°€ì§€ë¡œ ë¸”ë£¨í”„ë¦°íŠ¸ì—ë„ ì´ëŸ¬í•œ íŠ¹ìˆ˜í•œ ìœ í˜•ì˜ í•¸ë“¤ëŸ¬ë¥¼ ì •ì˜í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤. 5. í…œí”Œë¦¿ ë° ìŠ¤íƒœí‹± íŒŒì¼ë¸”ë£¨í”„ë¦°íŠ¸ì—ëŠ” ìžì²´ í…œí”Œë¦¿ê³¼ ìŠ¤íƒœí‹± íŒŒì¼ì´ ìžˆì„ ìˆ˜ ìžˆìœ¼ë©°, ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ íŠ¹ì • ë¶€ë¶„ê³¼ ê´€ë ¨ëœ ë¦¬ì†ŒìŠ¤ë¥¼ êµ¬ì„±í•˜ëŠ” ë° ìœ ìš©í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.
 
-#### ¿¹½Ã
-¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÆÑÅä¸®¿Í ºí·çÇÁ¸°Æ®¸¦ ¸ðµÎ »ç¿ëÇÏ´Â ÇÃ¶ó½ºÅ© ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ ¿¹¸¦ »ìÆìº¸°Ú½À´Ï´Ù. °£´ÜÈ÷ ¼³¸íÇÏ±â À§ÇØ ´©±¸³ª ±ÛÀ» º¼ ¼ö ÀÖ´Â °ø°³ ¿µ¿ª°ú ±ÇÇÑÀÌ ÀÖ´Â »ç¿ëÀÚ°¡ ±ÛÀ» ÀÛ¼ºÇÏ°í ÆíÁýÇÒ ¼ö ÀÖ´Â °ü¸®ÀÚ ¿µ¿ªÀÇ µÎ °¡Áö ÁÖ¿ä ºÎºÐÀ¸·Î ±¸¼ºµÈ ±âº» ºí·Î±× ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀ» ¸¸µé¾î º¸°Ú½À´Ï´Ù. ÇÁ·ÎÁ§Æ®ÀÇ µð·ºÅä¸® ±¸Á¶´Â ´ÙÀ½°ú °°½À´Ï´Ù.
+#### ì˜ˆì‹œ
+ì• í”Œë¦¬ì¼€ì´ì…˜ íŒ©í† ë¦¬ì™€ ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ëª¨ë‘ ì‚¬ìš©í•˜ëŠ” í”Œë¼ìŠ¤í¬ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ì˜ˆë¥¼ ì‚´íŽ´ë³´ê² ìŠµë‹ˆë‹¤. ê°„ë‹¨ížˆ ì„¤ëª…í•˜ê¸° ìœ„í•´ ëˆ„êµ¬ë‚˜ ê¸€ì„ ë³¼ ìˆ˜ ìžˆëŠ” ê³µê°œ ì˜ì—­ê³¼ ê¶Œí•œì´ ìžˆëŠ” ì‚¬ìš©ìžê°€ ê¸€ì„ ìž‘ì„±í•˜ê³  íŽ¸ì§‘í•  ìˆ˜ ìžˆëŠ” ê´€ë¦¬ìž ì˜ì—­ì˜ ë‘ ê°€ì§€ ì£¼ìš” ë¶€ë¶„ìœ¼ë¡œ êµ¬ì„±ëœ ê¸°ë³¸ ë¸”ë¡œê·¸ ì• í”Œë¦¬ì¼€ì´ì…˜ì„ ë§Œë“¤ì–´ ë³´ê² ìŠµë‹ˆë‹¤. í”„ë¡œì íŠ¸ì˜ ë””ë ‰í† ë¦¬ êµ¬ì¡°ëŠ” ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 /Learning
     /blogapp
         /admin
@@ -62,7 +62,7 @@ app.register_blueprint(my_blueprint, url_prefix='/prefix')
         __init__.py
         config.py
     main.py
-°¢ ºÎºÐÀ» »ìÆìº¾½Ã´Ù.1. blogapp/admin/views.py ¹× blogapp/public/views.pyÀÌ ¸ðµâÀº °¢°¢ ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ °ü¸®ÀÚ ¹× °ø°³ ºÎºÐ¿¡ ´ëÇÑ ºä¸¦ Á¤ÀÇÇÕ´Ï´Ù. ÀÌ ¸ðµâÀº °¢°¢ Ã»»çÁøÀ» »ý¼ºÇÏ°í ÇØ´ç Ã»»çÁø¿¡ ´ëÇÑ °æ·Î¸¦ Á¤ÀÇÇÕ´Ï´Ù.
+ê° ë¶€ë¶„ì„ ì‚´íŽ´ë´…ì‹œë‹¤.1. blogapp/admin/views.py ë° blogapp/public/views.pyì´ ëª¨ë“ˆì€ ê°ê° ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ê´€ë¦¬ìž ë° ê³µê°œ ë¶€ë¶„ì— ëŒ€í•œ ë·°ë¥¼ ì •ì˜í•©ë‹ˆë‹¤. ì´ ëª¨ë“ˆì€ ê°ê° ì²­ì‚¬ì§„ì„ ìƒì„±í•˜ê³  í•´ë‹¹ ì²­ì‚¬ì§„ì— ëŒ€í•œ ê²½ë¡œë¥¼ ì •ì˜í•©ë‹ˆë‹¤.
 # blogapp/admin/views.py
 from flask import Blueprint
 
@@ -70,7 +70,7 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 @admin_bp.route('/')
 def index():
-    return "°ü¸®ÀÚ ±¸¿ª¿¡ ¿À½Å °ÍÀ» È¯¿µÇÕ´Ï´Ù!"
+    return "ê´€ë¦¬ìž êµ¬ì—­ì— ì˜¤ì‹  ê²ƒì„ í™˜ì˜í•©ë‹ˆë‹¤!"
 # blogapp/public/views.py
 from flask import Blueprint
 
@@ -78,17 +78,17 @@ public_bp = Blueprint('public', __name__)
 
 @public_bp.route('/')
 def index():
-    return "ÆÛºí¸¯ ±¸¿ª¿¡ ¿À½Å °ÍÀ» È¯¿µÇÕ´Ï´Ù!"
-2. blogapp/admin/__init__.py ¹× blogapp/public/__init__.pyÀÌ ¸ðµâÀº ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀ» ¸¸µé ¶§ »ç¿ëÇÒ ¼ö ÀÖµµ·Ï ºí·çÇÁ¸°Æ®¸¦ °¡Á®¿É´Ï´Ù.
+    return "í¼ë¸”ë¦­ êµ¬ì—­ì— ì˜¤ì‹  ê²ƒì„ í™˜ì˜í•©ë‹ˆë‹¤!"
+2. blogapp/admin/__init__.py ë° blogapp/public/__init__.pyì´ ëª¨ë“ˆì€ ì• í”Œë¦¬ì¼€ì´ì…˜ì„ ë§Œë“¤ ë•Œ ì‚¬ìš©í•  ìˆ˜ ìžˆë„ë¡ ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
 # blogapp/admin/__init__.py
 from .views import admin_bp
 # blogapp/public/__init__.py
 from .views import public_bp
-3. blogapp/config.pyÀÌ ¸ðµâÀº ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ ´Ù¾çÇÑ ±¸¼ºÀ» Á¤ÀÇÇÕ´Ï´Ù. °£´ÜÇÏ°Ô ÇÏ±â À§ÇØ ÇÏ³ªÀÇ ±âº» ±¸¼º¸¸ Á¤ÀÇÇÏ°Ú½À´Ï´Ù. 
+3. blogapp/config.pyì´ ëª¨ë“ˆì€ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ë‹¤ì–‘í•œ êµ¬ì„±ì„ ì •ì˜í•©ë‹ˆë‹¤. ê°„ë‹¨í•˜ê²Œ í•˜ê¸° ìœ„í•´ í•˜ë‚˜ì˜ ê¸°ë³¸ êµ¬ì„±ë§Œ ì •ì˜í•˜ê² ìŠµë‹ˆë‹¤. 
 # blogapp/config.py
 class Config:
     SECRET_KEY = 'supersecretkey'
-4. blogapp/__init__.pyÀÌ ¸ðµâÀº ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÆÑÅä¸®¸¦ Á¤ÀÇÇÕ´Ï´Ù. ÀÌ ¸ðµâÀº »õ·Î¿î Flask ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀ» »ý¼ºÇÏ°í, ±¸¼ºÀ» ·ÎµåÇÏ°í, ºí·çÇÁ¸°Æ®¸¦ µî·ÏÇÕ´Ï´Ù.
+4. blogapp/__init__.pyì´ ëª¨ë“ˆì€ ì• í”Œë¦¬ì¼€ì´ì…˜ íŒ©í† ë¦¬ë¥¼ ì •ì˜í•©ë‹ˆë‹¤. ì´ ëª¨ë“ˆì€ ìƒˆë¡œìš´ Flask ì• í”Œë¦¬ì¼€ì´ì…˜ì„ ìƒì„±í•˜ê³ , êµ¬ì„±ì„ ë¡œë“œí•˜ê³ , ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ë“±ë¡í•©ë‹ˆë‹¤.
 # blogapp/__init__.py
 from flask import Flask
 
@@ -104,7 +104,7 @@ def create_app():
     app.register_blueprint(admin_bp)
     
     return app
-5. main.py: ÀÌ°ÍÀÌ ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ ÁøÀÔÁ¡ÀÔ´Ï´Ù. ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÆÑÅä¸®¸¦ °¡Á®¿Í¼­ ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ »õ ÀÎ½ºÅÏ½º¸¦ »ý¼ºÇÏ´Â µ¥ »ç¿ëÇÕ´Ï´Ù. 
+5. main.py: ì´ê²ƒì´ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ì§„ìž…ì ìž…ë‹ˆë‹¤. ì• í”Œë¦¬ì¼€ì´ì…˜ íŒ©í† ë¦¬ë¥¼ ê°€ì ¸ì™€ì„œ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ìƒˆ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ìƒì„±í•˜ëŠ” ë° ì‚¬ìš©í•©ë‹ˆë‹¤. 
 # main.py
 from blogapp import create_app
 
@@ -112,36 +112,36 @@ app = create_app()
 
 if __name__ == '__main__':
     app.run()
-?
-?
-ÀÌ·¸°Ô ±¸¼ºÀ» ¸¶Ä¡°í ³ª¸é ´ÙÀ½°ú °°ÀÌ ÆÄÀÏÀÌ ±¸¼ºµÇ¾ß ÇÕ´Ï´Ù.
+Â 
+Â 
+ì´ë ‡ê²Œ êµ¬ì„±ì„ ë§ˆì¹˜ê³  ë‚˜ë©´ ë‹¤ìŒê³¼ ê°™ì´ íŒŒì¼ì´ êµ¬ì„±ë˜ì•¼ í•©ë‹ˆë‹¤.
 
 
 
-¿¹½Ã ±¸¼º ¿ä¼Ò ¼³¸í
+ì˜ˆì‹œ êµ¬ì„± ìš”ì†Œ ì„¤ëª…
 
-Blueprintºí·çÇÁ¸°Æ®´Â °ü·Ã ¶ó¿ìÆ®, ¿À·ù Ã³¸®±â ¹× ±âÅ¸ HTTP °ü·Ã ÇÔ¼ö ±×·ìÀ» Python ¸ðµâ·Î ±¸¼ºÇÏ´Â ¹æ¹ýÀÔ´Ï´Ù. ÀÌ¸¦ ÅëÇØ ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ±â´ÉÀ» ³í¸®Àû ´ÜÀ§·Î ºÐ¸®ÇÒ ¼ö ÀÖÀ¸¹Ç·Î ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÌ Ä¿Áú¼ö·Ï °ü¸®ÇÏ±â°¡ ´õ ½¬¿öÁý´Ï´Ù. 
-create_app()¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÆÑÅä¸® ÇÔ¼öÀÔ´Ï´Ù. ÀÌ ÇÔ¼ö´Â ÇÃ¶ó½ºÅ© ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ ÀÎ½ºÅÏ½º¸¦ »ý¼ºÇÏ°í, ±¸¼ºÇÏ°í, ºí·çÇÁ¸°Æ®¸¦ µî·ÏÇÏ´Â ¿ªÇÒÀ» ÇÕ´Ï´Ù. ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ÆÑÅä¸®´Â ¼­·Î ´Ù¸¥ ±¸¼ºÀ¸·Î ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ ¿©·¯ ÀÎ½ºÅÏ½º¸¦ »ý¼ºÇÒ ¼ö ÀÖ±â ¶§¹®¿¡ À¯¿ëÇÑ µðÀÚÀÎ ÆÐÅÏÀÌ¸ç, Æ¯È÷ Å×½ºÆ®¿¡ À¯¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù. 
-ConfigConfig Å¬·¡½º´Â ÇÃ¶ó½ºÅ© ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ ±¸¼º º¯¼ö¸¦ ÀúÀåÇÏ´Â µ¥ »ç¿ëµË´Ï´Ù. ÀÌ·¯ÇÑ º¯¼ö¿¡´Â µ¥ÀÌÅÍº£ÀÌ½º URI, ¼¼¼Ç ÄíÅ°ÀÇ ºñ¹Ð Å° µîÀÌ Æ÷ÇÔµÉ ¼ö ÀÖ½À´Ï´Ù. ÁÖ¾îÁø ¿¹Á¦¿¡¼­´Â Flask°¡ ÄíÅ° ¼­¸í°ú °°Àº ÀÛ¾÷¿¡ »ç¿ëÇÏ´Â SECRET_KEY ±¸¼ºÀÌ Á¤ÀÇµÇ¾î ÀÖ½À´Ï´Ù. 
-app.config.from_object(Config)ÀÌ ÁÙÀº Config Å¬·¡½ºÀÇ ±¸¼ºÀ» Flask ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀ¸·Î ·ÎµåÇÕ´Ï´Ù. Flask´Â ±¸¼º º¯¼ö¸¦ ·ÎµåÇÏ´Â ¿©·¯ °¡Áö ¹æ¹ýÀ» Á¦°øÇÏ¸ç, from_object()´Â ±× Áß ÇÏ³ª·Î ÆÄÀÌ½ã °´Ã¼¿¡¼­ ±¸¼º º¯¼ö¸¦ ·ÎµåÇÒ ¼ö ÀÖ°Ô ÇØÁÝ´Ï´Ù. 
-app.register_blueprint()ÀÌ ¸Þ¼­µå´Â ÇÃ¶ó½ºÅ© ¾ÖÇÃ¸®ÄÉÀÌ¼Ç¿¡ ºí·çÇÁ¸°Æ®¸¦ µî·ÏÇÏ´Â µ¥ »ç¿ëµË´Ï´Ù. ºí·çÇÁ¸°Æ®°¡ µî·ÏµÇ¸é ¸ðµç °æ·Î¿Í ¿¡·¯ ÇÚµé·¯°¡ ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ ÀÏºÎ°¡ µË´Ï´Ù. 
-url_prefix='/admin'ºí·çÇÁ¸°Æ®¸¦ µî·ÏÇÒ ¶§ URL Á¢µÎ»ç¸¦ Á¦°øÇÒ ¼ö ÀÖ½À´Ï´Ù. ÇØ´ç ºí·çÇÁ¸°Æ®¿¡ Á¤ÀÇµÈ ¸ðµç °æ·Î¿¡´Â ÀÌ URL Á¢µÎ»ç°¡ ºÙ½À´Ï´Ù. ÀÌ ¿¹Á¦¿¡¼­´Â °ü¸®ÀÚ Ã»»çÁøÀÇ ¸ðµç °æ·Î°¡ '/admin' ¾Æ·¡¿¡ ÀÖ½À´Ï´Ù. 
-if __name__ == '__main__': app.run()ÀÌ°ÍÀº Á÷Á¢ ½ÇÇàÇÏ·Á´Â ½ºÅ©¸³Æ®¿¡ ´ëÇÑ ÀÏ¹ÝÀûÀÎ ÆÄÀÌ½ã °ü¿ë±¸ÀÔ´Ï´Ù. ÀÌ ½ºÅ©¸³Æ®°¡ Á÷Á¢ ½ÇÇàµÇ´Â °æ¿ì(¿¹: ¸í·ÉÁÙ¿¡ python main.py¸¦ ÀÔ·ÂÇÏ¿©) __name__Àº '__main__'ÀÌ µÇ°í Flask ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÌ ½ÃÀÛµË´Ï´Ù. ÀÌ ½ºÅ©¸³Æ®¸¦ ´Ù¸¥ ½ºÅ©¸³Æ®¿¡¼­ ¸ðµâ·Î °¡Á®¿Â °æ¿ì __name__Àº 'main'ÀÌ µÇ°í Flask ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀº ½ÃÀÛµÇÁö ¾Ê½À´Ï´Ù. ÀÌ·¸°Ô ÇÏ¸é Flask ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀ» ½ÃÀÛÇÏÁö ¾Ê°íµµ ÀÌ ½ºÅ©¸³Æ®ÀÇ ÇÔ¼ö¿Í Å¬·¡½º¸¦ Àç»ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.
+Blueprintë¸”ë£¨í”„ë¦°íŠ¸ëŠ” ê´€ë ¨ ë¼ìš°íŠ¸, ì˜¤ë¥˜ ì²˜ë¦¬ê¸° ë° ê¸°íƒ€ HTTP ê´€ë ¨ í•¨ìˆ˜ ê·¸ë£¹ì„ Python ëª¨ë“ˆë¡œ êµ¬ì„±í•˜ëŠ” ë°©ë²•ìž…ë‹ˆë‹¤. ì´ë¥¼ í†µí•´ ì• í”Œë¦¬ì¼€ì´ì…˜ ê¸°ëŠ¥ì„ ë…¼ë¦¬ì  ë‹¨ìœ„ë¡œ ë¶„ë¦¬í•  ìˆ˜ ìžˆìœ¼ë¯€ë¡œ ì• í”Œë¦¬ì¼€ì´ì…˜ì´ ì»¤ì§ˆìˆ˜ë¡ ê´€ë¦¬í•˜ê¸°ê°€ ë” ì‰¬ì›Œì§‘ë‹ˆë‹¤. 
+create_app()ì• í”Œë¦¬ì¼€ì´ì…˜ íŒ©í† ë¦¬ í•¨ìˆ˜ìž…ë‹ˆë‹¤. ì´ í•¨ìˆ˜ëŠ” í”Œë¼ìŠ¤í¬ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ìƒì„±í•˜ê³ , êµ¬ì„±í•˜ê³ , ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ë“±ë¡í•˜ëŠ” ì—­í• ì„ í•©ë‹ˆë‹¤. ì• í”Œë¦¬ì¼€ì´ì…˜ íŒ©í† ë¦¬ëŠ” ì„œë¡œ ë‹¤ë¥¸ êµ¬ì„±ìœ¼ë¡œ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ì—¬ëŸ¬ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ìƒì„±í•  ìˆ˜ ìžˆê¸° ë•Œë¬¸ì— ìœ ìš©í•œ ë””ìžì¸ íŒ¨í„´ì´ë©°, íŠ¹ížˆ í…ŒìŠ¤íŠ¸ì— ìœ ìš©í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤. 
+ConfigConfig í´ëž˜ìŠ¤ëŠ” í”Œë¼ìŠ¤í¬ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ êµ¬ì„± ë³€ìˆ˜ë¥¼ ì €ìž¥í•˜ëŠ” ë° ì‚¬ìš©ë©ë‹ˆë‹¤. ì´ëŸ¬í•œ ë³€ìˆ˜ì—ëŠ” ë°ì´í„°ë² ì´ìŠ¤ URI, ì„¸ì…˜ ì¿ í‚¤ì˜ ë¹„ë°€ í‚¤ ë“±ì´ í¬í•¨ë  ìˆ˜ ìžˆìŠµë‹ˆë‹¤. ì£¼ì–´ì§„ ì˜ˆì œì—ì„œëŠ” Flaskê°€ ì¿ í‚¤ ì„œëª…ê³¼ ê°™ì€ ìž‘ì—…ì— ì‚¬ìš©í•˜ëŠ” SECRET_KEY êµ¬ì„±ì´ ì •ì˜ë˜ì–´ ìžˆìŠµë‹ˆë‹¤. 
+app.config.from_object(Config)ì´ ì¤„ì€ Config í´ëž˜ìŠ¤ì˜ êµ¬ì„±ì„ Flask ì• í”Œë¦¬ì¼€ì´ì…˜ìœ¼ë¡œ ë¡œë“œí•©ë‹ˆë‹¤. FlaskëŠ” êµ¬ì„± ë³€ìˆ˜ë¥¼ ë¡œë“œí•˜ëŠ” ì—¬ëŸ¬ ê°€ì§€ ë°©ë²•ì„ ì œê³µí•˜ë©°, from_object()ëŠ” ê·¸ ì¤‘ í•˜ë‚˜ë¡œ íŒŒì´ì¬ ê°ì²´ì—ì„œ êµ¬ì„± ë³€ìˆ˜ë¥¼ ë¡œë“œí•  ìˆ˜ ìžˆê²Œ í•´ì¤ë‹ˆë‹¤. 
+app.register_blueprint()ì´ ë©”ì„œë“œëŠ” í”Œë¼ìŠ¤í¬ ì• í”Œë¦¬ì¼€ì´ì…˜ì— ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ë“±ë¡í•˜ëŠ” ë° ì‚¬ìš©ë©ë‹ˆë‹¤. ë¸”ë£¨í”„ë¦°íŠ¸ê°€ ë“±ë¡ë˜ë©´ ëª¨ë“  ê²½ë¡œì™€ ì—ëŸ¬ í•¸ë“¤ëŸ¬ê°€ ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ì¼ë¶€ê°€ ë©ë‹ˆë‹¤. 
+url_prefix='/admin'ë¸”ë£¨í”„ë¦°íŠ¸ë¥¼ ë“±ë¡í•  ë•Œ URL ì ‘ë‘ì‚¬ë¥¼ ì œê³µí•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤. í•´ë‹¹ ë¸”ë£¨í”„ë¦°íŠ¸ì— ì •ì˜ëœ ëª¨ë“  ê²½ë¡œì—ëŠ” ì´ URL ì ‘ë‘ì‚¬ê°€ ë¶™ìŠµë‹ˆë‹¤. ì´ ì˜ˆì œì—ì„œëŠ” ê´€ë¦¬ìž ì²­ì‚¬ì§„ì˜ ëª¨ë“  ê²½ë¡œê°€ '/admin' ì•„ëž˜ì— ìžˆìŠµë‹ˆë‹¤. 
+if __name__ == '__main__': app.run()ì´ê²ƒì€ ì§ì ‘ ì‹¤í–‰í•˜ë ¤ëŠ” ìŠ¤í¬ë¦½íŠ¸ì— ëŒ€í•œ ì¼ë°˜ì ì¸ íŒŒì´ì¬ ê´€ìš©êµ¬ìž…ë‹ˆë‹¤. ì´ ìŠ¤í¬ë¦½íŠ¸ê°€ ì§ì ‘ ì‹¤í–‰ë˜ëŠ” ê²½ìš°(ì˜ˆ: ëª…ë ¹ì¤„ì— python main.pyë¥¼ ìž…ë ¥í•˜ì—¬) __name__ì€ '__main__'ì´ ë˜ê³  Flask ì• í”Œë¦¬ì¼€ì´ì…˜ì´ ì‹œìž‘ë©ë‹ˆë‹¤. ì´ ìŠ¤í¬ë¦½íŠ¸ë¥¼ ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ì—ì„œ ëª¨ë“ˆë¡œ ê°€ì ¸ì˜¨ ê²½ìš° __name__ì€ 'main'ì´ ë˜ê³  Flask ì• í”Œë¦¬ì¼€ì´ì…˜ì€ ì‹œìž‘ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤. ì´ë ‡ê²Œ í•˜ë©´ Flask ì• í”Œë¦¬ì¼€ì´ì…˜ì„ ì‹œìž‘í•˜ì§€ ì•Šê³ ë„ ì´ ìŠ¤í¬ë¦½íŠ¸ì˜ í•¨ìˆ˜ì™€ í´ëž˜ìŠ¤ë¥¼ ìž¬ì‚¬ìš©í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.
 
 
-½ÇÇà
-¿©±â¼­´Â Learning µð·ºÅä¸®¿¡¼­ mainÀ» ÇÃ¶ó½º·Î ÀÛµ¿½ÃÅ°±â À§ÇØ ´ÙÀ½ ¸í·É¾î¸¦ ÀÔ·ÂÇØÁÝ´Ï´Ù.
-# ½ÇÇàÇÒ µð·ºÅä¸® °æ·Î
+ì‹¤í–‰
+ì—¬ê¸°ì„œëŠ” Learning ë””ë ‰í† ë¦¬ì—ì„œ mainì„ í”Œë¼ìŠ¤ë¡œ ìž‘ë™ì‹œí‚¤ê¸° ìœ„í•´ ë‹¤ìŒ ëª…ë ¹ì–´ë¥¼ ìž…ë ¥í•´ì¤ë‹ˆë‹¤.
+# ì‹¤í–‰í•  ë””ë ‰í† ë¦¬ ê²½ë¡œ
 # D:\Working_Files\07_Python-Project\Projects\Project_01\Learning
-# À§ °æ·Î´Â ÀÚ½ÅÀÇ °æ·Î¿¡ ¸Â¦ ÁöÁ¤ÇØÁÖ¼¼¿ä
+# ìœ„ ê²½ë¡œëŠ” ìžì‹ ì˜ ê²½ë¡œì— ë§žê² ì§€ì •í•´ì£¼ì„¸ìš”
 
 set FLASK_APP=main
 
 
-?
-´ÙÀ½ ÀÌ¹ÌÁö¿Í °°ÀÌ ÁÖ¼Ò¿¡ ÇØ´ç /adminÀ» Ãß°¡ÇÏ¸é ´Ù¸¥ È­¸éÀ¸·Î ÀÌµ¿ÇÒ ¼ö ÀÖ½À´Ï´Ù.
+Â 
+ë‹¤ìŒ ì´ë¯¸ì§€ì™€ ê°™ì´ ì£¼ì†Œì— í•´ë‹¹ /adminì„ ì¶”ê°€í•˜ë©´ ë‹¤ë¥¸ í™”ë©´ìœ¼ë¡œ ì´ë™í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.
 
 
 
-¹öÆ°À» ¸¸µé¾î¼­ ÀÌµ¿ÇÏ°Å³ª ÇÒ ¼ö ÀÖÁö¸¸ ÀÌ´Â ³ªÁß¿¡ ´õ ´Ù·ïº¸µµ·Ï ÇÏ°Ú½À´Ï´Ù. ÀÌ¹ø Æ÷½ºÆÃÀº ¿©±â¼­ ¸¶Ä¥°Ô¿ä~
-ÃâÃ³: https://easyitwanner.tistory.com/351 [IT ½ÃÀÛÇØº¸±â:Æ¼½ºÅä¸®]
+ë²„íŠ¼ì„ ë§Œë“¤ì–´ì„œ ì´ë™í•˜ê±°ë‚˜ í•  ìˆ˜ ìžˆì§€ë§Œ ì´ëŠ” ë‚˜ì¤‘ì— ë” ë‹¤ë¤„ë³´ë„ë¡ í•˜ê² ìŠµë‹ˆë‹¤. ì´ë²ˆ í¬ìŠ¤íŒ…ì€ ì—¬ê¸°ì„œ ë§ˆì¹ ê²Œìš”~
+ì¶œì²˜: https://easyitwanner.tistory.com/351 [IT ì‹œìž‘í•´ë³´ê¸°:í‹°ìŠ¤í† ë¦¬]
