@@ -14,6 +14,9 @@ Flask 애플리케이션 팩토리(Application Factory)는 유연성을 제공�
 이를 통해 서로 다른 설정으로 동일한 애플리케이션의 여러 인스턴스를 만들 수 있습니다.
 
 다음은 애플리케이션 팩토리가 어떻게 보이는지 보여주는 예시입니다.
+## Flask 앱 팩토리 패턴 예제
+
+```python
 from flask import Flask
 
 def create_app(config_name):
@@ -21,10 +24,14 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
 
     # 여기서 확장을 초기화합니다...
+    # 예: db.init_app(app), login_manager.init_app(app) 등
 
     # 여기에 블루프린트 등록...
+    # 예: from .views import main as main_blueprint
+    #     app.register_blueprint(main_blueprint)
 
-      return app
+    return app
+```
 이 예제에서 config_name은 Flask 애플리케이션의 구성을 결정하는 데 사용되며, 이를 통해 개발, 테스트 및 프로덕션과 같은 환경마다 다른 구성을 사용할 수 있습니다. Flask 애플리케이션을 시작하려면 다음과 같이 하면 됩니다.
 from your_flask_package import create_app
 
