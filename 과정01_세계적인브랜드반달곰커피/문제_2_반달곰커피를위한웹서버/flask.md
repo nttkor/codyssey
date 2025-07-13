@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
 #### 블루 프린트(Blue print)
 Flask의 블루프린트는 관련 경로, 오류 처리기 및 기타 HTTP 관련 기능을 재사용 가능한 별도의 Python 모듈로 그룹화하는 방법입니다. 애플리케이션이 복잡해질 때 특히 유용할 수 있습니다. 블루프린트를 만드는 방법은 다음과 같습니다.
-
+```python
 from flask import Blueprint
 
 my_blueprint = Blueprint('my_blueprint', __name__)
@@ -59,7 +59,7 @@ my_blueprint = Blueprint('my_blueprint', __name__)
 @my_blueprint.route('/hello')
 def hello():
     return 'Hello, World!'
-
+```
 이 예제에서는 'my_blueprint'라는 이름의 새 블루프린트를 생성합니다. 그런 다음 해당 블루프린트에 경로를 정의합니다. 이 블루프린트를 플라스크 애플리케이션에 등록하면 애플리케이션의 일부로 경로를 사용할 수 있습니다. 블루프린트에는 여러 가지 기능이 있으며 몇 가지 다른 방식으로 사용할 수 있습니다.
 
 1. URL 접두사블루프린트를 등록할 때 URL 접두사를 제공할 수 있습니다. 블루프린트에 정의된 모든 경로에는 이 접두사가 붙습니다. 관련 경로를 함께 그룹화할 때 유용합니다. 
@@ -76,7 +76,7 @@ app.register_blueprint(my_blueprint, url_prefix='/prefix')
 
 #### 예시
 애플리케이션 팩토리와 블루프린트를 모두 사용하는 플라스크 애플리케이션의 예를 살펴보겠습니다. 간단히 설명하기 위해 누구나 글을 볼 수 있는 공개 영역과 권한이 있는 사용자가 글을 작성하고 편집할 수 있는 관리자 영역의 두 가지 주요 부분으로 구성된 기본 블로그 애플리케이션을 만들어 보겠습니다. 프로젝트의 디렉토리 구조는 다음과 같습니다.
-
+```
 /Learning
     /blogapp
         /admin
@@ -88,11 +88,12 @@ app.register_blueprint(my_blueprint, url_prefix='/prefix')
         __init__.py
         config.py
     main.py
-
+``` 
 각 부분을 살펴봅시다.
 1. blogapp/admin/views.py 및 blogapp/public/views.py이 모듈은 각각 애플리케이션의 관리자 및 공개 부분에 대한 뷰를 정의합니다. 이 모듈은 각각 청사진을 생성하고 해당 청사진에 대한 경로를 정의합니다.
 
 # blogapp/admin/views.py
+```python
 from flask import Blueprint
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -100,7 +101,9 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 @admin_bp.route('/')
 def index():
     return "관리자 구역에 오신 것을 환영합니다!"
+    ``` 
 # blogapp/public/views.py
+```python
 from flask import Blueprint
 
 public_bp = Blueprint('public', __name__)
@@ -108,20 +111,23 @@ public_bp = Blueprint('public', __name__)
 @public_bp.route('/')
 def index():
     return "퍼블릭 구역에 오신 것을 환영합니다!"
-
+``` 
 2. blogapp/admin/__init__.py 및 blogapp/public/__init__.py이 모듈은 애플리케이션을 만들 때 사용할 수 있도록 블루프린트를 가져옵니다.
 # blogapp/admin/__init__.py
+```python
 from .views import admin_bp
 # blogapp/public/__init__.py
 from .views import public_bp
-
+``` 
 3. blogapp/config.py이 모듈은 애플리케이션의 다양한 구성을 정의합니다. 간단하게 하기 위해 하나의 기본 구성만 정의하겠습니다. 
 # blogapp/config.py
+```python
 class Config:
     SECRET_KEY = 'supersecretkey'
-
+``` 
 4. blogapp/__init__.py이 모듈은 애플리케이션 팩토리를 정의합니다. 이 모듈은 새로운 Flask 애플리케이션을 생성하고, 구성을 로드하고, 블루프린트를 등록합니다.
 # blogapp/__init__.py
+```python
 from flask import Flask
 
 from .config import Config
@@ -136,16 +142,17 @@ def create_app():
     app.register_blueprint(admin_bp)
     
     return app
-
+``` 
 5. main.py: 이것이 애플리케이션의 진입점입니다. 애플리케이션 팩토리를 가져와서 애플리케이션의 새 인스턴스를 생성하는 데 사용합니다. 
 # main.py
+```python
 from blogapp import create_app
 
 app = create_app()
 
 if __name__ == '__main__':
     app.run()
- 
+ ```
  
 이렇게 구성을 마치고 나면 다음과 같이 파일이 구성되야 합니다.
 
