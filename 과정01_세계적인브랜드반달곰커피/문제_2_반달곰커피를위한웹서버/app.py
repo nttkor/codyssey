@@ -1,4 +1,6 @@
+from flask import Flask
+app = Flask(__name__)   
+@app.route('/')
 def hello_world():
     return "Hello, DevOps!" 
-
-print(hello_world())  # This will print "Hello, DevOps!" to the console
+app.run(debug=True,port=80)  # This will run the Flask application in debug mode
