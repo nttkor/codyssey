@@ -1,3 +1,2 @@
--# Flask Tutorial Links Update
-- [Flask강의1](https://opentutorials.org/course/4904)
-- [Flask강의2](https://easyitwanner.tistory.com/347)
+- [Flask 강의 1 - 생활코딩](https://opentutorials.org/course/4904)
+- [Flask 강의 2 - Easy IT Wanner 블로그](https://easyitwanner.tistory.com/347)
