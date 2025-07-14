@@ -20,7 +20,6 @@ def main():
     if(exp<0):
         exp = abs(exp)
         minus = True
-        print(exp)
 
     sum = 1
     for v in range(exp):
