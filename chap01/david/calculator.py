@@ -21,11 +21,13 @@ def inputOperator()->int:
 def inputNumEnh():
 
         expression =  input("Enter expression: ")
+        #연산자를 이용해 문장을 나눈다.
         splitExpression = re.split(r'[\+\-\*/]',expression)
+        # 분리된 문장이 2개가 아니라면 에러
         if len(splitExpression) != 2:
             print("Invalid expression format. Please use 'number operator number'.")
             exit()
-        
+        left, right = splitExpression
         try:
             left = int(float(left.strip()))
         except ValueError:
