@@ -34,10 +34,10 @@
 
 Git 프로젝트를 관리할 때, 원격 저장소(Remote Repository)를 제외하고, 저장소는 크게 세 부분으로 나뉩니다.
 
-Working Directory (작업 디렉토리, 워킹트리)
-Staging Area (스테이징 영역)
-Local Repository (로컬 저장소)
-Working Directory는 실제 코드 파일이 있는 공간이고, Staging Area와 Local Repository는 이와 연결된 Git 내부의 개념적인 저장소입니다.
+- Working Directory (작업 디렉토리, 워킹트리)
+- Staging Area (스테이징 영역)
+- Local Repository (로컬 저장소)
+- Working Directory는 실제 코드 파일이 있는 공간이고, Staging Area와 Local Repository는 이와 연결된 Git 내부의 개념적인 저장소입니다.
 
 | 영역           | 설명              |
 |---------------------------|-------------------------|
