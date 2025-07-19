@@ -30,14 +30,23 @@
 ---
 
 ## Git 주요 저장소 구조
+ ### Git 파일 흐름 요약:
+- ## Working Directory (작업 디렉토리)
 
+    -실제로 여러분이 작업하고 있는 디렉토리입니다. 여기서 파일을 생성하거나 수정합니다.
+- ## Staging Area (Index 영역, 인덱스, 준비 영역)
+    -git add 명령어를 실행하면, 변경된 파일이 Staging Area로 이동합니다.
+    - 이 영역은 커밋할 준비가 된 파일들의 스냅샷을 담고 있습니다.
 
-Git 프로젝트를 관리할 때, 원격 저장소(Remote Repository)를 제외하고, 저장소는 크게 세 부분으로 나뉩니다.
+    -## Local Repository (로컬 저장소)
+    -git commit 명령어를 실행하면, Staging Area에 있는 파일들이 커밋되고 Local Repository에 저장됩니다.
+    이 커밋은 고유한 SHA-1 해시로 식별됩니다.
+    -Git 프로젝트를 관리할 때, 원격 저장소(Remote Repository)를 제외하고, 저장소는 크게 세 부분으로 나뉩니다.
 
-- Working Directory (작업 디렉토리, 워킹트리)
-- Staging Area (스테이징 영역)
-- Local Repository (로컬 저장소)
-- Working Directory는 실제 코드 파일이 있는 공간이고, Staging Area와 Local Repository는 이와 연결된 Git 내부의 개념적인 저장소입니다.
+- ## Working Directory (작업 디렉토리, 워킹트리)
+    - Staging Area (스테이징 영역)
+    - Local Repository (로컬 저장소)
+    - Working Directory는 실제 코드 파일이 있는 공간이고, Staging Area와 Local Repository는 이와 연결된 Git 내부의 개념적인 저장소입니다.
 
 | 영역           | 설명              |
 |---------------------------|-------------------------|
@@ -138,6 +147,7 @@ object 폴더 내의 폴더명(2글자)과 그 폴더 안의 파일명(38글자)
 파일과 디렉터리의 구조를 저장하는 객체
 git commit을 실행하면, 현재 스테이징된 파일들의 Blob ID, 파일명, 디렉토리 정보를 하나로 묶어 Tree 객체를 생성
 Tree 객체는 특정 커밋 시점에서 어떤 파일이 어디에 있는지를 기록하는 역할
+
 3. Commit (커밋 정보 저장)
 git commit 실행 시, 현재 Tree 객체를 가리키는 Commit 객체가 생성됨
 Commit 객체는 이전 커밋과의 관계(부모 커밋), 작성자 정보, 커밋 메시지 등 포함
@@ -156,5 +166,5 @@ Staging Area에 있는 변경 사항을 Local Repository에 기록
 Git은 Tree 객체를 생성하고, 이 Tree를 가리키는 Commit 객체를 생성
 .git/objects/ 내부에 Commit & Tree 객체가 저장됨
 git push → Remote Repository
-Local Repository의 변경 사항을 GitHub, GitLab 등의 원격 저장소에 업로드
+Local Repository의 변경 사항을 GitHub, GitLab 등의 원격 햣저장소에 업로드
 git pull을 실행하면 원격 저장소의 최신 변경 사항을 가져옴
