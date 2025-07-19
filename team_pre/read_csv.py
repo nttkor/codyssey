@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 def read_csv( ):
-    dataFrame = []
+    dataFrames = []
     print("read_csv\n")
     base_dir = os.path.dirname(__file__) 
     # 'D:\\git\\Codyssey\\team_pre'
@@ -13,18 +13,22 @@ def read_csv( ):
             return None
         else:
             csv_data = pd.read_csv(csv_path)
-            dataFrame.append([file,csv_data])
+            dataFrames.append([file,csv_data])
             print(f"Head data from {file}:\n\n", csv_data.head(),'\n')
     yn = input("Do you want to see full data? (y/n):")
     if yn.strip().lower() == 'y':
-        for file, df in dataFrame:
+        for file, df in dataFrames:
             print(f"Full data from {file}:\n", df, '\n')
     else:
         print("Exiting without displaying full data.")
-    return dataFrame
+    return dataFrames[0][1], dataFrames[1][1], dataFrames[2][1]
 
 if __name__ == "__main__":
-    dataFrame = read_csv()
+    area_map, area_struct, area_catagory = read_csv()
+    for v in area_catagory.values:
+        print(v.tolist())
+#   area_struct.replace({'category': 0}, regex=True, inplace=True)
+    
     
 #     def os_test():
 #     print("os_test")
