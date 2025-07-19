@@ -15,7 +15,7 @@ def read_csv( ):
             csv_data = pd.read_csv(csv_path)
             dataFrame.append([file,csv_data])
             print(f"Head data from {file}:\n\n", csv_data.head(),'\n')
-    yn =input("Do you want to see full data? (y/n):")
+    yn = input("Do you want to see full data? (y/n):")
     if yn.strip().lower() == 'y':
         for file, df in dataFrame:
             print(f"Full data from {file}:\n", df, '\n')
@@ -24,7 +24,7 @@ def read_csv( ):
     return dataFrame
 
 if __name__ == "__main__":
-    read_csv()
+    dataFrame = read_csv()
     
 #     def os_test():
 #     print("os_test")
