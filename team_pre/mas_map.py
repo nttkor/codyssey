@@ -24,9 +24,9 @@ struct_with_name = area_struct.merge(area_category, on='category', how='left')
 merged = area_map.merge(struct_with_name, on=['x', 'y'], how='left')
 print("\n=== 반단곰카페 카테고리로 소트된 구조물 종류별 통계 ===")
 merged = merged.sort_values(by='category')
-area1 = merged[merged['category'] == 4]
+bandal = merged[merged['category'] == 4]
 print("=== Area 1 데이터 ===")
-print(area1)
+print(bandal)
 # area 순으로 정렬
 merged = merged.sort_values(by='area')
 print("\n=== 에리어로 소트된 구조물 종류별 통계 ===")
