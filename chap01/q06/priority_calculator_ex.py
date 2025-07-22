@@ -13,111 +13,107 @@ def multiply(a, b):
 # 나눗셈 함수 (0으로 나눌 경우 예외 발생)
 def divide(a, b):
     if b == 0:
-        raise ZeroDivisionError
+        raise ZeroDivisionError("0으로 나눌 수 없습니다.")
     return a / b
 
 def tokenizer(expression):
-    expression = list(expression.replace(" ", ""))  # 공백 제거
+    expression = expression.replace(" ", "")  # 공백 제거
     tokens = []
-    operand = ""
-    operator = ""
-
-    for i, v in enumerate(expression):
-        if operand == '':
-            if v in '01234567890-+':
-                operand = v
-            else:
-                raise ValueError(f"Invalid character '{v}' in expression.")
-        elif v in '01234567890.':
-            operand += v
-        elif v in '+-*/':
-            tokens.append(operand)
-            operand = ""
-            tokens.append(v)
+    i = 0
+    while i < len(expression):
+        char = expression[i]
+        if char == '(' or char == ')':
+            tokens.append(char)
+            i += 1
+        elif char.isdigit() or (char == '-' and (i == 0 or expression[i-1] in '(*+/-')): # 숫자 또는 음수 부호
+            start = i
+            # 숫자 (정수 및 소수점 포함)
+            while i < len(expression) and (expression[i].isdigit() or expression[i] == '.'):
+                i += 1
+            tokens.append(expression[start:i])
+        elif char in '+-*/':
+            tokens.append(char)
+            i += 1
         else:
-            raise ValueError(f"Invalid character '{v}' in expression.")
-    return tokens + [operand] if operand else tokens
-
+            raise ValueError(f"'{char}'은(는) 유효하지 않은 문자입니다.")
+    return tokens
 
 # 연산 우선순위를 고려한 계산 함수
 def calculate(tokens):
+    # 단일 숫자로만 이루어진 경우 처리
+    if len(tokens) == 1 and isinstance(tokens[0], (int, float, str)):
+        return float(tokens[0])
+    
     # 1단계: 곱셈(*)과 나눗셈(/) 먼저 처리
+    new_tokens = []
     i = 0
     while i < len(tokens):
-        if tokens[i] in ("*", "/"):
-            try:
-                left = float(tokens[i - 1])   # 왼쪽 피연산자
-                right = float(tokens[i + 1])  # 오른쪽 피연산자
-
-                if tokens[i] == "*":
-                    result = multiply(left, right)
-                else:
-                    result = divide(left, right)
-
-                # 계산된 결과를 기준으로 토큰 리스트를 갱신
-                tokens = tokens[:i - 1] + [str(result)] + tokens[i + 2:]
-                i -= 1  # 리스트가 줄었으므로 인덱스 조정
-            except (ValueError, ZeroDivisionError):
-                raise
+        if tokens[i] == "*":
+            left = float(new_tokens.pop())
+            right = float(tokens[i + 1])
+            new_tokens.append(multiply(left, right))
+            i += 2
+        elif tokens[i] == "/":
+            left = float(new_tokens.pop())
+            right = float(tokens[i + 1])
+            new_tokens.append(divide(left, right))
+            i += 2
         else:
+            new_tokens.append(tokens[i])
             i += 1
+    tokens = new_tokens
 
     # 2단계: 덧셈(+)과 뺄셈(-) 처리
+    result = float(tokens[0])
+    i = 1
+    while i < len(tokens):
+        if tokens[i] == "+":
+            result = add(result, float(tokens[i + 1]))
+        elif tokens[i] == "-":
+            result = subtract(result, float(tokens[i + 1]))
+        i += 2
+    
+    return result
+
+# 괄호를 재귀적으로 처리하고 수식을 파싱하는 함수
+def parse_expression(tokens):
+    # 이 함수는 수식의 현재 부분을 계산하고 닫는 괄호나 수식의 끝을 만날 때까지 진행합니다.
+    # 예: "1 + (2 * 3) - 4" 에서 "(2 * 3)" 부분을 처리합니다.
+
+    parsed_tokens = []
     i = 0
     while i < len(tokens):
-        if tokens[i] in ("+", "-"):
-            try:
-                left = float(tokens[i - 1])
-                right = float(tokens[i + 1])
-
-                if tokens[i] == "+":
-                    result = add(left, right)
-                else:
-                    result = subtract(left, right)
-
-                # 계산된 결과를 기준으로 토큰 리스트를 갱신
-                tokens = tokens[:i - 1] + [str(result)] + tokens[i + 2:]
-                i -= 1
-            except ValueError:
-                raise
+        token = tokens[i]
+        if token == '(':
+            # 재귀 호출: 괄호 안의 수식을 처리
+            sub_result, end_index = parse_expression(tokens[i + 1:])
+            parsed_tokens.append(str(sub_result)) # 계산된 결과를 문자열로 추가
+            i += end_index + 1 # 닫는 괄호까지 스킵
+        elif token == ')':
+            # 닫는 괄호를 만나면 현재까지 파싱된 토큰들을 계산하고 결과를 반환
+            return calculate(parsed_tokens), i + 1
         else:
-            i += 1
-
-    # 최종 결과 반환
-    return float(tokens[0])
+            parsed_tokens.append(token)
+        i += 1
+    
+    # 수식의 끝에 도달했을 때 남은 토큰들을 계산
+    return calculate(parsed_tokens), i
 
 # 메인 함수
 def main():
     try:
-        # 사용자로부터 수식 입력 받기
         expression = input("Enter expression: ")
         
-        tokens = tokenizer(expression)  # 공백으로 토큰화
-
-        # 토큰 수가 올바르지 않으면 오류 발생
-        if len(tokens) < 3 or len(tokens) % 2 == 0:
-            raise ValueError("Invalid token count.")
-
-        # 피연산자(짝수 인덱스)와 연산자(홀수 인덱스) 검증
-        for i, token in enumerate(tokens):
-            if i % 2 == 0:
-                float(token)  # 피연산자가 숫자인지 확인
-            else:
-                if token not in ("+", "-", "*", "/"):
-                    raise ValueError("Invalid operator.")
-
-        # 계산 수행
-        result = calculate(tokens)
+        tokens = tokenizer(expression)
+        
+        # 전체 수식 파싱 및 계산
+        result, _ = parse_expression(tokens)
         print(f"Result: {result}")
 
-    # 0으로 나누는 경우 예외 처리
-    except ZeroDivisionError:
-        print("Error: Division by zero.")
+    except (ValueError, ZeroDivisionError) as e:
+        print(f"Error: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
-    # 그 외의 모든 잘못된 입력에 대한 처리
-    except Exception:
-        print("Invalid input.")
-
-# 프로그램의 시작점
 if __name__ == "__main__":
     main()
