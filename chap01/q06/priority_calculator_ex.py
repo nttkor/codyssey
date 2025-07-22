@@ -16,6 +16,29 @@ def divide(a, b):
         raise ZeroDivisionError
     return a / b
 
+def tokenizer(expression):
+    expression = list(expression.replace(" ", ""))  # 공백 제거
+    tokens = []
+    operand = ""
+    operator = ""
+
+    for i, v in enumerate(expression):
+        if operand == '':
+            if v in '01234567890-+':
+                operand = v
+            else:
+                raise ValueError(f"Invalid character '{v}' in expression.")
+        elif v in '01234567890.':
+            operand += v
+        elif v in '+-*/':
+            tokens.append(operand)
+            operand = ""
+            tokens.append(v)
+        else:
+            raise ValueError(f"Invalid character '{v}' in expression.")
+    return tokens + [operand] if operand else tokens
+
+
 # 연산 우선순위를 고려한 계산 함수
 def calculate(tokens):
     # 1단계: 곱셈(*)과 나눗셈(/) 먼저 처리
@@ -68,8 +91,8 @@ def main():
     try:
         # 사용자로부터 수식 입력 받기
         expression = input("Enter expression: ")
-        #tokens = expression.strip().split()
-        tokens = expression.strip().split() # 공백으로 토큰화
+        
+        tokens = tokenizer(expression)  # 공백으로 토큰화
 
         # 토큰 수가 올바르지 않으면 오류 발생
         if len(tokens) < 3 or len(tokens) % 2 == 0:

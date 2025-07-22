@@ -88,5 +88,13 @@ def calculate_expression(expression):
     postfix_tokens = infix_to_postfix(tokens)
     result = evaluate_postfix(postfix_tokens)
     return result
+def main():
+    print(calculate_expression('1+2*3- 5'))
+    print(calculate_expression('10 + 2 * 6'))
+    print(calculate_expression('100 * 2 + 12'))
+    print(calculate_expression('100 * ( 2 + 12 )'))
+    print(calculate_expression('100 * ( 2 + 12 ) / 14'))            
 
-print(calculate_expression('1+2*3- 5'))
+
+if __name__ == "__main__":
+    main()
