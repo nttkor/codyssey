@@ -3,21 +3,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
-import sys
-
-# 윈도우 환경에서 matplotlib 백엔드 설정
-try:
-    # GUI 백엔드 시도 (화면 출력용)
-    if sys.platform.startswith('win'):
-        matplotlib.use('TkAgg')  # 또는 'Qt5Agg'
-    else:
-        matplotlib.use('TkAgg')
-    print(f"현재 백엔드: {matplotlib.get_backend()}")
-except ImportError:
-    # GUI 백엔드가 없으면 기본값 사용
-    print("GUI 백엔드를 사용할 수 없습니다. 파일 저장만 가능합니다.")
-
-# --- 1단계: 데이터 분석 및 전처리 함수 ---
 
 def load_and_process_data(area_category_path, area_map_path, area_struct_path):
 
