@@ -30,7 +30,7 @@ def tokenize(expression):
                     raise ValueError(f"잘못된 숫자 형식입니다: {num}")
                 tokens.append(num)
                 continue
-            else:
+            else:  #부호가 아니면 연산자니까 토큰추가
                 tokens.append(char)
                 i += 1
                 continue
@@ -70,7 +70,7 @@ def calculate(tokens):
             result = multiply(left, right) if tokens[i] == '*' else divide(left, right)
             tokens = tokens[:i - 1] + [str(result)] + tokens[i + 2:]
             i -= 1
-        else:
+        else:  ## 숫자일 경우 앞으로 간다
             i += 1
 
     # 덧셈 / 뺄셈
@@ -109,13 +109,13 @@ def evaluate(expression):
         open_stack = []
         for i, char in enumerate(expression):
             if char == '(':
-                open_stack.append(i)
-            elif char == ')':
-                start = open_stack.pop()
-                end = i
+                open_stack.append(i)  #괄호의 인덱스를 넣는다
+            elif char == ')':    # ) 를 만나면
+                start = open_stack.pop()  # 가장 최근의 ( 인덱스를 꺼내서
+                end = i  # 현재의 i를 end로 설정
 
-                inner = expression[start + 1:end]
-                value = calculate(tokenize(inner))
+                inner = expression[start + 1:end]   # 계산할 부븐을 슬라이상하고
+                value = calculate(tokenize(inner))  # 토큰화하고 계산한다. 
 
                 before = expression[:start]
                 after = expression[end + 1:]
