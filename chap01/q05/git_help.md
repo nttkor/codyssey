@@ -6,7 +6,7 @@
 
 ## 작업 영역 시작 (참고: git help tutorial)
 
-* **`clone`**: 저장소를 새 디렉터리로 복제합니다.
+* **`clone`**: 저장소를 새 디렉터리로 복제합니다.  git clone https://github.com/nttkor/david
 * **`init`**: 비어 있는 Git 저장소를 생성하거나 기존 저장소를 다시 초기화합니다.
 
 ---
@@ -14,8 +14,8 @@
 ## 현재 변경 사항 작업 (참고: git help everyday)
 
 * **`add`**: 파일 내용을 인덱스(스테이징 영역)에 추가합니다.
-* **`mv`**: 파일, 디렉터리 또는 심볼릭 링크(symlink)를 이동하거나 이름을 변경합니다.
-* **`restore`**: 작업 트리(working tree) 파일을 복원합니다.
+* **`mv`**: 파일, 디렉터리 또는 심볼릭 링크(symlink)를 이동하거나 이름을 변경합니다. commit -m "message" 휴에 사용합니다.
+* **`restore`**: 작업 트리(working tree) 파일을 복원합니다. - commit 된 부분을 돌려놓습니다.
 * **`rm`**: 작업 트리와 인덱스에서 파일을 제거합니다.
 
 ---
