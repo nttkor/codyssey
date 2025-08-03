@@ -1,9 +1,3 @@
-#   
-## 
-## 
-## 
-## 
-
 ```bash
 Codyssey
 ├── proj01
