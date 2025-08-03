@@ -1,0 +1,18 @@
+# Python virtual environment folders and files
+bin/
+lib/
+lib64/
+lib64
+include/
+pyvenv.cfg
+
+# Bytecode
+__pycache__/
+*.pyc
+
+# Editor settings (optional)
+.vscode/
+.idea/
+
+# Environment variables
+.env
