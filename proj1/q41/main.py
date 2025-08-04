@@ -1,5 +1,3 @@
-# 아무런 import 없이 Dict을 그냥 JSON으로 씀
-# 만든 Json 파일을 읽어봐 검증까지함.
 def read_log_file(filename):
     """
     로그 파일을 읽어서 전체 내용을 반환합니다.
@@ -93,6 +91,38 @@ def convert_to_dict(log_list):
         result_dict[timestamp] = (event, message)
     
     return result_dict
+
+
+def save_to_json_manual(data_dict, filename):
+    """
+    사전 객체를 수동으로 JSON 파일로 저장합니다.
+    
+    Args:
+        data_dict: 저장할 사전 객체 {timestamp: (event, message)}
+        filename: 저장할 파일명
+    """
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write('{\n')
+            
+            items = list(data_dict.items())
+            for i, (timestamp, event_message) in enumerate(items):
+                event, message = event_message
+                
+                # JSON 형식으로 수동 작성
+                file.write('  "' + timestamp + '": ["' + event + '", "' + message + '"]')
+                
+                # 마지막 항목이 아니면 콤마 추가
+                if i < len(items) - 1:
+                    file.write(',')
+                file.write('\n')
+            
+            file.write('}\n')
+        
+        print('JSON 파일로 성공적으로 저장되었습니다: ' + filename)
+    except Exception as e:
+        print('JSON 파일 저장 오류: ' + str(e))
+        raise
 
 
 def read_json_file(filename):
@@ -218,35 +248,6 @@ def display_dict_contents(data_dict):
             if remaining > 0:
                 print('  ... (추가 ' + str(remaining) + '개 항목)')
             break
-    """
-    사전 객체를 수동으로 JSON 파일로 저장합니다.
-    
-    Args:
-        data_dict: 저장할 사전 객체
-        filename: 저장할 파일명
-    """
-    try:
-        with open(filename, 'w', encoding='utf-8') as file:
-            file.write('{\n')
-            
-            items = list(data_dict.items())
-            for i, (timestamp, event_message) in enumerate(items):
-                event, message = event_message
-                
-                # JSON 형식으로 수동 작성
-                file.write('  "' + timestamp + '": ["' + event + '", "' + message + '"]')
-                
-                # 마지막 항목이 아니면 콤마 추가
-                if i < len(items) - 1:
-                    file.write(',')
-                file.write('\n')
-            
-            file.write('}\n')
-        
-        print('JSON 파일로 성공적으로 저장되었습니다: ' + filename)
-    except Exception as e:
-        print('JSON 파일 저장 오류: ' + str(e))
-        raise
 
 
 def print_separator(title):
