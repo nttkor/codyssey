@@ -3,7 +3,7 @@ def main():
         print(i)
 
 def sub():
-    for i in range(10):
+    for i in range(11):
         print(i)
 
 if __name__ == '__main__':
