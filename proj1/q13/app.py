@@ -1,7 +1,10 @@
 # socket 모듈을 import하여 현재 컴퓨터의 호스트 이름을 가져올 수 있게 함
+# socket 모듈은 저수준 네트워크 인터페이스를 제공하여 네트워크 통신을 위한 소켓 프로그래밍을 가능하게 합니다. 
+# TCP/IP, UDP 등 다양한 프로토콜을 지원하며, 클라이언트와 서버 간의 통신을 구축하는 데 사용됩니다.  
 import socket
 
 # Flask 프레임워크 import
+# render_template은 flask에서 제공하는 함수로 지정한 폴더에 존재하는 html파일을 읽어오는 함수이다.
 from flask import Flask, render_template
 
 # Flask 앱 생성
