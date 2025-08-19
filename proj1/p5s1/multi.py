@@ -70,6 +70,24 @@
 
 # 이제 passwd.txt 파일이 생성되며, 이 파일에 해독된 내용이 저장됩니다.
 
+# 핵심 수정 사항:
+
+# sys.stdout.write(f"\r시도 중인 비밀번호: {password}"):
+
+# \r을 사용하여 출력 커서를 줄 맨 앞으로 이동시키고, 비밀번호를 덮어씁니다.
+
+# sys.stdout.flush()는 출력을 즉시 화면에 반영하도록 만듭니다.
+
+# print(f"\n암호가 해독되었습니다: {password}"):
+
+# 암호가 해독되면 새로운 줄로 결과를 출력합니다. 이렇게 하면 기존의 출력이 덮어지고 새로운 시도만 화면에 보입니다.
+
+# 실행 흐름:
+
+# 각 비밀번호를 시도하는 중에 비밀번호가 화면에서 한 줄로만 표시되고, 새로운 비밀번호가 시도될 때마다 이전 비밀번호가 덮어씌워집니다.
+
+# 암호가 해독되면 정상적으로 결과가 출력되고, passwd.txt 파일에 해독된 내용이 저장됩니다.
+
 # 예시 출력:
 
 
@@ -121,13 +139,16 @@ def read_password_from_zip(zip_file):
     """ZIP 파일에서 암호문이 담긴 password.txt 파일을 읽어오는 함수"""
     for password_tuple in generate_possible_passwords():
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
-        print(f"{password}",end=' ')  # 시도 중인 비밀번호 출력
+        
+        # 비밀번호 시도 출력 (한 줄에 덮어쓰는 형식)
+        sys.stdout.write(f"\r시도 중인 비밀번호: {password}")  # \r은 커서를 맨 앞으로 이동시킴
+        sys.stdout.flush()  # 즉시 출력 버퍼를 비워서 화면에 반영되도록 함
         
         # 비밀번호로 파일을 추출 시도
         password_text = extract_file_from_zip(zip_file, 'password.txt', password)
         
         if password_text:
-            print(f"암호가 해독되었습니다: {password}")
+            print(f"\n암호가 해독되었습니다: {password}")
             caesar_cipher_decode(password_text)  # 카이사르 암호 해독
             save_to_passwd_txt(password_text)  # 해독된 내용을 passwd.txt로 저장
             break  # 성공하면 반복 종료
