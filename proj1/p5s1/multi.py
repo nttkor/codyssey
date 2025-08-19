@@ -121,35 +121,45 @@ def generate_possible_passwords():
 
 def extract_file_from_zip(zip_file, filename, password=None):
     """ZIP 파일에서 특정 파일을 추출하여 내용을 반환하는 함수 (암호화된 파일 처리)"""
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-        if password:
-            zip_ref.setpassword(password.encode())  # 비밀번호 설정
-        # ZIP 파일 내에 파일 목록 확인
-        if filename in zip_ref.namelist():
-            with zip_ref.open(filename) as file:
-                content = file.read().decode('utf-8')  # 파일 내용을 UTF-8로 디코딩
-                return content
-        return None  # 파일을 찾을 수 없으면 None 반환
+    try:
+        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+            # 암호화된 파일을 처리하기 위해 비밀번호 제공
+            if password:
+                zip_ref.setpassword(password.encode())  # 비밀번호 설정
+            # ZIP 파일 내에 파일 목록 확인
+            if filename in zip_ref.namelist():
+                with zip_ref.open(filename) as file:
+                    content = file.read().decode('utf-8')  # 파일 내용을 UTF-8로 디코딩
+                    return content
+            else:
+                return None
+    except RuntimeError:  # 비밀번호가 틀렸을 때 발생하는 오류
+        return None  # 비밀번호가 틀리면 None을 리턴하고 계속 진행
+    except Exception:  # 그 외의 예외 발생 시 처리
+        return None  # 그 외 오류 발생 시 None 리턴
 
 def save_to_passwd_txt(decoded_text):
     """해독된 내용을 passwd.txt 파일에 저장"""
-    with open('passwd.txt', 'w') as passwd_file:
-        passwd_file.write(decoded_text)
-        print(f'암호가 해독되어 passwd.txt로 저장되었습니다.')
+    try:
+        with open('passwd.txt', 'w') as passwd_file:
+            passwd_file.write(decoded_text)
+            print(f'암호가 해독되어 passwd.txt로 저장되었습니다: {decoded_text}')
+    except Exception as e:
+        print(f'파일 저장 중 오류 발생: {e}')
 
 def read_password_from_zip(zip_file):
     """ZIP 파일에서 암호문이 담긴 password.txt 파일을 읽어오는 함수"""
     for password_tuple in generate_possible_passwords():
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
-        
-        # 비밀번호 시도 출력 (한 줄에 덮어쓰는 형식)
-        sys.stdout.write(f"\r시도 중인 비밀번호: {password}")  # \r은 커서를 맨 앞으로 이동시킴
-        sys.stdout.flush()  # 즉시 출력 버퍼를 비워서 화면에 반영되도록 함
+        sys.stdout.write(f"\r시도 중인 비밀번호: {password}")  # 비밀번호 출력
+        sys.stdout.flush()  # 출력 버퍼를 즉시 비움
         
         # 비밀번호로 파일을 추출 시도
         password_text = extract_file_from_zip(zip_file, 'password.txt', password)
         
         if password_text:
+            print()  # 비밀번호가 맞으면 줄바꿈
+            print(f"암호가 해독되었습니다: {password}")
             caesar_cipher_decode(password_text)  # 카이사르 암호 해독
             save_to_passwd_txt(password_text)  # 해독된 내용을 passwd.txt로 저장
             break  # 성공하면 반복 종료
