@@ -1,3 +1,6 @@
+import os
+
+
 def read_log_file(filename):
     """
     로그 파일을 읽어서 전체 내용을 반환합니다.
@@ -262,6 +265,9 @@ def main():
     log_filename = 'mission_computer_main.log'
     json_filename = 'mission_computer_main.json'
     
+    import os
+
+    print("현재 디렉토리:", os.getcwd())
     try:
         # 1. 로그 파일 읽기
         print_separator('1. 로그 파일 읽기')
