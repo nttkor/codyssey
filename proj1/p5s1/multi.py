@@ -113,6 +113,7 @@ import zipfile
 import string
 import itertools
 import sys
+import time
 
 def generate_possible_passwords():
     """가능한 모든 비밀번호(6자리 숫자+소문자)를 생성"""
@@ -149,20 +150,38 @@ def save_to_passwd_txt(decoded_text):
 
 def read_password_from_zip(zip_file):
     """ZIP 파일에서 암호문이 담긴 password.txt 파일을 읽어오는 함수"""
-    for password_tuple in generate_possible_passwords():
+    total_combinations = 36 ** 6  # 36개의 문자(소문자+숫자)로 이루어진 6자리 비밀번호의 조합 수
+    start_time = time.time()  # 시작 시간 기록
+    
+    for count, password_tuple in enumerate(generate_possible_passwords(), 1):
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
-        sys.stdout.write(f"\r시도 중인 비밀번호: {password}")  # 비밀번호 출력
-        sys.stdout.flush()  # 출력 버퍼를 즉시 비움
         
+        # 시도 중인 비밀번호 출력
+        sys.stdout.write(f"\r시도 중인 비밀번호: {password}")
+        sys.stdout.flush()  # 출력 버퍼를 즉시 비움
+
         # 비밀번호로 파일을 추출 시도
         password_text = extract_file_from_zip(zip_file, 'password.txt', password)
         
         if password_text:
+            # 암호가 성공적으로 해독되었을 때
             print()  # 비밀번호가 맞으면 줄바꿈
             print(f"암호가 해독되었습니다: {password}")
             caesar_cipher_decode(password_text)  # 카이사르 암호 해독
             save_to_passwd_txt(password_text)  # 해독된 내용을 passwd.txt로 저장
             break  # 성공하면 반복 종료
+        
+        # 진행 상태 업데이트: 남은 시간 추정
+        elapsed_time = time.time() - start_time  # 경과 시간
+        remaining_combinations = total_combinations - count  # 남은 시도 횟수
+        avg_time_per_attempt = elapsed_time / count if count > 0 else 0  # 평균 시도당 시간
+        remaining_time = avg_time_per_attempt * remaining_combinations  # 남은 시간
+
+        # 남은 시간 표시 (초 단위로 표시)
+        remaining_minutes = remaining_time // 60
+        remaining_seconds = remaining_time % 60
+        sys.stdout.write(f" | 남은 시간: {int(remaining_minutes)}분 {int(remaining_seconds)}초")
+        sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
 def caesar_cipher_decode(target_text):
     """카이사르 암호 해독 함수"""
