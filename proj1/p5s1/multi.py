@@ -144,7 +144,7 @@ def save_to_passwd_txt(decoded_text):
     try:
         with open('passwd.txt', 'w') as passwd_file:
             passwd_file.write(decoded_text)
-            print(f'암호가 해독되어 passwd.txt로 저장되었습니다: {decoded_text}')
+            print(f'암호가 해독되어 passwd.txt로 저장되었습니다.')
     except Exception as e:
         print(f'파일 저장 중 오류 발생: {e}')
 
@@ -156,8 +156,8 @@ def read_password_from_zip(zip_file):
     for count, password_tuple in enumerate(generate_possible_passwords(), 1):
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
         
-        # 시도 중인 비밀번호 출력
-        sys.stdout.write(f"\r시도 중인 비밀번호: {password}")
+        # 시도 중인 비밀번호 출력 (숫자만 출력)
+        sys.stdout.write(f"\r{password}")
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
         # 비밀번호로 파일을 추출 시도
@@ -166,7 +166,6 @@ def read_password_from_zip(zip_file):
         if password_text:
             # 암호가 성공적으로 해독되었을 때
             print()  # 비밀번호가 맞으면 줄바꿈
-            print(f"암호가 해독되었습니다: {password}")
             caesar_cipher_decode(password_text)  # 카이사르 암호 해독
             save_to_passwd_txt(password_text)  # 해독된 내용을 passwd.txt로 저장
             break  # 성공하면 반복 종료
@@ -178,9 +177,8 @@ def read_password_from_zip(zip_file):
         remaining_time = avg_time_per_attempt * remaining_combinations  # 남은 시간
 
         # 남은 시간 표시 (초 단위로 표시)
-        remaining_minutes = remaining_time // 60
         remaining_seconds = remaining_time % 60
-        sys.stdout.write(f" | 남은 시간: {int(remaining_minutes)}분 {int(remaining_seconds)}초")
+        sys.stdout.write(f" {int(remaining_seconds)}")
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
 def caesar_cipher_decode(target_text):
