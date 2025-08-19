@@ -54,8 +54,8 @@ def main():
 
     # 위험 단어 리스트
     danger_keywords = [
-        "unstable", "explosion", "Failure", "Damage", "Instability", 
-        "Leak", "Pressure", "Overheating", "Explosion", "Power failure", 
+        "unstable", "explosion", "Oxygen", "Damage", "falut", 
+        "Leak", "Pressure", "Overheating", "Bad", "failure", 
         "Collision", "Emergency"
     ]
 
