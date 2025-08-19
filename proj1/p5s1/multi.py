@@ -89,7 +89,25 @@
 # 암호가 해독되면 정상적으로 결과가 출력되고, passwd.txt 파일에 해독된 내용이 저장됩니다.
 
 # 예시 출력:
+# 주요 변경점:
 
+# 진행 중 출력만 한 줄에 덮어쓰도록:
+
+# sys.stdout.write(f"\r시도 중인 비밀번호: {password}")를 사용하여 비밀번호를 한 줄에서 덮어쓰게 됩니다. 그 외에는 출력하지 않습니다.
+
+# 에러 처리 및 다른 출력 제거:
+
+# try-except 구문과 print()을 제거하여 에러 로그나 그 외의 불필요한 정보가 출력되지 않도록 했습니다.
+
+# passwd.txt 저장 후 출력:
+
+# 암호가 성공적으로 해독되면 그 결과를 **passwd.txt**에 저장하고, 암호가 해독되어 passwd.txt로 저장되었습니다.라는 메시지만 출력됩니다.
+
+# 실행 흐름:
+
+# 비밀번호를 하나씩 시도할 때마다 해당 비밀번호만 한 줄에 표시됩니다.
+
+# 암호가 성공적으로 해독되면 passwd.txt에 해독된 텍스트가 저장되고, 그때서야 최종적으로 결과를 화면에 표시합니다.
 
 import zipfile
 import string
@@ -103,37 +121,21 @@ def generate_possible_passwords():
 
 def extract_file_from_zip(zip_file, filename, password=None):
     """ZIP 파일에서 특정 파일을 추출하여 내용을 반환하는 함수 (암호화된 파일 처리)"""
-    try:
-        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            # 암호화된 파일을 처리하기 위해 비밀번호 제공
-            if password:
-                zip_ref.setpassword(password.encode())  # 비밀번호 설정
-            # ZIP 파일 내에 파일 목록 확인
-            if filename in zip_ref.namelist():
-                with zip_ref.open(filename) as file:
-                    content = file.read().decode('utf-8')  # 파일 내용을 UTF-8로 디코딩
-                    return content
-            else:
-                print(f'{filename} 파일이 ZIP에 없습니다.')
-                return None
-    except zipfile.BadZipFile:
-        #print("ZIP 파일이 잘못되었습니다.")
-        return None
-    except RuntimeError as e:
-        #print(f"암호화된 ZIP 파일을 열 때 오류 발생: {e}")
-        return None
-    except Exception as e:
-        print(f'ZIP 파일 처리 중 오류 발생: {e}')
-        return None
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        if password:
+            zip_ref.setpassword(password.encode())  # 비밀번호 설정
+        # ZIP 파일 내에 파일 목록 확인
+        if filename in zip_ref.namelist():
+            with zip_ref.open(filename) as file:
+                content = file.read().decode('utf-8')  # 파일 내용을 UTF-8로 디코딩
+                return content
+        return None  # 파일을 찾을 수 없으면 None 반환
 
 def save_to_passwd_txt(decoded_text):
     """해독된 내용을 passwd.txt 파일에 저장"""
-    try:
-        with open('passwd.txt', 'w') as passwd_file:
-            passwd_file.write(decoded_text)
-            print(f'암호가 해독되어 passwd.txt로 저장되었습니다: {decoded_text}')
-    except Exception as e:
-        print(f'파일 저장 중 오류 발생: {e}')
+    with open('passwd.txt', 'w') as passwd_file:
+        passwd_file.write(decoded_text)
+        print(f'암호가 해독되어 passwd.txt로 저장되었습니다.')
 
 def read_password_from_zip(zip_file):
     """ZIP 파일에서 암호문이 담긴 password.txt 파일을 읽어오는 함수"""
@@ -148,7 +150,6 @@ def read_password_from_zip(zip_file):
         password_text = extract_file_from_zip(zip_file, 'password.txt', password)
         
         if password_text:
-            print(f"\n암호가 해독되었습니다: {password}")
             caesar_cipher_decode(password_text)  # 카이사르 암호 해독
             save_to_passwd_txt(password_text)  # 해독된 내용을 passwd.txt로 저장
             break  # 성공하면 반복 종료
