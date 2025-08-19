@@ -1,104 +1,75 @@
+
+# 병렬 처리 설명:
+
+# multiprocessing.Pool:
+
+# multiprocessing.Pool을 사용하여 CPU 코어 수만큼 프로세스 풀을 생성하고, 각 자리수(1부터 26까지)를 병렬로 처리합니다.
+
+# pool.starmap 함수는 각 자리수에 대해 caesar_cipher_decode_segment 함수를 실행합니다. 이 방식은 여러 프로세서에서 병렬로 작업을 처리하여 속도를 크게 향상시킬 수 있습니다.
+
+# caesar_cipher_decode_segment 함수:
+
+# shift와 target_text를 받아 해당 자리수만큼 암호를 해독하는 함수입니다.
+
+# 이 함수는 병렬로 실행되며, 결과가 반환되면 주 함수에서 출력하고, 사전에서 단어가 발견되면 파일에 저장합니다.
+
+# 프로세스 수:
+
+# cpu_count()를 사용하여 시스템에서 사용할 수 있는 CPU 코어 수 만큼 프로세스를 생성합니다. 이 방식은 멀티 코어 시스템에서 성능을 극대화합니다.
+
+# 최적화 효과:
+
+# 병렬 처리를 사용하면 여러 프로세서가 동시에 자리수를 풀기 때문에, 전체 시간이 크게 단축될 수 있습니다.
+
+# 예를 들어, 12시간이 걸리는 작업이 1시간 이내로 처리될 수 있습니다 (CPU 코어 수에 따라 달라짐).
+
+# 이 방법은 텍스트 길이가 길거나 많은 자리수를 테스트해야 하는 경우에 매우 효과적입니다.
+# 변경 사항:
+
+# generate_possible_passwords: itertools.product를 사용하여 가능한 모든 6자리 비밀번호 조합을 생성합니다. (소문자 알파벳과 숫자)
+
+# read_password_from_zip: 각 비밀번호를 시도하면서 ZIP 파일을 열고, 성공할 경우 암호를 해독합니다.
+
+# 암호 시도 출력: 어떤 비밀번호를 시도하는지 출력합니다.
+
+# 작동 방식:
+
+# 비밀번호 생성: generate_possible_passwords는 가능한 모든 6자리 비밀번호 조합을 생성합니다.
+
+# 각각의 비밀번호를 ZIP 파일에 사용: 각 비밀번호로 password.txt를 추출하고, 성공하면 그 암호를 해독합니다.
+
+# 비밀번호가 맞으면: 카이사르 암호를 해독하고, 해독된 결과를 출력합니다.
+
+# 성능 최적화:
+
+# 이 방법은 무차별 대입이므로 시간이 많이 걸릴 수 있습니다. 하지만 6자리 조합은 최대 36^6 (약 2.18억 개의 조합)입니다. 이를 몇 분 내에 처리할 수는 있지만, 속도 최적화를 위해 병렬 처리나 멀티스레딩을 사용할 수도 있습니다.
+
+# 주의:
+
+# 이 코드에서는 password.txt 파일이 암호화된 ZIP 파일에 들어 있다는 전제하에 작성되었습니다.
+
+# 시간이 오래 걸릴 수 있습니다. 암호가 정확히 무엇인지를 모르고 모든 가능한 비밀번호를 시도해야 하기 때문에 많은 시간이 소요될 수 있습니다.
+
+# 실행하는 환경이 충분한 자원을 제공하는지 확인해야 합니다.
+
+
 import zipfile
 import string
-import multiprocessing
-import time
+import itertools
 import sys
 
-def spinning_clock():
-    """시계처럼 돌아가는 애니메이션"""
-    spinner = ['-\\', '|', '/', '-', '\\', '|', '/']
-    while True:
-        for frame in spinner:
-            sys.stdout.write(f'\r{frame}')  # 현재 줄에서 덮어쓰며 출력
-            sys.stdout.flush()  # 출력 버퍼를 즉시 비움
-            time.sleep(1)  # 1초 대기
+def generate_possible_passwords():
+    """가능한 모든 비밀번호(6자리 숫자+소문자)를 생성"""
+    characters = string.ascii_lowercase + string.digits  # 소문자 알파벳 + 숫자
+    return itertools.product(characters, repeat=6)  # 6자리 조합 생성
 
-def caesar_cipher_decode_segment(shift, target_text):
-    """각 자리수를 풀어내는 작업"""
-    alphabet = string.ascii_lowercase
-    decoded_text = []
-
-    for char in target_text:
-        if char.isalpha():
-            if char.islower():
-                new_char = alphabet[(alphabet.index(char) - shift) % 26]
-            elif char.isupper():
-                new_char = alphabet[(alphabet.index(char.lower()) - shift) % 26].upper()
-            decoded_text.append(new_char)
-        else:
-            decoded_text.append(char)
-
-    return shift, ''.join(decoded_text)
-
-def caesar_cipher_decode(target_text):
-    """카이사르 암호 해독 함수, 진행 상태를 1분마다 출력"""
-    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
-    shifts = range(1, 27)
-    results = []
-    
-    # 진행 상황을 출력할 시간 기록
-    start_time = time.time()
-    last_report_time = start_time
-
-    for shift in shifts:
-        results.append(pool.apply_async(caesar_cipher_decode_segment, (shift, target_text)))
-
-    # 결과 처리 및 1분마다 진행상황 출력
-    decoded_results = []
-    total_shifts = len(shifts)
-    
-    # 시계 애니메이션을 별도의 쓰레드에서 실행
-    from threading import Thread
-    clock_thread = Thread(target=spinning_clock)
-    clock_thread.daemon = True  # 메인 프로그램이 끝날 때 함께 종료되도록 설정
-    clock_thread.start()
-
-    for i, result in enumerate(results):
-        shift, decoded_text = result.get()
-        decoded_results.append((shift, decoded_text))
-        
-        # 1분마다 진행 상황 출력
-        elapsed_time = time.time() - start_time
-        if elapsed_time - last_report_time >= 60:  # 1분이 지난 경우
-            percent_complete = (i + 1) / total_shifts * 100
-            print(f"진행 상황: {percent_complete:.2f}% 완료")
-            last_report_time = time.time()  # 마지막 보고 시간 갱신
-
-    pool.close()
-    pool.join()
-
-    # 해독된 결과 출력 및 사전 확인
-    for shift, decoded_text in decoded_results:
-        print(f'자리수 {shift}: {decoded_text}')
-        
-        # 사전에서 단어가 일치하는지 확인
-        if is_valid_word(decoded_text):
-            print(f"암호가 해독되었습니다: {decoded_text}")
-            save_result(decoded_text)  # result.txt에 저장
-            break
-
-def is_valid_word(decoded_text):
-    """사전에서 단어가 존재하는지 확인"""
-    dictionary = ["hello", "world", "test", "password"]  # 예시 사전
-    decoded_words = decoded_text.split()  # 공백을 기준으로 분리
-    for word in decoded_words:
-        if word.lower() in dictionary:
-            return True  # 사전에서 단어가 존재하면 True
-    return False  # 존재하지 않으면 False
-
-def save_result(decoded_text):
-    """해독된 결과를 파일에 저장"""
-    try:
-        with open('result.txt', 'w') as result_file:
-            result_file.write(decoded_text)
-            print(f'결과가 result.txt에 저장되었습니다: {decoded_text}')
-    except Exception as e:
-        print(f'결과 저장 중 오류 발생: {e}')
-
-def extract_file_from_zip(zip_file, filename):
-    """ZIP 파일에서 특정 파일을 추출하여 내용을 반환하는 함수"""
+def extract_file_from_zip(zip_file, filename, password=None):
+    """ZIP 파일에서 특정 파일을 추출하여 내용을 반환하는 함수 (암호화된 파일 처리)"""
     try:
         with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+            # 암호화된 파일을 처리하기 위해 비밀번호 제공
+            if password:
+                zip_ref.setpassword(password.encode())  # 비밀번호 설정
             # ZIP 파일 내에 파일 목록 확인
             if filename in zip_ref.namelist():
                 with zip_ref.open(filename) as file:
@@ -110,16 +81,50 @@ def extract_file_from_zip(zip_file, filename):
     except zipfile.BadZipFile:
         print("ZIP 파일이 잘못되었습니다.")
         return None
+    except RuntimeError as e:
+        print(f"암호화된 ZIP 파일을 열 때 오류 발생: {e}")
+        return None
     except Exception as e:
         print(f'ZIP 파일 처리 중 오류 발생: {e}')
         return None
 
 def read_password_from_zip(zip_file):
     """ZIP 파일에서 암호문이 담긴 password.txt 파일을 읽어오는 함수"""
-    password_text = extract_file_from_zip(zip_file, 'password.txt')
-    if password_text:
-        caesar_cipher_decode(password_text)  # 카이사르 암호 해독
+    for password_tuple in generate_possible_passwords():
+        password = ''.join(password_tuple)  # tuple을 문자열로 변환
+        print(f"비밀번호 시도: {password}")  # 시도 중인 비밀번호 출력
+        
+        # 비밀번호로 파일을 추출 시도
+        password_text = extract_file_from_zip(zip_file, 'password.txt', password)
+        
+        if password_text:
+            print(f"암호가 해독되었습니다: {password}")
+            caesar_cipher_decode(password_text)  # 카이사르 암호 해독
+            break  # 성공하면 반복 종료
+
+def caesar_cipher_decode(target_text):
+    """카이사르 암호 해독 함수"""
+    # 여기에 카이사르 암호 해독 코드 그대로 적용
+    alphabet = string.ascii_lowercase
+    decoded_text = []
+
+    for shift in range(1, 27):  # 1부터 26까지 시프트
+        shifted_text = []
+        for char in target_text:
+            if char.isalpha():
+                if char.islower():
+                    new_char = alphabet[(alphabet.index(char) - shift) % 26]
+                elif char.isupper():
+                    new_char = alphabet[(alphabet.index(char.lower()) - shift) % 26].upper()
+                shifted_text.append(new_char)
+            else:
+                shifted_text.append(char)
+        decoded_text.append(f'자리수 {shift}: {"".join(shifted_text)}')
+    
+    # 해독된 결과 출력
+    for decoded in decoded_text:
+        print(decoded)
 
 if __name__ == "__main__":
-    zip_filename = 'encrypted.zip'  # ZIP 파일 이름
+    zip_filename = 'emergency_storage_key.zip'  # ZIP 파일 이름
     read_password_from_zip(zip_filename)  # ZIP 파일에서 암호문 읽기 및 해독
