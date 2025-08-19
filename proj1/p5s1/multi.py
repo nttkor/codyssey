@@ -52,6 +52,26 @@
 
 # 실행하는 환경이 충분한 자원을 제공하는지 확인해야 합니다.
 
+# 변경 사항:
+
+# save_to_passwd_txt: 해독된 password.txt 내용을 **passwd.txt**로 저장하는 함수입니다.
+
+# decoded_text를 받아 passwd.txt 파일에 기록합니다.
+
+# read_password_from_zip: password.txt를 해독한 후, 해독된 내용을 passwd.txt로 저장하도록 수정되었습니다.
+
+# 실행 흐름:
+
+# ZIP 파일을 열고, 가능한 모든 비밀번호를 시도하여 **password.txt**를 추출합니다.
+
+# 비밀번호가 맞으면, password.txt 내용을 카이사르 암호로 해독하고 그 결과를 출력합니다.
+
+# 암호가 해독되면, 해독된 내용을 **passwd.txt**로 저장합니다.
+
+# 이제 passwd.txt 파일이 생성되며, 이 파일에 해독된 내용이 저장됩니다.
+
+# 예시 출력:
+
 
 import zipfile
 import string
@@ -79,20 +99,29 @@ def extract_file_from_zip(zip_file, filename, password=None):
                 print(f'{filename} 파일이 ZIP에 없습니다.')
                 return None
     except zipfile.BadZipFile:
-        print("ZIP 파일이 잘못되었습니다.")
+        #print("ZIP 파일이 잘못되었습니다.")
         return None
     except RuntimeError as e:
-        print(f"암호화된 ZIP 파일을 열 때 오류 발생: {e}")
+        #print(f"암호화된 ZIP 파일을 열 때 오류 발생: {e}")
         return None
     except Exception as e:
         print(f'ZIP 파일 처리 중 오류 발생: {e}')
         return None
 
+def save_to_passwd_txt(decoded_text):
+    """해독된 내용을 passwd.txt 파일에 저장"""
+    try:
+        with open('passwd.txt', 'w') as passwd_file:
+            passwd_file.write(decoded_text)
+            print(f'암호가 해독되어 passwd.txt로 저장되었습니다: {decoded_text}')
+    except Exception as e:
+        print(f'파일 저장 중 오류 발생: {e}')
+
 def read_password_from_zip(zip_file):
     """ZIP 파일에서 암호문이 담긴 password.txt 파일을 읽어오는 함수"""
     for password_tuple in generate_possible_passwords():
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
-        print(f"비밀번호 시도: {password}")  # 시도 중인 비밀번호 출력
+        print(f"{password}",end=' ')  # 시도 중인 비밀번호 출력
         
         # 비밀번호로 파일을 추출 시도
         password_text = extract_file_from_zip(zip_file, 'password.txt', password)
@@ -100,11 +129,11 @@ def read_password_from_zip(zip_file):
         if password_text:
             print(f"암호가 해독되었습니다: {password}")
             caesar_cipher_decode(password_text)  # 카이사르 암호 해독
+            save_to_passwd_txt(password_text)  # 해독된 내용을 passwd.txt로 저장
             break  # 성공하면 반복 종료
 
 def caesar_cipher_decode(target_text):
     """카이사르 암호 해독 함수"""
-    # 여기에 카이사르 암호 해독 코드 그대로 적용
     alphabet = string.ascii_lowercase
     decoded_text = []
 
