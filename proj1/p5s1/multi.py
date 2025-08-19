@@ -1,20 +1,20 @@
-# multiprocessing.Pool:
-# multiprocessing.Pool을 사용하여 CPU 코어 수만큼 프로세스 풀을 생성하고, 각 자리수(1부터 26까지)를 병렬로 처리합니다.
-# pool.starmap 함수는 각 자리수에 대해 caesar_cipher_decode_segment 함수를 실행합니다. 이 방식은 여러 프로세서에서 병렬로 작업을 처리하여 속도를 크게 향상시킬 수 있습니다.
-# caesar_cipher_decode_segment 함수:
-# shift와 target_text를 받아 해당 자리수만큼 암호를 해독하는 함수입니다.
-# 이 함수는 병렬로 실행되며, 결과가 반환되면 주 함수에서 출력하고, 사전에서 단어가 발견되면 파일에 저장합니다.
-# 프로세스 수:
-# cpu_count()를 사용하여 시스템에서 사용할 수 있는 CPU 코어 수 만큼 프로세스를 생성합니다. 이 방식은 멀티 코어 시스템에서 성능을 극대화합니다.
-# 최적화 효과:
-# 병렬 처리를 사용하면 여러 프로세서가 동시에 자리수를 풀기 때문에, 전체 시간이 크게 단축될 수 있습니다.
-# 예를 들어, 12시간이 걸리는 작업이 1시간 이내로 처리될 수 있습니다 (CPU 코어 수에 따라 달라짐).
-# 이 방법은 텍스트 길이가 길거나 많은 자리수를 테스트해야 하는 경우에 매우 효과적입니다.
 import zipfile
 import string
 import multiprocessing
+import time
+import sys
+
+def spinning_clock():
+    """시계처럼 돌아가는 애니메이션"""
+    spinner = ['-\\', '|', '/', '-', '\\', '|', '/']
+    while True:
+        for frame in spinner:
+            sys.stdout.write(f'\r{frame}')  # 현재 줄에서 덮어쓰며 출력
+            sys.stdout.flush()  # 출력 버퍼를 즉시 비움
+            time.sleep(1)  # 1초 대기
 
 def caesar_cipher_decode_segment(shift, target_text):
+    """각 자리수를 풀어내는 작업"""
     alphabet = string.ascii_lowercase
     decoded_text = []
 
@@ -31,24 +31,54 @@ def caesar_cipher_decode_segment(shift, target_text):
     return shift, ''.join(decoded_text)
 
 def caesar_cipher_decode(target_text):
-    # 멀티프로세싱을 사용하여 자리수를 병렬로 처리
-    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())  # CPU 코어 수 만큼 프로세스 풀 생성
+    """카이사르 암호 해독 함수, 진행 상태를 1분마다 출력"""
+    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
     shifts = range(1, 27)
-    results = pool.starmap(caesar_cipher_decode_segment, [(shift, target_text) for shift in shifts])
+    results = []
+    
+    # 진행 상황을 출력할 시간 기록
+    start_time = time.time()
+    last_report_time = start_time
 
-    for shift, decoded_text in results:
+    for shift in shifts:
+        results.append(pool.apply_async(caesar_cipher_decode_segment, (shift, target_text)))
+
+    # 결과 처리 및 1분마다 진행상황 출력
+    decoded_results = []
+    total_shifts = len(shifts)
+    
+    # 시계 애니메이션을 별도의 쓰레드에서 실행
+    from threading import Thread
+    clock_thread = Thread(target=spinning_clock)
+    clock_thread.daemon = True  # 메인 프로그램이 끝날 때 함께 종료되도록 설정
+    clock_thread.start()
+
+    for i, result in enumerate(results):
+        shift, decoded_text = result.get()
+        decoded_results.append((shift, decoded_text))
+        
+        # 1분마다 진행 상황 출력
+        elapsed_time = time.time() - start_time
+        if elapsed_time - last_report_time >= 60:  # 1분이 지난 경우
+            percent_complete = (i + 1) / total_shifts * 100
+            print(f"진행 상황: {percent_complete:.2f}% 완료")
+            last_report_time = time.time()  # 마지막 보고 시간 갱신
+
+    pool.close()
+    pool.join()
+
+    # 해독된 결과 출력 및 사전 확인
+    for shift, decoded_text in decoded_results:
         print(f'자리수 {shift}: {decoded_text}')
         
         # 사전에서 단어가 일치하는지 확인
         if is_valid_word(decoded_text):
             print(f"암호가 해독되었습니다: {decoded_text}")
             save_result(decoded_text)  # result.txt에 저장
-            pool.close()
-            pool.join()
             break
 
 def is_valid_word(decoded_text):
-    # 단어 사전을 활용하여 일치하는지 체크 (단어 목록을 만들어서 체크)
+    """사전에서 단어가 존재하는지 확인"""
     dictionary = ["hello", "world", "test", "password"]  # 예시 사전
     decoded_words = decoded_text.split()  # 공백을 기준으로 분리
     for word in decoded_words:
@@ -57,6 +87,7 @@ def is_valid_word(decoded_text):
     return False  # 존재하지 않으면 False
 
 def save_result(decoded_text):
+    """해독된 결과를 파일에 저장"""
     try:
         with open('result.txt', 'w') as result_file:
             result_file.write(decoded_text)
