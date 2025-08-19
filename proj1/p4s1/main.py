@@ -97,7 +97,7 @@ def main():
     while True:
 
         # 추천 단어 리스트 출력
-        print("\n단어검색기능 - 검색종료 0")
+        print("\n단어검색기능 - 검색종료 01")
         for i, keyword in enumerate(danger_keywords[:9], start=1):
             print(f"{i}: {keyword}", end=" ")
 
