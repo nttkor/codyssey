@@ -1,6 +1,3 @@
 {
   "terminal.integrated.cwd": "/home/mpeg4/Codyssey/proj1/p4s1",
-  "terminal.integrated.shellArgs.linux": [
-    "-c", "source ./activate_venv.sh; exec bash"
-  ]
 }

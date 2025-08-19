@@ -1,359 +1,143 @@
+import json
 import os
 
-
-def read_log_file(filename):
-    """
-    로그 파일을 읽어서 전체 내용을 반환합니다.
-    
-    Args:
-        filename: 읽을 로그 파일명
-        
-    Returns:
-        파일의 전체 내용 문자열
-        
-    Raises:
-        FileNotFoundError: 파일이 존재하지 않을 때
-        UnicodeDecodeError: 파일 디코딩 오류 시
-    """
-    try:
-        with open(filename, 'r', encoding='utf-8') as file:
-            content = file.read()
-            print('파일을 성공적으로 읽었습니다: ' + filename)
-            return content
-    except FileNotFoundError:
-        print('오류: 파일을 찾을 수 없습니다 - ' + filename)
-        raise
-    except UnicodeDecodeError as e:
-        print('디코딩 오류: ' + str(e))
-        raise
-    except Exception as e:
-        print('예상치 못한 오류 발생: ' + str(e))
-        raise
-
-
-def parse_log_to_list(log_content):
-    """
-    로그 내용을 파싱하여 리스트 객체로 변환합니다.
-    
-    Args:
-        log_content: 로그 파일의 전체 내용
-        
-    Returns:
-        파싱된 로그 데이터의 리스트
-    """
-    log_list = []
-    lines = log_content.strip().split('\n')
-    
-    # 헤더 라인 건너뛰기
-    for line in lines[1:]:  # 첫 번째 라인(헤더) 제외
-        if line.strip():  # 빈 라인 무시
-            parts = line.split(',', 2)  # 최대 3개로 분할 (timestamp, event, message)
-            if len(parts) >= 3:
-                log_entry = {
-                    'timestamp': parts[0].strip(),
-                    'event': parts[1].strip(),
-                    'message': parts[2].strip()
-                }
-                log_list.append(log_entry)
-    
-    return log_list
-
-
-def sort_by_time_desc(log_list):
-    """
-    로그 리스트를 시간 역순으로 정렬합니다.
-    
-    Args:
-        log_list: 정렬할 로그 리스트
-        
-    Returns:
-        시간 역순으로 정렬된 로그 리스트
-    """
-    # ISO 8601 형식이므로 문자열 정렬로도 정확한 시간순 정렬 가능
-    sorted_list = sorted(log_list, key=lambda x: x['timestamp'], reverse=True)
-    return sorted_list
-
-
-def convert_to_dict(log_list):
-    """
-    로그 리스트를 사전 객체로 변환합니다.
-    간단한 구조: {timestamp: (event, message)}
-    
-    Args:
-        log_list: 변환할 로그 리스트
-        
-    Returns:
-        변환된 사전 객체
-    """
-    result_dict = {}
-    
-    for log_entry in log_list:
-        timestamp = log_entry['timestamp']
-        event = log_entry['event']
-        message = log_entry['message']
-        result_dict[timestamp] = (event, message)
-    
-    return result_dict
-
-
-def save_to_json_manual(data_dict, filename):
-    """
-    사전 객체를 수동으로 JSON 파일로 저장합니다.
-    
-    Args:
-        data_dict: 저장할 사전 객체 {timestamp: (event, message)}
-        filename: 저장할 파일명
-    """
-    try:
-        with open(filename, 'w', encoding='utf-8') as file:
-            file.write('{\n')
-            
-            items = list(data_dict.items())
-            for i, (timestamp, event_message) in enumerate(items):
-                event, message = event_message
-                
-                # JSON 형식으로 수동 작성
-                file.write('  "' + timestamp + '": ["' + event + '", "' + message + '"]')
-                
-                # 마지막 항목이 아니면 콤마 추가
-                if i < len(items) - 1:
-                    file.write(',')
-                file.write('\n')
-            
-            file.write('}\n')
-        
-        print('JSON 파일로 성공적으로 저장되었습니다: ' + filename)
-    except Exception as e:
-        print('JSON 파일 저장 오류: ' + str(e))
-        raise
-
-
-def read_json_file(filename):
-    """
-    JSON 파일을 읽어서 Dict 객체로 변환합니다.
-    
-    Args:
-        filename: 읽을 JSON 파일명
-        
-    Returns:
-        파싱된 Dict 객체
-        
-    Raises:
-        FileNotFoundError: 파일이 존재하지 않을 때
-        ValueError: JSON 파싱 오류 시
-    """
-    try:
-        with open(filename, 'r', encoding='utf-8') as file:
-            content = file.read().strip()
-            print('JSON 파일을 성공적으로 읽었습니다: ' + filename)
-            
-            # 수동으로 JSON 파싱
-            result_dict = parse_json_manual(content)
-            return result_dict
-            
-    except FileNotFoundError:
-        print('오류: JSON 파일을 찾을 수 없습니다 - ' + filename)
-        raise
-    except Exception as e:
-        print('JSON 파일 읽기 오류: ' + str(e))
-        raise
-
-
-def parse_json_manual(json_content):
-    """
-    JSON 문자열을 수동으로 파싱하여 Dict 객체로 변환합니다.
-    
-    Args:
-        json_content: JSON 형식의 문자열
-        
-    Returns:
-        파싱된 Dict 객체
-    """
-    result_dict = {}
-    
-    # 중괄호 제거 및 정리
-    content = json_content.strip()
-    if content.startswith('{') and content.endswith('}'):
-        content = content[1:-1].strip()
-    
-    # 빈 JSON 처리
-    if not content:
-        return result_dict
-    
-    # 줄바꿈으로 분할하여 각 라인 처리
-    lines = content.split('\n')
-    
-    for line in lines:
-        line = line.strip()
-        if not line or line == ',':
-            continue
-            
-        # 콤마 제거
-        if line.endswith(','):
-            line = line[:-1]
-        
-        # key: value 분리
-        if ':' in line:
-            # 첫 번째 콜론을 기준으로 분리
-            colon_index = line.find(':')
-            key_part = line[:colon_index].strip()
-            value_part = line[colon_index + 1:].strip()
-            
-            # 키에서 따옴표 제거
-            if key_part.startswith('"') and key_part.endswith('"'):
-                key = key_part[1:-1]
-            else:
-                key = key_part
-            
-            # 값이 배열인지 확인 ["event", "message"]
-            if value_part.startswith('[') and value_part.endswith(']'):
-                # 배열 파싱
-                array_content = value_part[1:-1].strip()
-                if array_content:
-                    # 콤마로 분리
-                    parts = array_content.split(',', 1)  # 최대 2개로 분리
-                    if len(parts) >= 2:
-                        event = parts[0].strip()
-                        message = parts[1].strip()
-                        
-                        # 따옴표 제거
-                        if event.startswith('"') and event.endswith('"'):
-                            event = event[1:-1]
-                        if message.startswith('"') and message.endswith('"'):
-                            message = message[1:-1]
-                        
-                        result_dict[key] = (event, message)
-    
-    return result_dict
-
-
-def display_dict_contents(data_dict):
-    """
-    Dict 객체의 내용을 보기 좋게 출력합니다.
-    
-    Args:
-        data_dict: 출력할 Dict 객체
-    """
-    print('Dict 객체 내용:')
-    print('총 ' + str(len(data_dict)) + '개의 항목')
-    print('구조: {timestamp: (event, message)}')
-    print()
-    
-    count = 0
-    for timestamp, event_message in data_dict.items():
-        event, message = event_message
-        print('  [' + str(count + 1) + '] "' + timestamp + '": ("' + event + '", "' + message + '")')
-        count += 1
-        
-        # 너무 많으면 일부만 표시
-        if count >= 10:
-            remaining = len(data_dict) - count
-            if remaining > 0:
-                print('  ... (추가 ' + str(remaining) + '개 항목)')
-            break
-
-
-def print_separator(title):
-    """구분선과 제목을 출력합니다."""
-    print('\n' + '=' * 60)
-    print(' ' + title)
-    print('=' * 60)
-
+# 로그 파일 읽기
 
 def main():
-    """메인 함수 - 로그 분석 프로그램의 전체 워크플로우를 실행합니다."""
-    log_filename = 'mission_computer_main.log'
-    json_filename = 'mission_computer_main.json'
-    
-    import os
+    log = str()
+    log_list = list()
+    os.chdir('/home/mpeg4/Codyssey/proj1/p4s1')
 
-    print("현재 디렉토리:", os.getcwd())
+    # 예외를 한 번에 처리할 try-except 구문
     try:
-        # 1. 로그 파일 읽기
-        print_separator('1. 로그 파일 읽기')
-        log_content = read_log_file(log_filename)
-        print('\n전체 로그 파일 내용:')
-        print(log_content)
+        with open('mission_computer_main.log', 'r', encoding='utf-8') as file:
+            log = file.read()
+        # 로그 출력
+        print("\nmission_computer_main.log 파일을 읽어 전체 내용을 화면에 출력:")
+        print('=' * 100)  
+        print(log)
         
-        # 2. 로그를 리스트 객체로 변환
-        print_separator('2. 로그를 리스트 객체로 변환')
-        log_list = parse_log_to_list(log_content)
-        print('총 ' + str(len(log_list)) + '개의 로그 엔트리를 파싱했습니다.')
-        print('\n리스트 객체 내용:')
-        for i, entry in enumerate(log_list):
-            print('  [' + str(i + 1) + '] ' + str(entry))
-        
-        # 3. 시간 역순으로 정렬
-        print_separator('3. 시간 역순으로 정렬')
-        sorted_log_list = sort_by_time_desc(log_list)
-        print('시간 역순으로 정렬된 리스트:')
-        for i, entry in enumerate(sorted_log_list):
-            print('  [' + str(i + 1) + '] ' + str(entry))
-        
-        # 4. 사전 객체로 변환
-        print_separator('4. 사전(Dict) 객체로 변환')
-        result_dict = convert_to_dict(sorted_log_list)
-        print('Dict 객체로 변환 완료')
-        print('구조: {timestamp: (event, message)}')
-        print('총 키 개수: ' + str(len(result_dict)))
-        
-        # 처음 3개 항목만 미리보기
-        print('\nDict 객체 내용 (처음 3개):')
-        count = 0
-        for timestamp, event_message in result_dict.items():
-            if count < 3:
-                print('  "' + timestamp + '": ' + str(event_message))
-                count += 1
+        # 로그 파일 내용을 콤마(,)를 기준으로 날짜/시간과 메시지를 분리하여 Python의 리스트(List) 객체로 전환
+        for line in log.splitlines():
+            if not line.strip():  # 빈 줄은 건너뜀
+                continue
+            try:
+                timestamp, event, message = line.strip().split(',', 2)
+                log_list.append([timestamp, event, message])
+            except ValueError:
+                print(f"로그 형식 오류: '{line.strip()}' 줄을 건너뜁니다.")
+                continue
+    except (FileNotFoundError, UnicodeDecodeError, IOError, ValueError) as e:
+        # 모든 예외를 한번에 처리
+        print(f"예외 발생: {str(e)}")
+        raise  # 예외를 다시 발생시켜 호출한 곳에서 처리하게끔 함
+
+    # 시간 역순으로 정렬 (datetime 모듈 없이 문자열 비교)
+    log_list.sort(key=lambda x: x[0], reverse=True)
+
+    # 정렬된 로그 출력
+    print("\n시간 역순으로 정렬된 로그:")
+    for log in log_list:
+        print(log)
+
+    # 사전 형태로 변환
+    log_dict = {log[0]: [log[1], log[2]] for log in log_list[1:]}
+    log_dict = {"header": log_list[0]} | log_dict
+    # JSON 파일로 저장
+    try:
+        with open('mission_computer_main.json', 'w', encoding='utf-8') as json_file:
+            json.dump(log_dict, json_file, ensure_ascii=False, indent=4)
+        print("\n로그가 mission_computer_main.json 파일로 저장되었습니다.")
+    except IOError as e:
+        print(f"파일 저장 중 오류가 발생했습니다: {str(e)}")
+        raise
+
+    # 위험 단어 리스트
+    danger_keywords = [
+        "unstable", "explosion", "Failure", "Damage", "Instability", 
+        "Leak", "Pressure", "Overheating", "Explosion", "Power failure", 
+        "Collision", "Emergency"
+    ]
+
+    # 사고원인 분석 보고서 생성
+    try:
+        with open("log_analysis.md", 'w', encoding='utf-8') as report_file:
+            # 마크다운 테이블 헤더 작성
+            report_file.write("# 사고원인 분석보고서\n\n")
+            report_file.write("이 보고서는 위험 단어가 포함된 로그 메시지를 기반으로 작성되었습니다.\n\n")
+            report_file.write("| timestamp           | event | message                                   |\n")
+            report_file.write("|---------------------|-------|-------------------------------------------|\n")
+            
+            # 위험 단어가 포함된 로그 메시지 추가
+            for log_entry in log_list:
+                timestamp, event, message = log_entry
+                # 위험 단어가 메시지에 포함되어 있으면 해당 메시지를 테이블에 추가
+                if any(keyword in message for keyword in danger_keywords):
+                    # 마크다운 테이블 형식으로 각 로그 항목을 작성
+                    report_file.write(f"| {timestamp} | {event} | {message} |\n")
+
+            print("\n사고원인 분석보고서(log_analysis.md)가 생성되었습니다.")
+    except IOError as e:
+        print(f"보고서 파일 저장 중 오류가 발생했습니다: {str(e)}")
+        raise  # 오류를 호출한 곳에서 처리하도록 예외를 다시 발생시킴
+
+    # 위험 단어가 포함된 로그만 별도로 warning.log로 저장
+    try:
+        with open('warning.log', 'w', encoding='utf-8') as warning_file:
+            for log_entry in log_list:
+                timestamp, event, message = log_entry
+                if any(keyword in message for keyword in danger_keywords):
+                    warning_file.write(f"{timestamp},{event},{message}\n")
+            print("\n위험 단어가 포함된 로그(warning.log)가 생성되었습니다.")
+    except IOError as e:
+        print(f"위험 로그 파일 저장 중 오류가 발생했습니다: {str(e)}")
+        raise  # 오류를 호출한 곳에서 처리하도록 예외를 다시 발생시킴
+
+    # 사용자 입력 필터링 기능
+    while True:
+
+        # 추천 단어 리스트 출력
+        print("\n단어검색기능 - 검색종료 0")
+        for i, keyword in enumerate(danger_keywords[:9], start=1):
+            print(f"{i}: {keyword}", end=" ")
+
+        user_input = input("\n1~9 사이의 숫자를 입력하면 해당 단어로 검색합니다 (0 입력 시 검색 종료): ")
+
+        if user_input == '0':
+            break
+
+        try:
+            # 숫자가 1~10 사이인지 체크하고 해당 단어로 검색
+            selected_index = int(user_input) - 1
+            if 0 <= selected_index < len(danger_keywords):
+                search_term = danger_keywords[selected_index]
+                print(f"검색어 '{search_term}'로 검색 중...")
+                # 검색된 로그 출력
+                found_logs = search_logs(log_dict, search_term)
+                if found_logs:
+                    for log in found_logs:
+                        print(f"{log[0]} | {log[1]} | {log[2]}")
+                else:
+                    print(f"검색어 '{search_term}'와 일치하는 로그가 없습니다.")
             else:
-                break
-        
-        # 5. JSON 파일로 저장
-        print_separator('5. JSON 파일로 저장')
-        save_to_json_manual(result_dict, json_filename)
-        
-        # 6. JSON 파일 읽기 테스트
-        print_separator('6. JSON 파일 읽기 테스트')
-        loaded_dict = read_json_file(json_filename)
-        print('JSON 파일에서 Dict 객체로 로드 완료')
-        display_dict_contents(loaded_dict)
-        
-        # 7. 데이터 무결성 확인
-        print_separator('7. 데이터 무결성 확인')
-        if len(result_dict) == len(loaded_dict):
-            print('✅ 데이터 개수 일치: ' + str(len(result_dict)) + '개')
-        else:
-            print('❌ 데이터 개수 불일치')
-            print('  원본: ' + str(len(result_dict)) + '개')
-            print('  로드: ' + str(len(loaded_dict)) + '개')
-        
-        # 몇 개 항목 비교
-        match_count = 0
-        total_check = min(5, len(result_dict))
-        
-        for i, (timestamp, original_data) in enumerate(result_dict.items()):
-            if i >= total_check:
-                break
-            if timestamp in loaded_dict:
-                if original_data == loaded_dict[timestamp]:
-                    match_count += 1
-        
-        print('처음 ' + str(total_check) + '개 항목 중 ' + str(match_count) + '개 일치')
-        
-        if match_count == total_check:
-            print('✅ 데이터 무결성 검증 성공')
-        else:
-            print('❌ 데이터 무결성 검증 실패')
-        
-        print_separator('작업 완료')
-        print('로그 분석 프로그램이 성공적으로 완료되었습니다!')
-        print('결과 파일: ' + json_filename)
-        print('JSON 파일 읽기/쓰기 모두 성공!')
-        
-    except FileNotFoundError:
-        print('\n' + log_filename + ' 파일이 현재 디렉토리에 있는지 확인해주세요.')
+                print("잘못된 숫자를 입력하셨습니다. 다시 입력해 주세요.")
+        except ValueError:
+            print("유효한 숫자를 입력해 주세요.")
+
+def search_logs(log_dict, search_term):
+    """로그 딕셔너리에서 검색어를 포함한 로그를 찾아 출력"""
+    search_term = search_term.lower()
+    found_logs = []
+    for timestamp, item in log_dict.items():
+        if timestamp == "header":  # header는 건너뛰기
+            continue
+        event,message = item
+        if search_term in message.lower():
+            found_logs.append((timestamp, event, message))
+    return found_logs
+
+if __name__ == "__main__":
+    try:
+        main()
     except Exception as e:
-        print('\n프로그램 실행 중 오류가 발생했습니다: ' + str(e))
-
-
-if __name__ == '__main__':
-    main()
+        print(f"프로그램 실행 중 오류가 발생했습니다: {str(e)}")
