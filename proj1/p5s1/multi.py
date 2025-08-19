@@ -176,9 +176,9 @@ def read_password_from_zip(zip_file):
         avg_time_per_attempt = elapsed_time / count if count > 0 else 0  # 평균 시도당 시간
         remaining_time = avg_time_per_attempt * remaining_combinations  # 남은 시간
 
-        # 남은 시간 표시 (초 단위로 표시)
-        remaining_seconds = remaining_time % 60
-        sys.stdout.write(f" {int(remaining_seconds)}")
+        # 남은 시간 표시 (초 단위로 6자리로 표시)
+        remaining_seconds = int(remaining_time)  # 소수점 없는 정수로 변환
+        sys.stdout.write(f" {remaining_seconds:06d}")  # 6자리 고정 자리수로 출력
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
 def caesar_cipher_decode(target_text):
