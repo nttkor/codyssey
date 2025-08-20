@@ -60,7 +60,7 @@ def generate_and_process_passwords(zip_file):
     def update_progress():
         nonlocal progress_data
         remaining_combinations = total_combinations - progress_data["count"]  # 남은 시도 횟수
-        sys.stdout.write(f"\r{password} : {remaining_combinations}")
+        sys.stdout.write(f"\r{password} {remaining_combinations}")
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
     # 비밀번호를 생성하고 바로 쓰레드를 실행
@@ -68,15 +68,14 @@ def generate_and_process_passwords(zip_file):
         with progress_lock:
             progress_data["count"] += 1
         try_password(zip_file, password, lock, progress_lock, progress_data)
-
+        if progress_data["count"] % 100000 == 0:
+            with progress_lock:
+                update_progress()
 
     # 가능한 모든 비밀번호 생성
-    cnt = 0
     for password_tuple in itertools.product(characters, repeat=6):
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
-         if cnt % 100000 == 0:  # 10만 개마다 진행 상태 출력
-             update_progress()
-             cnt += 1
+
         # 비밀번호를 시도하는 쓰레드를 생성
         thread = threading.Thread(target=worker, args=(password,))
         thread.start()  # 쓰레드 실행
