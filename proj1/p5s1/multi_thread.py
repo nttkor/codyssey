@@ -74,8 +74,9 @@ def generate_and_process_passwords(zip_file):
     cnt = 0
     for password_tuple in itertools.product(characters, repeat=6):
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
-        if cnt % 10000 == 0:  # 10만 개마다 진행 상태 출력
-            update_progress()
+         if cnt % 100000 == 0:  # 10만 개마다 진행 상태 출력
+             update_progress()
+             cnt += 1
         # 비밀번호를 시도하는 쓰레드를 생성
         thread = threading.Thread(target=worker, args=(password,))
         thread.start()  # 쓰레드 실행
