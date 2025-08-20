@@ -163,6 +163,7 @@ def unlock_zip(zip_file):
 
 # 전체 실행 함수
 def main():
+    print("멀티쓰레드로 ZIP 파일의 암호를 추출합니다...V2")
     zip_filename = 'emergency_storage_key.zip'  # ZIP 파일 이름
     print("암호 추출을 시작합니다...")
     unlock_zip(zip_filename)  # 암호 추출 함수 호출
