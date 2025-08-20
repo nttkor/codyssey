@@ -72,8 +72,9 @@ def process_passwords(zip_file, passwords, result_list):
         
         # 남은 시간을 6자리로 고정, 초 단위로 표시
         remaining_seconds = int(remaining_time)  # 소수점 없는 정수로 변환
-        sys.stdout.write(f"\r남은 시간: {remaining_seconds:06d}초    ")
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
+        sys.stdout.write(f"\r남은 시간: {remaining_seconds:06d}초    ")
+       
 
     # 쓰레드 실행
     def worker():
