@@ -34,7 +34,7 @@ def save_to_passwd_txt(decoded_text):
         print(f'파일 저장 중 오류 발생: {e}')
 
 # 비밀번호를 시도하는 함수 (멀티쓰레드에서 호출)
-def try_password(zip_file, password, lock):
+def try_password(zip_file, password, lock, progress_lock, progress_data):
     """주어진 비밀번호로 ZIP 파일을 추출해보고, 맞으면 결과를 출력하고 종료"""
     # 비밀번호 시도
     password_text = extract_file_from_zip(zip_file, 'password.txt', password)
@@ -53,29 +53,24 @@ def generate_and_process_passwords(zip_file):
     characters = string.ascii_lowercase + string.digits  # 소문자 알파벳 + 숫자
     total_combinations = 36 ** 6  # 가능한 6자리 비밀번호의 조합 수
     lock = threading.Lock()  # 멀티쓰레드에서 공유 자원을 안전하게 사용하기 위한 락
-
-    start_time = time.time()  # 시작 시간 기록
-    count = 0  # 시도한 비밀번호의 수
+    progress_lock = threading.Lock()  # 진행 상태 업데이트를 위한 락
+    progress_data = {"count": 0, "start_time": time.time()}  # 진행 상태 추적
 
     # 진행 상태 출력 함수
     def update_progress():
-        nonlocal count
-        elapsed_time = time.time() - start_time  # 경과 시간
-        remaining_combinations = total_combinations - count  # 남은 시도 횟수
-        avg_time_per_attempt = elapsed_time / count if count > 0 else 0  # 평균 시도당 시간
-        remaining_time = avg_time_per_attempt * remaining_combinations  # 남은 시간 계산
-        
-        # 남은 시간을 6자리로 고정, 초 단위로 표시
-        remaining_seconds = int(remaining_time)  # 소수점 없는 정수로 변환
-        sys.stdout.write(f"\r남은 시간: {remaining_seconds:06d}초    ")
+        nonlocal progress_data
+        remaining_combinations = total_combinations - progress_data["count"]  # 남은 시도 횟수
+        sys.stdout.write(f"\r{remaining_combinations:06d}")  # 남은 시도 횟수만 6자리로 출력
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
     # 비밀번호를 생성하고 바로 쓰레드를 실행
     def worker(password):
-        nonlocal count
-        count += 1
-        try_password(zip_file, password, lock)
-        update_progress()
+        with progress_lock:
+            progress_data["count"] += 1
+        try_password(zip_file, password, lock, progress_lock, progress_data)
+        with progress_lock:
+            if progress_data["count"] % 1000 == 0:  # 1000번에 한번만 갱신
+                update_progress()
 
     # 가능한 모든 비밀번호 생성
     for password_tuple in itertools.product(characters, repeat=6):
@@ -86,7 +81,7 @@ def generate_and_process_passwords(zip_file):
         thread.start()  # 쓰레드 실행
 
         # 쓰레드가 일정 수 이상 실행되면 모든 쓰레드가 끝날 때까지 대기
-        if count % 32 == 0:  # 32개의 쓰레드가 실행될 때마다
+        if progress_data["count"] % 32 == 0:  # 32개의 쓰레드가 실행될 때마다
             thread.join()  # 모든 쓰레드가 완료될 때까지 기다림
 
     # 모든 쓰레드가 완료될 때까지 대기
