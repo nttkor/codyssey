@@ -34,7 +34,6 @@
 # 암호가 해독되어 password.txt로 저장되었습니다.
 # 전체 작업이 완료되었습니다.
 
-
 import zipfile
 import string
 import itertools
