@@ -71,7 +71,6 @@
 # 암호가 해독되어 password.txt로 저장되었습니다.
 # 전체 작업이 완료되었습니다.
 
-
 import zipfile
 import string
 import itertools
@@ -120,7 +119,6 @@ def save_to_passwd_txt(decoded_text):
 # 비밀번호를 시도하는 함수 (멀티쓰레드에서 호출)
 def try_password(zip_file, password, progress_data):
     """주어진 비밀번호로 ZIP 파일을 추출해보고, 맞으면 결과를 출력하고 종료"""
-    print(f"시도 중인 비밀번호: {password}")  # 디버깅용 로그 추가
     password_text = extract_file_from_zip(zip_file, 'password.txt', password)
     
     if password_text:
@@ -158,18 +156,18 @@ def unlock_zip(zip_file):
         elapsed_time_str = format_time(elapsed_time)
         remaining_time_str = format_time(remaining_time)
 
-        # 현재 실행 중인 쓰레드 수 출력
-        sys.stdout.write(f"\r시도 횟수: {progress_data['count']} 남은 횟수: {remaining_combinations} "
-                         f"경과 시간: {elapsed_time_str} 예상 시간: {remaining_time_str}")
-        sys.stdout.flush()  # 출력 버퍼를 즉시 비움
+        # 10000번 시도마다 출력
+        if progress_data["count"] % 10000 == 0:
+            sys.stdout.write(f"\r시도 횟수: {progress_data['count']} 남은 횟수: {remaining_combinations} "
+                             f"경과 시간: {elapsed_time_str} 예상 시간: {remaining_time_str}")
+            sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
     # 비밀번호를 생성하고 바로 쓰레드를 실행
     def worker(password):
         nonlocal progress_data
         progress_data["count"] += 1
         try_password(zip_file, password, progress_data)
-        if progress_data["count"] % 10000 == 0:
-            update_progress()
+        update_progress()
 
     # 가능한 모든 비밀번호 생성
     with ThreadPoolExecutor(max_workers=4) as executor:  # 4개의 쓰레드로 제한
