@@ -34,13 +34,20 @@
 # 암호가 해독되어 password.txt로 저장되었습니다.
 # 전체 작업이 완료되었습니다.
 
-
 import zipfile
 import string
 import itertools
 import time
 import threading
 import sys
+
+# 시간을 시, 분, 초 형식으로 변환하는 함수
+def format_time(seconds):
+    """초 단위 시간을 시, 분, 초 형식으로 변환"""
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = int(seconds % 60)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 # ZIP 파일에서 비밀번호로 파일을 추출하는 함수
 def extract_file_from_zip(zip_file, filename, password=None):
@@ -62,7 +69,7 @@ def extract_file_from_zip(zip_file, filename, password=None):
 
 # 암호를 찾았을 때 파일에 저장하는 함수
 def save_to_passwd_txt(decoded_text):
-    """해독된 내용을 passwd.txt 파일에 저장"""
+    """해독된 내용을 password.txt 파일에 저장"""
     try:
         with open('password.txt', 'w') as passwd_file:
             passwd_file.write(decoded_text)
@@ -113,7 +120,11 @@ def unlock_zip(zip_file):
         else:
             remaining_time = 0
 
-        sys.stdout.write(f"\r시도 횟수: {progress_data['count']} 남은 횟수: {remaining_combinations} 경과 시간: {elapsed_time:.2f}초 예상 시간: {remaining_time:.2f}초")
+        # 경과 시간과 예상 시간을 시, 분, 초 형식으로 출력
+        elapsed_time_str = format_time(elapsed_time)
+        remaining_time_str = format_time(remaining_time)
+
+        sys.stdout.write(f"\r시도 횟수: {progress_data['count']} 남은 횟수: {remaining_combinations} 경과 시간: {elapsed_time_str} 예상 시간: {remaining_time_str}")
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
     # 비밀번호를 생성하고 바로 쓰레드를 실행
