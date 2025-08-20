@@ -100,7 +100,7 @@ def unlock_zip(zip_file):
     progress_data = {"count": 0, "start_time": time.time(), "last_update": time.time()}  # 진행 상태 추적
 
     active_threads = 0  # 현재 진행 중인 쓰레드 수
-    max_threads = 1024  # 최대 쓰레드 수
+    max_threads = 8  # 최대 쓰레드 수
 
     # 진행 상태 출력 함수
     def update_progress():
