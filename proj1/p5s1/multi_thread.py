@@ -68,7 +68,7 @@ def generate_and_process_passwords(zip_file):
         try_password(zip_file, password, lock, progress_lock, progress_data)
         with progress_lock:
             # 1000번마다 진행 상태 출력
-            if progress_data["count"] % 1000 == 0:  # 1000번에 한번 갱신
+            if progress_data["count"] % 10000 == 0:  # 1000번에 한번 갱신
                 remaining_combinations = total_combinations - progress_data["count"]  # 남은 시도 횟수
                 update_progress(password, remaining_combinations)
 
@@ -90,7 +90,6 @@ def generate_and_process_passwords(zip_file):
 
 # 전체 실행 함수
 def main():
-    zip_filename = 'emergency_storage_key.zip'  # ZIP 파일 이름
     generate_and_process_passwords(zip_filename)
 
     # 종료 시간 및 처리 시간 출력
