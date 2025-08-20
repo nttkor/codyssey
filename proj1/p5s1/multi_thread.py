@@ -98,6 +98,17 @@ def generate_and_process_passwords(zip_file):
 
 # 전체 실행 함수
 def main():
+    import os
+
+    # 원하는 디렉토리 경로
+    new_directory = '/home/mpeg4/Codyssey/proj1/p5s1'
+
+    # 디렉토리 변경
+    os.chdir(new_directory)
+
+    # 현재 디렉토리 확인
+    print("현재 디렉토리:", os.getcwd())
+    print("암호 추출을 시작합니다...V1")
     zip_filename = 'emergency_storage_key.zip'  # ZIP 파일 이름
     generate_and_process_passwords(zip_filename)
 
