@@ -90,7 +90,7 @@ def unlock_zip(zip_file):
     total_combinations = 36 ** 6  # 가능한 6자리 비밀번호의 조합 수
     lock = threading.Lock()  # 멀티쓰레드에서 공유 자원을 안전하게 사용하기 위한 락
     progress_lock = threading.Lock()  # 진행 상태 업데이트를 위한 락
-    progress_data = {"count": 0, "start_time": time.time()}  # 진행 상태 추적
+    progress_data = {"count": 0, "start_time": time.time(), "last_update": time.time()}  # 진행 상태 추적
 
     active_threads = 0  # 현재 진행 중인 쓰레드 수
     max_threads = 1024  # 최대 쓰레드 수
@@ -100,7 +100,20 @@ def unlock_zip(zip_file):
         nonlocal progress_data
         elapsed_time = time.time() - progress_data["start_time"]
         remaining_combinations = total_combinations - progress_data["count"]  # 남은 시도 횟수
-        sys.stdout.write(f"\r시도 횟수: {progress_data['count']} 남은 횟수: {remaining_combinations} 경과 시간: {elapsed_time:.2f}초")
+
+        # 초당 시도 횟수 (속도) 추정
+        if elapsed_time > 0:
+            attempts_per_second = progress_data["count"] / elapsed_time
+        else:
+            attempts_per_second = 0
+
+        # 예상 남은 시간 (초 단위)
+        if attempts_per_second > 0:
+            remaining_time = remaining_combinations / attempts_per_second
+        else:
+            remaining_time = 0
+
+        sys.stdout.write(f"\r시도 횟수: {progress_data['count']} 남은 횟수: {remaining_combinations} 경과 시간: {elapsed_time:.2f}초 예상 시간: {remaining_time:.2f}초")
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
     # 비밀번호를 생성하고 바로 쓰레드를 실행
