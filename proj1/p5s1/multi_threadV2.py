@@ -33,6 +33,8 @@
 # 암호가 해독되었습니다: abc123
 # 암호가 해독되어 password.txt로 저장되었습니다.
 # 전체 작업이 완료되었습니다.
+
+
 import zipfile
 import string
 import itertools
@@ -124,10 +126,9 @@ def unlock_zip(zip_file):
         remaining_time_str = format_time(remaining_time)
 
         # 현재 실행 중인 쓰레드 수 출력
-        active_thread_count = threading.active_count() - 1  # main thread를 제외한 active thread 수
         sys.stdout.write(f"\r시도 횟수: {progress_data['count']} 남은 횟수: {remaining_combinations} "
                          f"경과 시간: {elapsed_time_str} 예상 시간: {remaining_time_str} "
-                         f"현재 실행 중인 쓰레드 수: {active_thread_count}")
+                         f"현재 실행 중인 쓰레드 수: {active_threads}")
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
     # 비밀번호를 생성하고 바로 쓰레드를 실행
@@ -137,7 +138,7 @@ def unlock_zip(zip_file):
             progress_data["count"] += 1
         try_password(zip_file, password, lock, progress_lock, progress_data)
         with progress_lock:
-            active_threads -= 1
+            active_threads -= 1  # 쓰레드가 종료되면 active_threads 수 감소
         if progress_data["count"] % 10000 == 0:
             with progress_lock:
                 update_progress()
