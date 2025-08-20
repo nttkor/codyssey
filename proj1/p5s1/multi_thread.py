@@ -56,19 +56,25 @@ def generate_and_process_passwords(zip_file):
     progress_lock = threading.Lock()  # 진행 상태 업데이트를 위한 락
     progress_data = {"count": 0, "start_time": time.time()}  # 진행 상태 추적
 
+    active_threads = 0  # 현재 진행 중인 쓰레드 수
+    max_threads = 32  # 최대 쓰레드 수
+
     # 진행 상태 출력 함수
     def update_progress():
         nonlocal progress_data
         remaining_combinations = total_combinations - progress_data["count"]  # 남은 시도 횟수
-        sys.stdout.write(f"\r{password} {remaining_combinations}")
+        sys.stdout.write(f"\r{progress_data['count']} 시도 중... 남은 횟수: {remaining_combinations}")
         sys.stdout.flush()  # 출력 버퍼를 즉시 비움
 
     # 비밀번호를 생성하고 바로 쓰레드를 실행
     def worker(password):
+        nonlocal active_threads
         with progress_lock:
             progress_data["count"] += 1
         try_password(zip_file, password, lock, progress_lock, progress_data)
-        if progress_data["count"] % 100000 == 0:
+        with progress_lock:
+            active_threads -= 1
+        if progress_data["count"] % 10000 == 0:
             with progress_lock:
                 update_progress()
 
@@ -76,17 +82,19 @@ def generate_and_process_passwords(zip_file):
     for password_tuple in itertools.product(characters, repeat=6):
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
 
+        # 쓰레드를 시작하는 조건
+        while active_threads >= max_threads:
+            time.sleep(0.1)  # 쓰레드가 끝날 때까지 기다림 (최대 32개 쓰레드가 실행 중일 때)
+
         # 비밀번호를 시도하는 쓰레드를 생성
         thread = threading.Thread(target=worker, args=(password,))
-        thread.start()  # 쓰레드 실행
-
-        # 쓰레드가 일정 수 이상 실행되면 모든 쓰레드가 끝날 때까지 대기
-        if progress_data["count"] % 32 == 0:  # 32개의 쓰레드가 실행될 때마다
-            thread.join()  # 모든 쓰레드가 완료될 때까지 기다림
+        thread.start()
+        with progress_lock:
+            active_threads += 1  # 활성화된 쓰레드 수 증가
 
     # 모든 쓰레드가 완료될 때까지 대기
     while threading.active_count() > 1:  # main thread를 제외한 active thread 수
-        pass
+        time.sleep(0.1)
 
 # 전체 실행 함수
 def main():
@@ -98,4 +106,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
