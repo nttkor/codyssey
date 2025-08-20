@@ -33,7 +33,6 @@
 # 암호가 해독되었습니다: abc123
 # 암호가 해독되어 password.txt로 저장되었습니다.
 # 전체 작업이 완료되었습니다.
-
 import zipfile
 import string
 import itertools
@@ -143,6 +142,7 @@ def unlock_zip(zip_file):
                 update_progress()
 
     # 가능한 모든 비밀번호 생성
+    threads = []  # 쓰레드를 따로 관리하기 위해 리스트로 저장
     for password_tuple in itertools.product(characters, repeat=6):
         password = ''.join(password_tuple)  # tuple을 문자열로 변환
 
@@ -153,12 +153,13 @@ def unlock_zip(zip_file):
         # 비밀번호를 시도하는 쓰레드를 생성
         thread = threading.Thread(target=worker, args=(password,))
         thread.start()
+        threads.append(thread)  # 쓰레드를 리스트에 추가
         with progress_lock:
             active_threads += 1  # 활성화된 쓰레드 수 증가
 
     # 모든 쓰레드가 완료될 때까지 대기
-    while threading.active_count() > 1:  # main thread를 제외한 active thread 수
-        time.sleep(0.1)
+    for thread in threads:
+        thread.join()  # 각 쓰레드가 끝날 때까지 기다림
 
 # 전체 실행 함수
 def main():
