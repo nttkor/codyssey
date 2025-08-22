@@ -2,6 +2,17 @@ import json
 import os
 
 # 로그 파일 읽기
+def search_logs(log_dict, search_term):
+    """로그 딕셔너리에서 검색어를 포함한 로그를 찾아 출력"""
+    search_term = search_term.lower()
+    found_logs = []
+    for timestamp, item in log_dict.items():
+        if timestamp == "header":  # header는 건너뛰기
+            continue
+        event,message = item
+        if search_term in message.lower():
+            found_logs.append((timestamp, event, message))
+    return found_logs
 
 def main():
     log = str()
@@ -13,7 +24,7 @@ def main():
         with open('mission_computer_main.log', 'r', encoding='utf-8') as file:
             log = file.read()
         # 로그 출력
-        print("\nmission_computer_main.log 파일을 읽어 전체 내용을 화면에 출력:")
+        print(f"\nmission_computer_main.log 파일을 읽어 전체 내용{type(log)}을 화면에 출력:")
         print('=' * 100)  
         print(log)
         
@@ -31,17 +42,23 @@ def main():
         # 모든 예외를 한번에 처리
         print(f"예외 발생: {str(e)}")
         raise  # 예외를 다시 발생시켜 호출한 곳에서 처리하게끔 함
-
+    # 리스트객체를 화면에출력
+    print(f"\n리스트 객체{type(log_list)}를 화면에 출력:")
+    print('=' * 100)
+    print(*log_list,sep='\n')
     # 시간 역순으로 정렬 (datetime 모듈 없이 문자열 비교)
     log_list.sort(key=lambda x: x[0], reverse=True)
 
-    # 정렬된 로그 출력
-    print("\n시간 역순으로 정렬된 로그:")
-    for log in log_list:
-        print(log)
+    # 역순으로 정렬된 리스트객채 출력
+    print(f"\n시간 역순으로 정렬된 리스트개개체{type(log_list)}로그:")
+    print('=' * 100)  
+    # for log in log_list:
+    #     print(log)
+    print(*log_list, sep='\n')
 
     # 사전 형태로 변환
     log_dict = {log[0]: [log[1], log[2]] for log in log_list[1:]}
+    # dict의 첫 번째 항목을 header로 추가
     log_dict = {"header": log_list[0]} | log_dict
     # JSON 파일로 저장
     try:
@@ -93,48 +110,43 @@ def main():
         print(f"위험 로그 파일 저장 중 오류가 발생했습니다: {str(e)}")
         raise  # 오류를 호출한 곳에서 처리하도록 예외를 다시 발생시킴
 
+    with open('mission_computer_main.log', 'r', encoding='utf-8') as log_file:
+        logs = log_file.readlines()
+    print(f"\n로그를 시간의 역순으로 정렬하여 출력: type(logs)={type(logs)}")
+    print('=' * 100)
+    print(*logs[::-1])  # 역순으로 출력
+
     # 사용자 입력 필터링 기능
     while True:
 
         # 추천 단어 리스트 출력
-        print("\n단어검색기능 - 검색종료 01")
+        print("\n단어검색기능 - 검색종료 0")
         for i, keyword in enumerate(danger_keywords[:9], start=1):
             print(f"{i}: {keyword}", end=" ")
 
-        user_input = input("\n1~9 사이의 숫자를 입력하면 해당 단어로 검색합니다 (0 입력 시 검색 종료): ")
+        user_input = input("\n1~9 사이의 숫자를 입력하면 해당 단어로 검색합니다 (0 입력 시 검색 종료): ").strip()
 
         if user_input == '0':
             break
 
-        try:
+        if len(user_input) ==1 and user_input in '123456789':
             # 숫자가 1~10 사이인지 체크하고 해당 단어로 검색
             selected_index = int(user_input) - 1
-            if 0 <= selected_index < len(danger_keywords):
-                search_term = danger_keywords[selected_index]
-                print(f"검색어 '{search_term}'로 검색 중...")
-                # 검색된 로그 출력
-                found_logs = search_logs(log_dict, search_term)
-                if found_logs:
-                    for log in found_logs:
-                        print(f"{log[0]} | {log[1]} | {log[2]}")
-                else:
-                    print(f"검색어 '{search_term}'와 일치하는 로그가 없습니다.")
-            else:
-                print("잘못된 숫자를 입력하셨습니다. 다시 입력해 주세요.")
-        except ValueError:
-            print("유효한 숫자를 입력해 주세요.")
+            search_term = danger_keywords[selected_index]
+        else:
+            search_term = user_input
 
-def search_logs(log_dict, search_term):
-    """로그 딕셔너리에서 검색어를 포함한 로그를 찾아 출력"""
-    search_term = search_term.lower()
-    found_logs = []
-    for timestamp, item in log_dict.items():
-        if timestamp == "header":  # header는 건너뛰기
-            continue
-        event,message = item
-        if search_term in message.lower():
-            found_logs.append((timestamp, event, message))
-    return found_logs
+        print(f"검색어 '{search_term}'로 검색 중...")
+        # 검색된 로그 출력
+        found_logs = search_logs(log_dict, search_term)
+        if found_logs:
+            print(f"\n검색어 '{search_term}'와 일치하는 로그 {len(found_logs)}건 발견했습니다.")
+            for log in found_logs:
+                print(f"\t{log[0]} | {log[1]} | {log[2]}")
+            print()
+        else:
+            print(f"\n검색어 '{search_term}'와 일치하는 로그가 없습니다.")
+
 
 if __name__ == "__main__":
     try:
