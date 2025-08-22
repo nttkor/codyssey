@@ -57,9 +57,11 @@ def main():
     print(*log_list, sep='\n')
 
     # 사전 형태로 변환
+  
     log_dict = {log[0]: [log[1], log[2]] for log in log_list[1:]}
     # dict의 첫 번째 항목을 header로 추가
     log_dict = {"header": log_list[0]} | log_dict
+    print("dict", log_dict)
     # JSON 파일로 저장
     try:
         with open('mission_computer_main.json', 'w', encoding='utf-8') as json_file:
