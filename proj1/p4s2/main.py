@@ -5,7 +5,7 @@ import json
 def step1():
     # Mars_Base_Inventory_List.csv의 내용을 읽어서 화면에 출력한다.
     try:
-        with open('mars/Mars_Base_Inventory_List.csv','r',encoding='utf-8') as csv:
+        with open('Mars_Base_Inventory_List.csv','r',encoding='utf-8') as csv:
             file = csv.read()
             print(file)
     except (FileNotFoundError, IOError,ValueError, UnicodeDecodeError) as e :
