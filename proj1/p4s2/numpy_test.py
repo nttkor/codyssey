@@ -1,10 +1,6 @@
 import numpy as np
 import os
-# 데이터 파일 경로
-file_path_1 = 'mars_base_main_parts-001.csv'
-file_path_2 = 'mars_base_main_parts-002.csv'
-file_path_3 = 'mars_base_main_parts-003.csv'
-import numpy as np
+
 
 # 데이터 파일 경로
 file_path_1 = 'mars_base_main_parts-001.csv'
@@ -13,18 +9,25 @@ file_path_3 = 'mars_base_main_parts-003.csv'
 
 def load_and_merge_numpy():
     try:
-        # np.genfromtxt로 파일 로드 (dtype=None으로 타입 자동 추론)
-        data1 = np.genfromtxt(file_path_1, delimiter=',', names=True, dtype=None, encoding='utf-8')
-        data2 = np.genfromtxt(file_path_2, delimiter=',', names=True, dtype=None, encoding='utf-8')
-        data3 = np.genfromtxt(file_path_3, delimiter=',', names=True, dtype=None, encoding='utf-8')
+        # 각 파일에서 'strength' 값만 로드 (skiprows=1로 헤더 제외, usecols=1로 두 번째 열만)
+        arr1 = np.loadtxt(file_path_1, delimiter=',', skiprows=1, usecols=1, encoding='utf-8')
+        arr2 = np.loadtxt(file_path_2, delimiter=',', skiprows=1, usecols=1, encoding='utf-8')
+        arr3 = np.loadtxt(file_path_3, delimiter=',', skiprows=1, usecols=1, encoding='utf-8')
 
-        # 세 개의 구조화 배열을 하나로 병합
-        combined_data = np.concatenate((data1, data2, data3),axis=0)
+        # 각 파일의 'parts' 이름만 로드 (dtype='U'로 문자열 타입 지정)
+        parts_names = np.loadtxt(file_path_1, delimiter=',', skiprows=1, usecols=0, dtype='U', encoding='utf-8')
         
-        return combined_data
+        # 세 개의 value 배열을 수평으로 합치기 (각 행이 3개의 값을 갖게 됨)
+        combined_values = np.hstack((arr1.reshape(-1, 1), arr2.reshape(-1, 1), arr3.reshape(-1, 1)))
+
+        print("통합된 'strength' 값 배열:")
+        print(combined_values)
+        print("---------------------------------")
+        
+        return parts_names, combined_values
     except FileNotFoundError as e:
         print(f"오류: 파일을 찾을 수 없습니다 - {e.filename}")
-        return None
+        return None, None
     
 def load_csv():
     try:
