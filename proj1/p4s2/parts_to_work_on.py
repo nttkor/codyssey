@@ -8,17 +8,28 @@ file_path_3 = 'mars_base_main_parts-003.csv'
 
 
 def load_csv():
+    # 다음 세 개의 CSV 파일을 NumPy로 읽어 각각 arr1, arr2, arr3 배열로 만든다
     header = np.loadtxt(file_path_1, delimiter=',', dtype=str, max_rows=1, encoding='utf-8-sig')
     parts_list = np.loadtxt(file_path_1, delimiter=',', skiprows=1, usecols=0, dtype=str, encoding='utf-8-sig')
     arr1 = np.loadtxt(file_path_1, delimiter=',', skiprows=1, usecols=1)
     print(f"{file_path_1}을 성공적으로 열었습니다.")
+
     arr2 = np.loadtxt(file_path_2, delimiter=',', skiprows=1, usecols=1)
     print(f"{file_path_2}을 성공적으로 열었습니다.")
+    
     arr3 = np.loadtxt(file_path_3, delimiter=',', skiprows=1, usecols=1)
-    print(f"{file_path_3}을 성공적으로 열었습니다.")
+    print(f"{file_path_3}을 성공적으로 열었습니다.\n")
+    
+    print("header", header)
+    print("parts_list", parts_list)
+    print("arr1",arr1)
+    print("arr2",arr2)
+    print("arr3",arr3)
 
-
+    # 세 배열을 병합하여 parts라는 ndarray 생성
     parts = np.stack([arr1, arr2, arr3], axis=1)
+
+    print("parts",parts)
     return header, parts_list, parts
 
 
@@ -35,7 +46,6 @@ def filter_and_save(header, parts_list, parts, threshold=50, output_file='parts_
     combined_arr = np.stack([masked_list, masked_mean.astype(str)], axis=1)  # 숫자 → 문자 변환 필수
 
     rows = [header.tolist()] + combined_arr.tolist()
-    
     #CSv 파일로 병합
     with open(output_file, 'w', encoding='utf-8') as f:
         for row in rows:
