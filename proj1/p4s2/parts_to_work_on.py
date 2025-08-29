@@ -28,16 +28,21 @@ def load_and_merge_numpy():
     
 def load_csv():
     try:
+        # 데이터만 읽어 1차원 ndarray로 만들어 준다
+        parts_name = np.loadtxt(file_path_1, delimiter=',',usecols=0)
         arr1 = np.loadtxt(file_path_1, delimiter=',', skiprows=1, usecols=1)
         arr2 = np.loadtxt(file_path_2, delimiter=',', skiprows=1, usecols=1)
         arr3 = np.loadtxt(file_path_3, delimiter=',', skiprows=1, usecols=1)
 
-                # 세 개의 구조화 배열을 하나로 병합
-        combined_data = np.concatenate([arr1, arr2, arr3],axis=1)
+        # 세 개의 구조화 배열을 하나로 병합
+        #combined_data = np.concatenate([arr1, arr2, arr3],axis=1)
+        #없는 차원을 만들어 합쳐준다
+
+        parts = np.stack([arr1, arr2, arr3],axis=1)
         print("통합된 'parts' 배열:")
-        print(combined_data)
+        print(parts)
         print("---------------------------------")
-        return combined_data
+        return parts
     
     except FileNotFoundError as e:
         print(f"오류: 파일을 찾을 수 없습니다 - {e.filename}")
