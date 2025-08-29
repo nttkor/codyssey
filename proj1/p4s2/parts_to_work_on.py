@@ -33,7 +33,7 @@ def load_csv():
         arr3 = np.loadtxt(file_path_3, delimiter=',', skiprows=1, usecols=1)
 
                 # 세 개의 구조화 배열을 하나로 병합
-        combined_data = np.concatenate((arr1, arr2, arr3),axis=0)
+        combined_data = np.concatenate([arr1, arr2, arr3],axis=1)
         print("통합된 'parts' 배열:")
         print(combined_data)
         print("---------------------------------")
@@ -64,7 +64,7 @@ def parts_mean(parts):
 def main():
     os.chdir('/home/mpeg4/Codyssey/proj1/p4s2')
     # parts = load_csv()
-    parts = load_and_merge_numpy()
+    parts = load_csv()
     parts_mean(parts)
 
 if __name__ == '__main__':
