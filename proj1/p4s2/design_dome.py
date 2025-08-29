@@ -10,7 +10,11 @@ material_density = {
 # 화성의 중력 (지구의 중력의 약 0.38배)
 mars_gravity = 0.38
 
-# 돔의 표면적과 무게 계산 함수
+# 반구체 돔의 표면적과 무게를 계산하는 함수 sphere_area()를 정의한다.
+# 함수는 다음 파라미터를 가진다:
+# diameter (단위: m)
+# material: 유리(glass), 알루미늄(aluminum), 탄소강(carbon_steel)
+# thickness: 기본값 1cm
 def sphere_area(diameter, material, thickness=1):
     # 유효한 재질 체크
     if material not in material_density:
@@ -51,6 +55,7 @@ def main():
     while True:
         try:
             # 사용자 입력
+            # 프로그램은 반복 실행되어야 하며, 종료 조건도 구현되어야 한다.
             diameter_input = input("지름을 입력하세요 (m):  -> 0:종료.")
             if diameter_input.lower() == '0':
                 print("프로그램을 종료합니다.")
@@ -85,7 +90,10 @@ def main():
 
             # 돔의 표면적과 무게 계산
             surface_area, weight_on_mars = sphere_area(diameter, material, thickness)
-
+            # 면적은 소수점 3자리까지
+            # 무게는 **화성 중력(지구 중력의 약 0.38배)**을 반영하여 출력
+            # 전역 변수 저장 및 다음 형식으로 출력:
+            # 재질 ⇒ 유리, 지름 ⇒ 10, 두께 ⇒ 1, 면적 ⇒ 314.159, 무게 ⇒ 500.987 kg
             # 결과 출력
             print(f"재질 ⇒ {material}, 지름 ⇒ {diameter} m, 두께 ⇒ {thickness} cm, 면적 ⇒ {surface_area:.3f} cm², 무게 ⇒ {weight_on_mars:.3f} kg")
 
