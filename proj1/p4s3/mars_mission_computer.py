@@ -7,12 +7,12 @@ class DummySensor:
     def __init__(self):
         # 환경 정보 딕셔너리
         self.env_values = {
-            "mars_base_internal_temperature": None,
-            "mars_base_external_temperature": None,
-            "mars_base_internal_humidity": None,
-            "mars_base_external_illuminance": None,
-            "mars_base_internal_co2": None,
-            "mars_base_internal_oxygen": None
+            "mars_base_internal_temperature": 0.0,
+            "mars_base_external_temperature": 0.0,
+            "mars_base_internal_humidity": 0.0,
+            "mars_base_external_illuminance": 0.0,
+            "mars_base_internal_co2": 0.0,
+            "mars_base_internal_oxygen": 0.0
         }
 
     def set_env(self):
