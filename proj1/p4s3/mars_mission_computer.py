@@ -17,7 +17,9 @@ class DummySensor:
 
     def set_env(self):
         '''
-        DummySensor는 테스트를 위한 객체이므로 데이터를 랜덤으로 생성한다.
+        DummySensor는 테스트를 위한 객체이므로 데이터를 랜덤으로 생성한다. 
+        random.unifor()은 범위내의 실수를 반환한다. 
+        round(num, ndigits)  ndigitis자리의  소수점을 반올림 한다. 
         '''
         self.env_values["mars_base_internal_temperature"] = round(random.uniform(18, 30), 2)
         self.env_values["mars_base_external_temperature"] = round(random.uniform(0, 21), 2)
@@ -27,7 +29,13 @@ class DummySensor:
         self.env_values["mars_base_internal_oxygen"] = round(random.uniform(4, 7), 2)
 
     def get_env(self):
+        '''
+        DummySensor 클래스는 get_env() 메소드를 추가하는데 get_env() 메소드는 env_values를 return 한다.
+        bonus: 출력하는 내용을 날짜와시간, 화성 기지 내부 온도, 화성 기지 외부 온도, 화성 기지 내부 습도 ,화성 기지 외부 광량, 
+        화성 기지 내부 이산화탄소 농도, 화성 기지 내부 산소 농도 와 같이 파일에 log를 남기는 부분을 get_env()에 추가 한다.
+        '''
         # 로그 파일에 기록
+
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         log_entry = (
             f"{timestamp}, "
@@ -45,9 +53,11 @@ class DummySensor:
 
 # 인스턴스 생성 및 테스트
 if __name__ == "__main__":
+    # DummySensor 클래스를 ds라는 이름으로 인스턴스(Instance)로 만든다.
     ds = DummySensor()
-    # DummySensor는 테스트를 위한 객체이므로 데이터를 랜덤으로 생성한다.
+    # 인스턴스화 한 DummySensor 클래스에서 set_env()와 
     ds.set_env()
+    # get_env()를 차례로 호출해서 값을 확인한다.
     env_data = ds.get_env()
 
     # 콘솔에도 출력
