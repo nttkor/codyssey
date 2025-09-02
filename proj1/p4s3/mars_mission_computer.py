@@ -1,13 +1,28 @@
-# mars_mission_computer.py
+'''
+| 항목                            | 설명                      |
+| ----------------------------- | ----------------------- |
+| `get_sensor_data()`           | 5초마다 센서 정보 출력           |
+| `get_mission_computer_info()` | 20초마다 시스템 정보 출력         |
+| `get_mission_computer_load()` | 20초마다 시스템 부하 출력         |
+| 멀티 스레드 실행                     | 하나의 인스턴스에서 3개 메소드 동시 실행 |
+| 멀티 프로세스 실행                    | 각 메소드를 별도 프로세스로 실행      |
+| 종료 처리                         | `q` 입력으로 스레드 또는 프로세스 종료 |
+
+'''
 
 import os
-import random
-import datetime
 import json
 import time
 import threading
-import statistics
+import multiprocessing
+import platform
+import psutil
+import random
+from datetime import datetime
 
+# ----------------------
+# DummySensor 정의
+# ----------------------
 class DummySensor:
     def __init__(self):
         self.env_values = {
@@ -30,88 +45,139 @@ class DummySensor:
     def get_env(self):
         return self.env_values
 
-    def save_log(self):
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        log_entry = (
-            f"{timestamp}, "
-            f"내부 온도: {self.env_values['mars_base_internal_temperature']}°C, "
-            f"외부 온도: {self.env_values['mars_base_external_temperature']}°C, "
-            f"내부 습도: {self.env_values['mars_base_internal_humidity']}%, "
-            f"외부 광량: {self.env_values['mars_base_external_illuminance']} W/m², "
-            f"내부 CO2: {self.env_values['mars_base_internal_co2']}%, "
-            f"내부 O2: {self.env_values['mars_base_internal_oxygen']}%\n"
-        )
-        with open("environment_log.txt", "a", encoding="utf-8") as log_file:
-            log_file.write(log_entry)
 
-
+# ----------------------
+# MissionComputer 정의
+# ----------------------
 class MissionComputer:
     def __init__(self):
-        self.env_values = {}
         self.ds = DummySensor()
         self.running = True
-        self.data_buffer = []  # 5분 평균용
-
-    def get_sensor_data(self):
-        start_time = time.time()
-        while self.running:
-            self.ds.set_env()
-            env_data = self.ds.get_env()
-            self.env_values = env_data.copy()
-
-            # 저장
-            self.ds.save_log()
-
-            # 버퍼에 데이터 추가
-            self.data_buffer.append(env_data)
-            if len(self.data_buffer) > 60:  # 5분(5*60=300초, 5초마다 수집이므로 60개)
-                self.data_buffer.pop(0)
-
-            # JSON 형태로 출력
-            json_output = json.dumps(self.env_values, indent=4, ensure_ascii=False)
-            print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 환경 데이터:")
-            print(json_output)
-
-            # 5분 평균 출력 (60개 수집 시마다)
-            if int(time.time() - start_time) % 300 < 5 and len(self.data_buffer) == 60:
-                self.print_5min_average()
-
-            time.sleep(5)
-
-        print("System stopped...")
-
-    def print_5min_average(self):
-        print("\n--- 5분 평균 환경 값 ---")
-        avg_values = {}
-        keys = self.data_buffer[0].keys()
-        for key in keys:
-            values = [data[key] for data in self.data_buffer]
-            avg_values[key] = round(statistics.mean(values), 2)
-        print(json.dumps(avg_values, indent=4, ensure_ascii=False))
-        print("------------------------\n")
 
     def stop(self):
         self.running = False
+        print("System stopped...")
+
+    def get_sensor_data(self):
+        while self.running:
+            self.ds.set_env()
+            env = self.ds.get_env()
+            print("[Sensor Data] 5초 주기 출력")
+            print(json.dumps(env, indent=4))
+            time.sleep(5)
+
+    def get_mission_computer_info(self):
+        while self.running:
+            info = {
+                "os": platform.system(),
+                "os_version": platform.version(),
+                "cpu_type": platform.processor(),
+                "cpu_cores": psutil.cpu_count(logical=False),
+                "memory_total_MB": round(psutil.virtual_memory().total / (1024 * 1024), 2)
+            }
+            print("[System Info] 20초 주기 출력")
+            print(json.dumps(info, indent=4))
+            time.sleep(20)
+
+    def get_mission_computer_load(self):
+        while self.running:
+            load = {
+                "cpu_usage_percent": psutil.cpu_percent(interval=1),
+                "memory_usage_percent": psutil.virtual_memory().percent
+            }
+            print("[System Load] 20초 주기 출력")
+            print(json.dumps(load, indent=4))
+            time.sleep(20)
 
 
-# 입력 감지 쓰레드
+# ----------------------
+# 스레드 입력 대기 (보너스 과제)
+# ----------------------
 def wait_for_key(mc):
     while mc.running:
         key = input("종료하려면 'q'를 입력하세요: ")
         if key.lower() == 'q':
             mc.stop()
+            break
 
 
+# ----------------------
+# 멀티 스레드 실행
+# ----------------------
+def run_with_threads():
+    mc = MissionComputer()
+
+    threads = [
+        threading.Thread(target=mc.get_sensor_data),
+        threading.Thread(target=mc.get_mission_computer_info),
+        threading.Thread(target=mc.get_mission_computer_load),
+        threading.Thread(target=wait_for_key, args=(mc,))
+    ]
+
+    for t in threads:
+        t.start()
+
+    for t in threads:
+        t.join()
+
+
+# ----------------------
+# 멀티 프로세스용 타겟 함수
+# ----------------------
+def run_info():
+    mc = MissionComputer()
+    mc.get_mission_computer_info()
+
+def run_load():
+    mc = MissionComputer()
+    mc.get_mission_computer_load()
+
+def run_sensor():
+    mc = MissionComputer()
+    mc.get_sensor_data()
+
+# ----------------------
+# 멀티 프로세스 종료 감시 (보너스 과제)
+# ----------------------
+def monitor_processes(processes):
+    while True:
+        key = input("프로세스를 종료하려면 'q'를 입력하세요: ")
+        if key.lower() == 'q':
+            for p in processes:
+                p.terminate()
+            print("All processes terminated.")
+            break
+
+# ----------------------
+# 멀티 프로세스 실행
+# ----------------------
+def run_with_processes():
+    p1 = multiprocessing.Process(target=run_info)
+    p2 = multiprocessing.Process(target=run_load)
+    p3 = multiprocessing.Process(target=run_sensor)
+
+    p1.start()
+    p2.start()
+    p3.start()
+
+    monitor_processes([p1, p2, p3])
+
+    p1.join()
+    p2.join()
+    p3.join()
+
+
+# ----------------------
+# 메인
+# ----------------------
 if __name__ == "__main__":
     os.chdir('/home/mpeg4/Codyssey/proj1/p4s3')
 
-    # 미션 컴퓨터 인스턴스
-    RunComputer = MissionComputer()
+    mode = input("실행 모드를 선택하세요 (1: 쓰레드 / 2: 프로세스): ")
 
-    # 키 입력 감지 쓰레드 시작
-    input_thread = threading.Thread(target=wait_for_key, args=(RunComputer,))
-    input_thread.daemon = True
-    input_thread.start()
-
-    # 센서 데이터 수집 시작
-    RunComputer.get_sensor_data()
+    if mode == '1':
+        run_with_threads()
+    elif mode == '2':
+        run_with_processes()
+    else:
+        print("잘못된 입력입니다.")
