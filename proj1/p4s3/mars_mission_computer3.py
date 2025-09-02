@@ -1,11 +1,5 @@
 '''
-📁 보너스 과제 (선택 설정 파일 setting.txt 예시)
 
-추가 요구가 있을 경우 이 파일을 이용해서 출력 항목을 제어할 수 있도록 확장 가능:
-
-show_os=true
-show_cpu=true
-show_memory=true
 '''
 import os
 import json

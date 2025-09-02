@@ -1,0 +1,9 @@
+[get_mission_computer_info]
+os=true
+os_version=false
+cpu_type=false
+cpu_cores=false
+memory_total_MB=true
+[get_mission_computer_load]
+cpu_usage_percent=true
+memory_usage_percent=true

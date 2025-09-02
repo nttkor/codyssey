@@ -49,15 +49,22 @@ class MissionComputer:
     
     def __init__(self):
         self.env_values = {}  # 화성 기지의 환경에 대한 값을 저장할 수 있는 딕서너리 객체
-        self.ds = DummySensor()
+        self.ds = DummySensor() #문제 1에서 제작한 DummySensor 클래스를 ds라는 이름으로 인스턴스화 시킨다.
         self.running = True
         self.data_buffer = []  # 5분 평균용
 
     def get_sensor_data(self):
+        '''
+        MissionComputer에 get_sensor_data() 메소드를 추가한다.
+        get_sensor_data() 메소드에 다음과 같은 세 가지 기능을 추가한다.
+            센서의 값을 가져와서 env_values에 담는다.
+            env_values의 값을 출력한다. 이때 환경 정보의 값은 json 형태로 화면에 출력한다.
+            위의 두 가지 동작을 5초에 한번씩 반복한다.
+        '''
         start_time = time.time()
         while self.running:
             self.ds.set_env()
-            env_data = self.ds.get_env()
+            env_data = self.ds.get_env() # 센서의 값을 가져와서 env_values에 담는다.
             self.env_values = env_data.copy()
 
             # 저장
@@ -106,10 +113,10 @@ def wait_for_key(mc):
 if __name__ == "__main__":
     os.chdir('/home/mpeg4/Codyssey/proj1/p4s3')
 
-    # 미션 컴퓨터 인스턴스
+    # MissionComputer 클래스를 RunComputer 라는 이름으로 인스턴스화 한다.
     RunComputer = MissionComputer()
 
-    # 키 입력 감지 쓰레드 시작
+    # RunComputer 인스턴스의 get_sensor_data() 메소드를 호출해서 지속적으로 환경에 대한 값을 출력 할 수 있도록 한다.
     input_thread = threading.Thread(target=wait_for_key, args=(RunComputer,))
     input_thread.daemon = True
     input_thread.start()
