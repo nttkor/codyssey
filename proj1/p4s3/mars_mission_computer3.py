@@ -54,6 +54,14 @@ class MissionComputer:
         print("System stopped...")
 
     def get_mission_computer_info(self):
+        '''
+        get_mission_computer_info()에 가져온 시스템 정보를 JSON 형식으로 출력하는 코드를 포함한다.
+        운영체계
+        운영체계 버전
+        CPU의 타입
+        CPU의 코어 수
+        메모리의 크기
+        '''
         info = {
             "os": platform.system(),
             "os_version": platform.version(),
@@ -66,11 +74,17 @@ class MissionComputer:
         return info
 
     def get_mission_computer_load(self):
+        '''
+        미션 컴퓨터의 부하를 가져오는 코드를 get_mission_computer_load() 메소드로 만들고 MissionComputer 클래스에 추가한다
+        CPU 실시간 사용량
+        메모리 실시간 사용량
+        '''
         load = {
             "cpu_usage_percent": psutil.cpu_percent(interval=1),
             "memory_usage_percent": psutil.virtual_memory().percent
         }
         print("[System Load - JSON 출력]")
+        #get_mission_computer_load()에 해당 결과를 JSON 형식으로 출력하는 코드를 추가한다.
         print(json.dumps(load, indent=4))
         return load
 
@@ -89,9 +103,12 @@ if __name__ == "__main__":
     os.chdir('/home/mpeg4/Codyssey/proj1/p4s3')
 
     # 인스턴스 생성
+    #MissionComputer 클래스를 runComputer 라는 이름으로 인스턴스화 한다.
     runComputer = MissionComputer()
 
     # 시스템 정보 출력
+    #  runComputer 인스턴스의 get_mission_computer_info(), 
+    # get_mission_computer_load() 메소드를 호출해서 시스템 정보에 대한 값을 출력 할 수 있도록 한다.
     runComputer.get_mission_computer_info()
 
     # 시스템 부하 출력

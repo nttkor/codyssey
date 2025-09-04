@@ -76,6 +76,9 @@ class MissionComputer:
             print(f"[에러] 설정 파일을 읽는 중 오류 발생: {e}. 기본 설정을 사용합니다.")
 
     # 시스템 정보 출력 (20초 간격)
+    # 값들을 연속적으로 출력하기 위해서 MissionComputer 클래스에 있는 
+    # get_mission_computer_info(), get_mission_computer_load() 두 개의 메소드를 
+    # time 라이브러리를 사용해서 각각 20초에 한번씩 결과를 출력 할 수 있게 수정한다.
     def get_mission_computer_info(self):
         while self.running.is_set():
             info_sources = {
@@ -189,9 +192,12 @@ if __name__ == "__main__":
 
     # --- 1단계: 멀티스레드 실행 ---
     print("== 멀티스레드 실행 시작 ==")
+    # MissionComputer 클래스를 runComputer 라는 이름으로 인스턴스화 한다.
     runComputer = MissionComputer()
+    # runComputer 인스턴스의 get_mission_computer_info(), get_mission_computer_load(), get_sensor_data() 메소드를 각각 멀티 쓰레드로 실행 시킨다.
     run_threads(runComputer)
-
+    # 다시 코드를 수정해서 MissionComputer 클래스를 runComputer1, runComputer2, runComputer3 이렇게 3개의 인스턴스를 만든다.
     # --- 2단계: 멀티프로세스 실행 ---
+    # 3개의 인스턴스를 멀티 프로세스로 실행시켜서 각각 get_mission_computer_info(), get_mission_computer_load(), get_sensor_data()를 실행시키고 출력을 확인한다.
     print("\n== 멀티프로세스 실행 시작 ==")
     run_processes()
