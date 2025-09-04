@@ -138,7 +138,7 @@ class MissionComputer:
                 "memory_total_MB": lambda: round(psutil.virtual_memory().total / (1024 * 1024), 2)
             }
             info = {k: getter() for k, getter in info_sources.items() if self.setting[k]}
-            print("[System Info - JSON 출력]")
+            print(f"[{self.name} System Info - JSON 출력]")
             print(json.dumps(info, indent=4))
             responsive_sleep(20, self.stop_event)
 
@@ -151,7 +151,7 @@ class MissionComputer:
                 "memory_usage_percent": lambda: psutil.virtual_memory().percent
             }
             load = {k: getter() for k, getter in load_sources.items() if self.setting[k]}
-            print("[System Load - JSON 출력]")
+            print(f"[{self.name} System Load - JSON 출력]")
             print(json.dumps(load, indent=4))
             responsive_sleep(20, self.stop_event)
 
@@ -188,9 +188,9 @@ def run_processes(stop_event):
         return wrapper
     target=proc_wrapper('get_sensor_data','Process-MC1')
     process_list = [
-        multiprocessing.Process(target=proc_wrapper('get_sensor_data', 'Process-MC1'),daemon=True),
-        multiprocessing.Process(target=proc_wrapper('get_mission_computer_info', 'Process-MC2'),daemon=True),
-        multiprocessing.Process(target=proc_wrapper('get_mission_computer_load', 'Process-MC3'),daemon=True)
+        multiprocessing.Process(target=proc_wrapper('get_sensor_data', 'RunComputer1'),daemon=True),
+        multiprocessing.Process(target=proc_wrapper('get_mission_computer_info', 'RunComputer2'),daemon=True),
+        multiprocessing.Process(target=proc_wrapper('get_mission_computer_load', 'RunComputer3'),daemon=True)
     ]
     for p in process_list:
         p.start()
@@ -222,6 +222,7 @@ if __name__ == '__main__':
     processes = run_processes(stop_event)
 
     # 문제 4. 쓰레드 실행
+
     thread_runner = threading.Thread(target=run_threads, args=(stop_event,))
     thread_runner.start()
 
