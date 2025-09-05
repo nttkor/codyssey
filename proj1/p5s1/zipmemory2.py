@@ -79,13 +79,15 @@ def get_zip_info(zip_path):
     with open(zip_path, 'rb') as f:
         data = f.read()
     
-    # ZIP 로컬 파일 헤더 찾기
+    # ZIP 파일의 모든 파일 엔트리
     pos = data.find(b'PK\x03\x04')
     if pos == -1:
         raise ValueError("유효한 ZIP 파일이 아닙니다")
     
     # 헤더 파싱
     pos += 4  # 시그니처 건너뛰기
+    # struct.unpack() 함수는 바이너리 데이터(바이트)를 특정 형식의 파이썬 값으로 변환하는 데 사용됩니다. <I와 <H는 그 변환 형식을 지정하는 포맷 문자열입니다.
+    # H (부호 없는 2바이트 정수)
     version = struct.unpack('<H', data[pos:pos+2])[0]
     pos += 2
     flags = struct.unpack('<H', data[pos:pos+2])[0]
@@ -100,6 +102,7 @@ def get_zip_info(zip_path):
     pos += 2
     mod_date = struct.unpack('<H', data[pos:pos+2])[0]
     pos += 2
+    # I (부호 없는 4바이트 정수)
     crc32 = struct.unpack('<I', data[pos:pos+4])[0]
     pos += 4
     comp_size = struct.unpack('<I', data[pos:pos+4])[0]
@@ -111,101 +114,32 @@ def get_zip_info(zip_path):
     extra_len = struct.unpack('<H', data[pos:pos+2])[0]
     pos += 2
     
-    # 파일명과 extra 필드 건너뛰기
+    # 암호화 헤더 위치 계산: 파일명과 extra 필드 건너뛰기
+    #로컬 파일 헤더는 고정된 길이를 가지지 않고, 파일명 길이(name_len)와 추가 필드 길이(extra_len)에 따라 그 길이가 달라집니다.
     pos += name_len + extra_len
     
-    # 암호화된 헤더 12바이트
+    # 계산된 위치에서 12바이트를 읽어 암호화 헤더를 추출합니다.
     encrypted_header = data[pos:pos+12]
     
     # Check byte 계산 (bit 3 확인)
+    # ZIP 파일의 압축 정보는 파일 데이터 뒤에 붙는 **데이터 디스크립터(Data Descriptor)**에 저장될 수도 있습니다. 이 플래그는 그 사용 여부를 나타냅니다.
     if flags & 0x8:  # Data descriptor 사용
+        # check byte는 파일 수정 시간(mod_time)의 상위 1바이트에서 가져옵니다 ((mod_time >> 8) & 0xFF).
         check_byte = (mod_time >> 8) & 0xFF
     else:
+        # crc32 값의 상위 1바이트에서 가져옵니다 ((crc32 >> 24) & 0xFF). 이 코드는 crc32 값을 24비트 오른쪽으로 이동시켜 상위 8비트(1바이트)만 남기는 연산입니다.
         check_byte = (crc32 >> 24) & 0xFF
-    
+    # 마지막으로, 함수는 추출한 12바이트 암호화 헤더(encrypted_header), 계산된 예상 check byte, 그리고 파일의 crc32 값을 튜플 형태로 반환합니다. 이 값들은 이후 브루트포스 워커 프로세스에서 사용됩니다.
     return encrypted_header, check_byte, crc32
 
-def generate_password_chunks(num_workers=8):
-    """워커 수에 맞게 암호 공간을 균등 분할"""
-    chars = string.ascii_lowercase  # 'abcdefghijklmnopqrstuvwxyz'
-    digits = string.digits         # '0123456789'
-    
-    # 전체 조합 수 계산
-    # 1. 순수 알파벳 6자: 26^6
-    # 2. 알파벳 5자 + 숫자 1자: 6 * 26^5 * 10 (위치별)
-    # 3. 알파벳 4자 + 숫자 2자: 15 * 26^4 * 10^2 (위치별)
-    
-    total_alpha_6 = 26**6
-    total_alpha_5_digit_1 = 6 * (26**5) * 10
-    total_alpha_4_digit_2 = 15 * (26**4) * (10**2)
-    
-    total_combinations = total_alpha_6 + total_alpha_5_digit_1 + total_alpha_4_digit_2
-    chunk_size = total_combinations // num_workers
-    
-    chunks = []
-    current_count = 0
-    
-    # 1. 순수 알파벳 6자리 분할
-    alpha_chunk_size = total_alpha_6 // num_workers
-    for i in range(num_workers):
-        start_idx = i * alpha_chunk_size
-        end_idx = (i + 1) * alpha_chunk_size if i < num_workers - 1 else total_alpha_6
-        chunks.append(('alpha_6', start_idx, end_idx))
-    
-    return chunks
-
-def password_generator_chunk(pattern_type, start_idx, end_idx):
-    """지정된 범위의 암호 조합 생성"""
-    chars = string.ascii_lowercase
-    digits = string.digits
-    
-    if pattern_type == 'alpha_6':
-        # 순수 알파벳 6자리
-        count = 0
-        for combo in itertools.product(chars, repeat=6):
-            if start_idx <= count < end_idx:
-                yield ''.join(combo)
-            count += 1
-            if count >= end_idx:
-                break
-    
-    elif pattern_type == 'alpha_5_digit_1':
-        # 알파벳 5자 + 숫자 1자
-        count = 0
-        for pos in range(6):  # 숫자가 들어갈 위치
-            for combo in itertools.product(chars, repeat=5):
-                for digit in digits:
-                    if start_idx <= count < end_idx:
-                        password = list(''.join(combo))
-                        password.insert(pos, digit)
-                        yield ''.join(password[:6])
-                    count += 1
-                    if count >= end_idx:
-                        return
-    
-    elif pattern_type == 'alpha_4_digit_2':
-        # 알파벳 4자 + 숫자 2자
-        count = 0
-        for pos1 in range(6):
-            for pos2 in range(pos1 + 1, 6):
-                for combo in itertools.product(chars, repeat=4):
-                    for d1 in digits:
-                        for d2 in digits:
-                            if start_idx <= count < end_idx:
-                                password = list(''.join(combo))
-                                password.insert(pos1, d1)
-                                password.insert(pos2, d2)
-                                yield ''.join(password[:6])
-                            count += 1
-                            if count >= end_idx:
-                                return
 
 def smart_password_generator():
+
     """통계적으로 가능성이 높은 순서로 암호 생성"""
     chars = string.ascii_lowercase
     digits = string.digits
     
-    # 1. 흔한 패턴부터 (일반적인 암호 패턴)
+    # 1. 흔한 패턴부터 (일반적인 암호 패턴) 제너레이터함수이기때문에 하니씩 리턴되고 멈춤
     common_starts = ['pass', 'test', 'admin', 'user', 'temp']
     
     # 흔한 패턴 우선 시도
@@ -213,7 +147,18 @@ def smart_password_generator():
         remaining_len = 6 - len(start)
         if remaining_len > 0:
             for combo in itertools.product(chars + digits, repeat=remaining_len):
+                #yield를 사용하여 제너레이터로 동작 
                 yield start + ''.join(combo)
+    
+
+    # 3. 끝에 숫자가 2개 오는 패턴 (예: test12, hello34 등)
+    for digit_count in [2]:
+        alpha_count = 6 - digit_count
+        for alpha_combo in itertools.product(chars, repeat=alpha_count):
+            for digit_combo in itertools.product(digits, repeat=digit_count):
+                password = ''.join(alpha_combo) + ''.join(digit_combo)
+                if not any(password.startswith(start) for start in common_starts):
+                    yield password
     
     # 👉 여기서 순서 변경!
     # 2. 끝에 숫자가 오는 패턴 (예: passw1, hello3, abcde9 등)
@@ -225,14 +170,7 @@ def smart_password_generator():
                 if not any(password.startswith(start) for start in common_starts):
                     yield password
     
-    # 3. 끝에 숫자가 2개 오는 패턴 (예: test12, hello34 등)
-    for digit_count in [2]:
-        alpha_count = 6 - digit_count
-        for alpha_combo in itertools.product(chars, repeat=alpha_count):
-            for digit_combo in itertools.product(digits, repeat=digit_count):
-                password = ''.join(alpha_combo) + ''.join(digit_combo)
-                if not any(password.startswith(start) for start in common_starts):
-                    yield password
+
     
     # 4. 중간에 숫자가 있는 패턴
     for digit_pos in range(1, 5):  # 첫 자리와 마지막 자리 제외
@@ -252,9 +190,16 @@ def smart_password_generator():
 
 
 def worker_process_improved(args):
-    """개선된 워커 프로세스 - 문자+숫자 비율별 검색"""
+    '''
+    개선된 워커 프로세스 - 문자+숫자 비율별 검색"
+    worker_id: 각 워커를 구분하는 고유 ID입니다.
+    zip_path: 암호를 해독할 ZIP 파일의 경로입니다.
+    encrypted_header, check_byte: ZIP 파일에서 추출한 암호화 정보입니다. 이를 통해 실제 파일을 풀지 않고도 암호가 맞는지 빠르게 검증할 수 있습니다.
+    queue: 암호를 찾았을 때 메인 프로세스에 결과를 전달하기 위한 **공유 큐(Queue)**입니다.
+    total_workers: 전체 워커의 수입니다.
+    '''
     worker_id, zip_path, encrypted_header, check_byte, queue, total_workers = args
-    validator = ZipCryptoValidator()
+    validator = ZipCryptoValidator() # 클래스의 인스턴스를 생성하여 암호 검증에 필요한 준비를 합니다. 이 객체는 각 워커마다 독립적으로 존재합니다.
     count = 0
     start_time = time.time()
     last_print_time = start_time
@@ -262,6 +207,7 @@ def worker_process_improved(args):
     print(f"[워커 {worker_id}/{total_workers}] 문자+숫자 조합 검색 시작", flush=True)
     
     # 워커별로 다른 시작점 사용 (인터리빙 방식)
+    #  워커가 검색할 암호 조합을 규칙에 따라 생성합니다
     password_gen = smart_password_generator()
     
     # 워커 ID에 따라 시작 오프셋 설정
@@ -290,6 +236,7 @@ def worker_process_improved(args):
                 with zipfile.ZipFile(zip_path) as zf:
                     zf.extractall(pwd=password.encode())
                 print(f"\n🎉 [성공!] 워커 {worker_id}가 암호 발견: {password}", flush=True)
+                #성공시 암호를 공유큐에 넣는다
                 queue.put(password)
                 return password
             except:
@@ -339,33 +286,43 @@ def unlock_zip(zip_path='emergency_storage_key.zip', max_workers=None):
     
     start_time = time.time()
     manager = Manager()
-    result_queue = manager.Queue()
+    '''
+    공유 메모리 역할: Queue는 여러 프로세스가 안전하게 데이터를 주고받을 수 있는 통로 역할을 합니다.
+    데이터 넣기: 암호 해독에 성공한 자식 프로세스는 자신이 찾은 암호를 result_queue.put() 메서드를 사용하여 큐에 넣습니다.
+    데이터 가져오기: 메인 프로세스(부모 프로세스)는 result_queue.get()을 사용하여 큐에서 데이터를 가져옵니다.
+    즉, 암호를 찾은 자식 프로세스가 직접 found_password 변수에 값을 저장하는 것이 아니라, 공유된 큐에 암호를 넣으면, 메인 프로세스가 그 값을 큐에서 꺼내와 자신의 found_password 변수에 할당하는 방식입니다.
+    이러한 **큐(Queue)나 파이프(Pipe)**와 같은 IPC(Inter-Process Communication) 메커니즘을 사용해야만 독립적인 메모리 공간을 가진 프로세스 간에 데이터를 주고받을 수 있습니다.
+    '''
+    result_queue = manager.Queue() 
     
     # 작업 분배
     tasks = []
     for worker_id in range(max_workers):
         tasks.append((worker_id, zip_path, encrypted_header, check_byte, result_queue, max_workers))
     
-    # 병렬 처리
+    # 병렬 처리 Pool : Python의 multiprocessing 모듈에 있는 클래스로, 여러 개의 프로세스를 묶어 병렬로 작업을 처리할 수 있게 해줍니다.
     with Pool(processes=max_workers) as pool:
         print("스마트 브루트포스 공격 시작...")
         print("우선순위: 흔한 패턴 → 순수 알파벳 → 숫자 조합")
         print("-"*60)
         
-        # 비동기 실행
+        # 비동기 실행, 이는 모든 작업이 완료될 때까지 기다리지 않고 다음 코드를 실행할 수 있다는 뜻입니다.
         results = pool.map_async(worker_process_improved, tasks)
         
         # 결과 대기
         found_password = None
         try:
+            #큐에 새로운 데이터(즉, 찾아낸 암호)가 있는지 지속적으로 확인합니다.
             while not results.ready():
                 if not result_queue.empty():
-                    found_password = result_queue.get()
+                    found_password = result_queue.get() # 큐에서 암호를 가져옵니다
                     pool.terminate()
                     pool.join()
                     break
                 time.sleep(0.1)
-            
+            # 하나의 워커 프로세스가 암호를 찾아서 큐에 put()한 동시에, 다른 모든 워커 프로세스가 작업을 완료했습니다.
+            # 메인 프로세스가 results.ready()가 True가 되어 while 루프가 종료되었지만, result_queue.empty() 조건문이 실행되기 직전이라 break되지 못했습니다.
+            # 이럴경우  큐에서 최종 결과를 가져오도록 합니다.
             if found_password is None and not result_queue.empty():
                 found_password = result_queue.get()
                 
@@ -398,75 +355,15 @@ def unlock_zip(zip_path='emergency_storage_key.zip', max_workers=None):
         print("힌트: 암호가 더 복잡하거나 다른 패턴일 수 있습니다")
         return None
 
-def find_zip_file():
-    """ZIP 파일을 자동으로 찾기"""
-    zip_filename = 'emergency_storage_key.zip'
-    
-    # 가능한 경로들
-    search_paths = [
-        '.',  # 현재 디렉토리
-        '..',  # 상위 디렉토리
-        os.path.join('..', '..'),
-        'Codyssey/proj1/p5s1',
-        '../Codyssey/proj1/p5s1',
-        '../../Codyssey/proj1/p5s1',
-        'proj1/p5s1',
-        '../proj1/p5s1',
-        'p5s1',
-        '../p5s1',
-    ]
-    
-    # OS별 추가 경로
-    home_dir = os.path.expanduser('~')
-    if platform.system() == 'Windows':
-        search_paths.extend([
-            os.path.join(home_dir, 'Codyssey', 'proj1', 'p5s1'),
-            os.path.join('C:', 'Codyssey', 'proj1', 'p5s1'),
-            os.path.join(home_dir, 'Documents', 'Codyssey', 'proj1', 'p5s1'),
-            os.path.join(home_dir, 'Desktop', 'Codyssey', 'proj1', 'p5s1'),
-        ])
-    else:  # Linux/Mac
-        search_paths.extend([
-            os.path.join('/home', os.environ.get('USER', ''), 'Codyssey', 'proj1', 'p5s1'),
-            os.path.join(home_dir, 'Codyssey', 'proj1', 'p5s1'),
-        ])
-    
-    # 파일 검색
-    for path in search_paths:
-        full_path = os.path.join(path, zip_filename)
-        if os.path.exists(full_path):
-            return os.path.abspath(full_path)
-    
-    return None
 
 def main():
     """메인 함수"""
     print("ZIP 암호 해독 도구 v2.0")
     print("=" * 30)
     
-    # ZIP 파일 찾기
-    zip_file = find_zip_file()
-    if not zip_file:
-        print(f"✗ 오류: emergency_storage_key.zip 파일을 찾을 수 없습니다")
-        print(f"현재 디렉토리: {os.getcwd()}")
-        print(f"디렉토리 내용:")
-        try:
-            for item in os.listdir('.'):
-                print(f"  - {item}")
-        except:
-            print("  (디렉토리 읽기 실패)")
-        return 1
-    
-    print(f"✓ 대상 파일 발견: {zip_file}")
-    
-    # 파일 크기 확인
-    try:
-        file_size = os.path.getsize(zip_file)
-        print(f"✓ 파일 크기: {file_size:,} bytes")
-    except:
-        print("✗ 파일 크기 확인 실패")
-    
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     # 암호 해독 실행
+    zip_file = 'emergency_storage_key.zip'
     password = unlock_zip(zip_file)
     
     if password:
