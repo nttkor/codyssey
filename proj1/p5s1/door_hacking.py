@@ -48,7 +48,7 @@ class ZipCryptoValidator:
         """CRC32 한 바이트 업데이트"""
         return CRC32_TABLE[(crc ^ byte) & 0xFF] ^ (crc >> 8)
     
-    def update_keys(self, byte):
+    def update_keys(self, byte): 
         """3개의 키 업데이트"""
         self.keys[0] = self.crc32_update(self.keys[0], byte)
         self.keys[1] = ((self.keys[1] + (self.keys[0] & 0xFF)) * 134775813 + 1) & 0xFFFFFFFF
@@ -57,7 +57,7 @@ class ZipCryptoValidator:
     def init_keys(self, password):
         """비밀번호로 키 초기화"""
         self.reset_keys()
-        for byte in password:
+        for byte in password:  #암호 글자수 만큼 update
             self.update_keys(byte)
     
     def decrypt_byte(self, enc_byte):
@@ -408,3 +408,5 @@ if __name__ == "__main__":
         import traceback
         traceback.print_exc()
         sys.exit(1)
+
+
