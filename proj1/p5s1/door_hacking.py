@@ -147,6 +147,7 @@ def smart_password_generator():
     
     # 1. 흔한 패턴부터 (일반적인 암호 패턴) 제너레이터함수이기때문에 하니씩 리턴되고 멈춤
     common_starts = ['pass', 'test', 'admin', 'user', 'temp']
+    common_set = set(common_starts)
     
     # 흔한 패턴 우선 시도
     for start in common_starts:
@@ -155,44 +156,50 @@ def smart_password_generator():
             for combo in itertools.product(chars + digits, repeat=remaining_len):
                 #yield를 사용하여 제너레이터로 동작 
                 yield start + ''.join(combo)
-    
 
-    # 3. 끝에 숫자가 2개 오는 패턴 (예: test12, hello34 등)
-    for digit_count in [2]:
+    digit_counts = [2,1,3,4,5,0]
+    # 3. 끝에 숫자가 오는 패턴 (예: test12, hello34 등)
+    for digit_count in digit_counts:
         alpha_count = 6 - digit_count
         for alpha_combo in itertools.product(chars, repeat=alpha_count):
             for digit_combo in itertools.product(digits, repeat=digit_count):
                 password = ''.join(alpha_combo) + ''.join(digit_combo)
-                if not any(password.startswith(start) for start in common_starts):
+                if not any(password.startswith(start) for start in common_starts) :
                     yield password
     
-    # 👉 여기서 순서 변경!
-    # 2. 끝에 숫자가 오는 패턴 (예: passw1, hello3, abcde9 등)
-    for digit_count in [1]:  # 숫자 1개 먼저
-        alpha_count = 6 - digit_count
-        for alpha_combo in itertools.product(chars, repeat=alpha_count):
-            for digit_combo in itertools.product(digits, repeat=digit_count):
-                password = ''.join(alpha_combo) + ''.join(digit_combo)
-                if not any(password.startswith(start) for start in common_starts):
-                    yield password
-    
-
-    
-    # 4. 중간에 숫자가 있는 패턴
-    for digit_pos in range(1, 5):  # 첫 자리와 마지막 자리 제외
-        for alpha_combo in itertools.product(chars, repeat=5):
-            for digit in digits:
-                password = list(''.join(alpha_combo))
-                password.insert(digit_pos, digit)
-                password_str = ''.join(password[:6])
-                if not any(password_str.startswith(start) for start in common_starts):
-                    yield password_str
-    
-    # 5. 마지막으로 순수 알파벳 (사전 순서)
-    for combo in itertools.product(chars, repeat=6):
+    # 전체 패턴 시도
+    for combo in itertools.product(chars + digits, repeat=6):
+        #yield를 사용하여 제너레이터로 동작 
         password = ''.join(combo)
-        if not any(password.startswith(start) for start in common_starts):
+        if not any(password.startswith(start) for start in common_starts) and check_continue(password):
             yield password
+
+def check_continue(word):
+    digits = set('0123456789')
+    diff = 0
+    prev = word[0]
+    for ch in word[1:]:
+        if (ch in digits) != (prev in digits):
+            diff += 1
+        prev = ch
+    return diff >= 2
+# def check_continue(word):
+#     wordlist = []
+#     digits = set('0123456789')
+#     diff = 0
+#     prev = ''
+#     for i in range(len(word)) :
+#         if i == 0:
+#             prev = word[i]
+#         if word[i] in digits and prev not in digits:
+#             diff += 1
+#         elif word[i] not in digits and prev in digits:
+#             diff += 1
+#         prev = word[i]
+#     return False if diff < 2 else True
+            
+
+
 
 
 def worker_process_improved(args):
