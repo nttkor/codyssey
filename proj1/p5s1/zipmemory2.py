@@ -358,10 +358,10 @@ def unlock_zip(zip_path='emergency_storage_key.zip', max_workers=None):
 
 def main():
     """메인 함수"""
+    os.chdir(os.path.dirname(__file__))
     print("ZIP 암호 해독 도구 v2.0")
     print("=" * 30)
     
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     # 암호 해독 실행
     zip_file = 'emergency_storage_key.zip'
     password = unlock_zip(zip_file)
