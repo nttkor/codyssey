@@ -28,47 +28,6 @@ def caesar_cipher_decode(target_text, shift):
             decoded += ch
     return decoded
 
-
-def highlight_words(text, dictionary_words):
-    """
-    사전 단어와 정확히 일치하는 단어만 반전(ANSI escape) 처리하는 함수
-    - 대소문자 구분 없이 단어 단위로 비교
-    - 일치하는 단어는 터미널에서 반전되어 강조됨
-    """
-    dict_set = set(word.lower() for word in dictionary_words)
-
-    def replacer(match):
-        word = match.group(0)
-        if word.lower() in dict_set:
-            return f"\033[7m{word}\033[0m"
-        else:
-            return word
-
-    # 단어 경계(\b)로 분리하여 정확히 단어만 매칭
-    pattern = re.compile(r'\b\w+\b', re.UNICODE)
-    return pattern.sub(replacer, text)
-
-
-def try_auto_decode(target_text, dictionary_words):
-    """
-    사전 단어를 이용해 자동 해독 시도
-    - shift 값을 0부터 25까지 적용해 복호화 결과를 생성
-    - 복호화 결과에 4자 이상인 사전 단어가 포함되면 자동 탐지 성공으로 간주
-    - 성공 시 shift와 복호화된 텍스트를 반환
-    - 실패 시 (None, None) 반환
-    """
-    for shift in range(26):
-        decoded = caesar_cipher_decode(target_text, shift)
-        for word in dictionary_words:
-            if len(word) <= 3:
-                continue
-            if word.lower() in decoded.lower():
-                print(f"[자동 탐지] shift={shift}, '{word}' 발견!")
-                print("해독 결과:", decoded)
-                return shift, decoded
-    return None, None
-
-
 def remove_ansi(text):
     """
     ANSI escape 코드 제거 함수
@@ -91,18 +50,30 @@ def main():
         return
 
     # 3. emergency_storage_key.zip 열기 및 압축 해제 시도
+    '''
+    zf.open()에서 비밀번호가 필요한지?
+    zipfile.ZipFile은 ZIP 파일의 메타데이터(파일 목록 등)는 암호화되지 않기 때문에, 파일 목록(namelist())을 읽을 때는 비밀번호가 필요 없습니다.
+    하지만 파일 내용 자체가 암호화되어 있을 경우, 이 파일을 열기 위해서는 비밀번호가 필요합니다. 그때 사용되는 것이 **zf.open(target_file, pwd=...)**입니다.
+    '''
     try:
         with zipfile.ZipFile("emergency_storage_key.zip") as zf:
+            # ZIP 파일 내부의 파일 목록을 가져옵니다.
             inner_files = zf.namelist()
+
+            # 파일 목록이 비어있으면, 압축파일 내에 아무 파일도 없다는 메시지 출력
             if not inner_files:
                 print("ZIP 안에 파일이 없습니다.")
                 return
+
+            # 첫 번째 파일을 target_file로 지정 (압축 파일 내에 여러 파일이 있을 수 있기 때문)
             target_file = inner_files[0]
             print(f"[ZIP 해제] 내부 파일: {target_file}")
 
-            # ZIP 비밀번호로 압축 파일 열기
+            # ZIP 비밀번호로 해당 파일을 열기
             with zf.open(target_file, pwd=zip_password.encode()) as f:
+                # 읽어들인 파일을 UTF-8로 디코딩 후, 앞뒤 공백을 제거
                 encrypted_text = f.read().decode("utf-8").strip()
+
     except RuntimeError as e:
         if 'Bad password' in str(e):
             print(f"❌ ZIP 비밀번호 '{zip_password}' 가 틀렸습니다.")
@@ -115,30 +86,28 @@ def main():
 
     # 4. result.txt가 있으면 사전 단어로 사용
     dictionary_words = []
+    results = []
     if os.path.exists("result.txt"):
         with open("result.txt", "r", encoding="utf-8") as f:
             dictionary_words = f.read().split()
         print(f"[사전 로드] {len(dictionary_words)}개 단어 사용")
 
-    # 5. 사전 단어로 자동 해독 시도 (성공해도 계속 모든 shift 출력)
-    if dictionary_words:
-        shift_found, decoded_found = try_auto_decode(encrypted_text, dictionary_words)
-        if decoded_found:
-            print("✅ 자동 해독 성공! result.txt 갱신 가능 (사용자 선택 대기)")
-        else:
-            shift_found, decoded_found = None, None
-    else:
-        shift_found, decoded_found = None, None
 
     # 6. 모든 shift 결과 출력 (사전 단어 포함 시 강조 표시)
     print("=== 모든 shift 결과 ===")
-    results = []
+    dict_set = set(word.lower() for word in dictionary_words)
     for shift in range(26):
         decoded = caesar_cipher_decode(encrypted_text, shift)
-        if dictionary_words:
-            decoded = highlight_words(decoded, dictionary_words)
-        results.append((shift, decoded))
-        print(f"[shift={shift}] {decoded}")
+        result.append(decoded)
+        highlight_words = []
+        for word in decoded.split():
+            if dictionary_words:
+                if word.lower() in dict_set:
+                    highlight_words.append(f"\033[7m{word}\033[0m") 
+                else:
+                    highlight_words.append(word)
+        
+        print(f"[shift={shift}]", *highlight_words)
 
     # 7. 사용자로부터 shift 번호 선택받아 결과 저장 (반복 가능)
     while True:
@@ -151,10 +120,10 @@ def main():
             continue
         choice = int(choice)
         if 0 <= choice < 26:
-            decoded_text = results[choice][1]
+            decoded_text = results[choice]
             # ANSI 코드 제거 후 파일 저장
             with open("result.txt", "w", encoding="utf-8") as f:
-                f.write(remove_ansi(decoded_text))
+                f.write(decoded_text)
             print(f"shift={choice} 결과가 result.txt 파일에 저장 완료!")
             break
         else:
