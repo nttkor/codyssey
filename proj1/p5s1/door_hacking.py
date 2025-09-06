@@ -18,6 +18,12 @@ import sys
 import string
 
 # CRC32 테이블 초기화
+'''
+CRC32는 순환 중복 검사로, 데이터의 일관성을 확인하는 데 사용됩니다. 
+이 테이블은 암호화된 데이터를 빠르게 복호화하기 위해 사용됩니다. 
+ZIP 파일에서 ZipCrypto 방식의 복호화 시 CRC32 값이 중요하기 때문에, 
+이 테이블을 이용해 복호화 효율성을 높입니다.
+'''
 CRC32_TABLE = []
 for i in range(256):
     crc = i
@@ -30,8 +36,8 @@ for i in range(256):
 
 class ZipCryptoValidator:
     """ZipCrypto 빠른 검증을 위한 클래스"""
-    
     def __init__(self):
+        # IP 암호화에 사용되는 3개의 키입니다
         self.keys = [0x12345678, 0x23456789, 0x34567890]
     
     def reset_keys(self):
@@ -364,6 +370,7 @@ def main():
     
     # 암호 해독 실행
     zip_file = 'emergency_storage_key.zip'
+    #zip 암호를 푸는 메인함수
     password = unlock_zip(zip_file)
     
     if password:
@@ -371,8 +378,8 @@ def main():
         
         # 압축 해제 테스트
         try:
-            with zipfile.ZipFile(zip_file) as zf:
-                zf.extractall(pwd=password.encode())
+            with zipfile.ZipFile(zip_file) as zf:  #zipfile 객체를 만들어
+                zf.extractall(pwd=password.encode())  # 암호를 byte로 변환후 zip파일내용의 암호화를 푼다.
                 print("✓ 파일 압축 해제 성공")
                 
                 # 압축 해제된 파일 목록
