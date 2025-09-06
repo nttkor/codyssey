@@ -358,6 +358,7 @@ def unlock_zip(zip_path='emergency_storage_key.zip', max_workers=None):
 
 def main():
     """메인 함수"""
+    os.chdir(os.path.dirname(__file__))
     print("ZIP 암호 해독 도구 v2.0")
     print("=" * 30)
     
