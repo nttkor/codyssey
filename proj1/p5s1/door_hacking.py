@@ -183,20 +183,7 @@ def check_continue(word):
             diff += 1
         prev = ch
     return diff >= 2
-# def check_continue(word):
-#     wordlist = []
-#     digits = set('0123456789')
-#     diff = 0
-#     prev = ''
-#     for i in range(len(word)) :
-#         if i == 0:
-#             prev = word[i]
-#         if word[i] in digits and prev not in digits:
-#             diff += 1
-#         elif word[i] not in digits and prev in digits:
-#             diff += 1
-#         prev = word[i]
-#     return False if diff < 2 else True
+
             
 
 
@@ -356,9 +343,9 @@ def unlock_zip(zip_path='emergency_storage_key.zip', max_workers=None):
         
         # 암호를 파일로 저장
         try:
-            with open('password.txt', 'w', encoding='utf-8') as f:
+            with open('found_password.txt', 'w', encoding='utf-8') as f:
                 f.write(found_password)
-            print(f"✓ 암호가 password.txt 파일로 저장되었습니다")
+            print(f"✓ 암호가 found_password.txt 파일로 저장되었습니다")
         except Exception as e:
             print(f"✗ 파일 저장 실패: {e}")
         
