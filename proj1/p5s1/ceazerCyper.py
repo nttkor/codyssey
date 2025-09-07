@@ -41,48 +41,14 @@ def main():
     # 1. 현재 스크립트 위치로 작업 디렉토리 변경
     os.chdir(os.path.dirname(__file__))
 
-    # 2. password.txt에서 ZIP 비밀번호 읽기
+    # 2. password.txt 암호환된 문장 읽기
     try:
         with open("password.txt", "r", encoding="utf-8") as f:
-            zip_password = f.read().strip()
+            encrypted_text = f.read().strip()
     except FileNotFoundError:
-        print("password.txt 파일이 없습니다.")
+        print("found_password.txt 파일이 없습니다.")
         return
 
-    # 3. emergency_storage_key.zip 열기 및 압축 해제 시도
-    '''
-    zf.open()에서 비밀번호가 필요한지?
-    zipfile.ZipFile은 ZIP 파일의 메타데이터(파일 목록 등)는 암호화되지 않기 때문에, 파일 목록(namelist())을 읽을 때는 비밀번호가 필요 없습니다.
-    하지만 파일 내용 자체가 암호화되어 있을 경우, 이 파일을 열기 위해서는 비밀번호가 필요합니다. 그때 사용되는 것이 **zf.open(target_file, pwd=...)**입니다.
-    '''
-    try:
-        with zipfile.ZipFile("emergency_storage_key.zip") as zf:
-            # ZIP 파일 내부의 파일 목록을 가져옵니다.
-            inner_files = zf.namelist()
-
-            # 파일 목록이 비어있으면, 압축파일 내에 아무 파일도 없다는 메시지 출력
-            if not inner_files:
-                print("ZIP 안에 파일이 없습니다.")
-                return
-
-            # 첫 번째 파일을 target_file로 지정 (압축 파일 내에 여러 파일이 있을 수 있기 때문)
-            target_file = inner_files[0]
-            print(f"[ZIP 해제] 내부 파일: {target_file}")
-
-            # ZIP 비밀번호로 해당 파일을 열기
-            with zf.open(target_file, pwd=zip_password.encode()) as f:
-                # 읽어들인 파일을 UTF-8로 디코딩 후, 앞뒤 공백을 제거
-                encrypted_text = f.read().decode("utf-8").strip()
-
-    except RuntimeError as e:
-        if 'Bad password' in str(e):
-            print(f"❌ ZIP 비밀번호 '{zip_password}' 가 틀렸습니다.")
-            return
-        else:
-            raise
-    except FileNotFoundError:
-        print("emergency_storage_key.zip 파일이 없습니다.")
-        return
 
     # 4. result.txt가 있으면 사전 단어로 사용
     dictionary_words = []
@@ -95,15 +61,16 @@ def main():
 
     # 6. 모든 shift 결과 출력 (사전 단어 포함 시 강조 표시)
     print("=== 모든 shift 결과 ===")
+    #사전 단어 설정
     dict_set = set(word.lower() for word in dictionary_words)
     for shift in range(26):
         decoded = caesar_cipher_decode(encrypted_text, shift)
-        result.append(decoded)
+        results.append(decoded) #카이사르 디코딩된 문장 추가
         highlight_words = []
         for word in decoded.split():
             if dictionary_words:
                 if word.lower() in dict_set:
-                    highlight_words.append(f"\033[7m{word}\033[0m") 
+                    highlight_words.append(f"\033[7m{word}\033[0m") #사전에 있는 단어 하이라이트 시키기
                 else:
                     highlight_words.append(word)
         
