@@ -22,6 +22,11 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+    color: white;
+}</string>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QLineEdit" name="led">
@@ -60,12 +65,12 @@
       <property name="styleSheet">
        <string notr="true">QPushButton {
  	font-size: 14px;
-    background-color: #CCCCFF; /* 어두운 회색 배경 */
-    border: 2px solid #555555; /* 2px 두께의 연한 회색 테두리 */
-    border-radius: 15px; /* 9px만큼 둥글게 만듭니다 */
+    background-color: #3333aa; 
+    border: 2px solid #555555; 
+    border-radius: 15px; 
 }
 QPushButton:pressed {
-    background-color: #333333; /* 클릭하면 더 어두운 색으로 변합니다 */
+    background-color: #333333; 
 }</string>
       </property>
       <layout class="QGridLayout" name="gridLayoutUpper">
@@ -479,12 +484,12 @@ QPushButton:pressed {
       <property name="styleSheet">
        <string notr="true">QPushButton {
  	font-size: 18px;
-    background-color: #FFFF00; /* 어두운 회색 배경 */
-    border: 2px solid #555555; /* 2px 두께의 연한 회색 테두리 */
-    border-radius: 15px; /* 9px만큼 둥글게 만듭니다 */
+    background-color: #111111; 
+    border: 2px solid #555555; 
+    border-radius: 15px;
 }
 QPushButton:pressed {
-    background-color: #333333; /* 클릭하면 더 어두운 색으로 변합니다 */
+    background-color: #333333; 
 }</string>
       </property>
       <layout class="QGridLayout" name="gridLayoutLower">
@@ -565,7 +570,7 @@ QPushButton:pressed {
         </widget>
        </item>
        <item row="4" column="0">
-        <widget class="QPushButton" name="btn_mode">
+        <widget class="QPushButton" name="btn_ac">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -579,7 +584,7 @@ QPushButton:pressed {
           </font>
          </property>
          <property name="text">
-          <string>Mode</string>
+          <string>AC</string>
          </property>
         </widget>
        </item>
