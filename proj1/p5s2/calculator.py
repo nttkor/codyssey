@@ -1,4 +1,5 @@
 import sys
+import os
 import math
 import random
 import re
@@ -344,6 +345,7 @@ class EngineeringCalculator(Calculator):
 # 실행
 # ---------------------------
 if __name__ == "__main__":
+    os.chdir(os.path.dirname(__file__))
     app = QApplication(sys.argv)
     win = EngineeringCalculator("calculator.ui")
     win.show()
