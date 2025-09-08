@@ -38,7 +38,7 @@
       </property>
       <property name="font">
        <font>
-        <pointsize>24</pointsize>
+        <pointsize>48</pointsize>
        </font>
       </property>
       <property name="alignment">
