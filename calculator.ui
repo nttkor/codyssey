@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CalculatorUI</class>
+ <widget class="QMainWindow" name="CalculatorUI">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Engineering Calculator</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <!-- 디스플레이 -->
+    <item>
+     <widget class="QLineEdit" name="led">
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight</set>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+       </font>
+      </property>
+     </widget>
+    </item>
+    <!-- Upper Buttons -->
+    <item>
+     <widget class="QFrame" name="UpperButton">
+      <layout class="QGridLayout" name="gridLayoutTop"/>
+     </widget>
+    </item>
+    <!-- Lower Buttons -->
+    <item>
+     <widget class="QFrame" name="LowerButton">
+      <layout class="QGridLayout" name="gridLayoutBottom"/>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
