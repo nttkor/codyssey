@@ -1,112 +1,117 @@
-import sys  # 시스템 관련 기능을 사용할 수 있도록 sys 모듈을 임포트합니다.
-from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QLineEdit  # PyQt6의 위젯 관련 모듈들을 임포트합니다.
-from PyQt6.QtCore import Qt  # PyQt6에서 Qt 클래스의 기능을 사용하기 위해 임포트합니다.
+import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLineEdit
+from PyQt6 import uic
+import os
 
-# 클래스 정의
-class EngineeringCalculator(QWidget):  # QWidget을 상속받는 계산기 클래스를 정의합니다.
+class EngineeringCalculator(QMainWindow):
+    """
+    공학용 계산기 애플리케이션 클래스입니다.
+    """
     def __init__(self):
-        super().__init__()  # 부모 클래스인 QWidget의 초기화 메서드를 호출합니다.
+        super().__init__()
 
-        # 윈도우 크기 고정: 400x800 크기로 창을 고정합니다.
-        self.setWindowTitle("Engineering Calculator")  # 윈도우 제목을 설정합니다.
-        self.setFixedSize(400, 800)  # 윈도우의 크기를 고정하여 크기를 변경할 수 없게 합니다.
-
-        # LED 디스플레이 설정 (디스플레이는 화면 상단에 고정되어야 합니다)
-        self.display = QLineEdit(self)  # QLineEdit 위젯을 생성하여 텍스트를 입력할 수 있는 디스플레이를 만듭니다.
-        self.display.setAlignment(Qt.AlignmentFlag.AlignRight)  # 텍스트를 오른쪽 정렬로 설정합니다.
-        self.display.setReadOnly(True)  # 디스플레이는 읽기 전용으로 설정하여 사용자가 직접 수정할 수 없게 합니다.
-        self.display.setStyleSheet("font-size: 50px; background-color: black; color: white;")  # 디스플레이의 스타일을 설정합니다.
-        self.display.setFixedHeight(200)  # 디스플레이의 높이를 200px로 고정합니다.
-
-        self.angle_unit = 'deg'  # 기본 각도 단위를 'deg'로 설정합니다.
-        self.init_ui()  # UI 초기화 메서드를 호출합니다.
-
-    def init_ui(self):
-        grid_layout = QGridLayout()  # QGridLayout을 사용하여 버튼을 그리드 형태로 배치할 수 있도록 설정합니다.
-
-        # 버튼 레이아웃: 두 개의 그룹으로 나누어 각 그룹에 버튼들을 배치합니다.
-        buttons_top = [  # 위쪽 그룹 (디스플레이 아래 5줄의 버튼들)
-            ['(', ')', 'mc', 'm+', 'm-', 'mr'],
-            ['2nd', 'x²', 'x³', 'x^y', 'e^x', '10^x'],
-            ['1/x', '2√x', '3√x', 'y√x', 'ln', 'log₁₀'],
-            ['x!', 'sin', 'cos', 'tan', 'e', 'EE'],
-            ['Rand', 'sinh', 'cosh', 'tanh', 'π', 'Rad']
-        ]
+        # Qt Designer에서 생성한 UI 파일(caculator.ui)을 로드합니다.
+        uic.loadUi("caculator.ui", self)
         
-        buttons_bottom = [  # 아래쪽 그룹 (디스플레이 아래 5줄의 버튼들)
-            ['<-', '+/-', '%', '/'],
-            ['7', '8', '9', '*'],
-            ['4', '5', '6', '-'],
-            ['1', '2', '3', '+'],
-            ['Mode', '0', '.', '=']
+        # 디스플레이 역할을 하는 QLineEdit 위젯에 대한 참조를 저장합니다.
+        self.display = self.findChild(QLineEdit, "led")
+
+        # 모든 버튼에 대한 클릭 이벤트를 연결합니다.
+        self.connect_buttons()
+
+    def connect_buttons(self):
+        """
+        UI 파일의 모든 버튼을 기능과 연결합니다.
+        """
+        # 숫자 및 소수점 버튼 연결
+        number_buttons = [
+            self.btn_0, self.btn_1, self.btn_2, self.btn_3, self.btn_4,
+            self.btn_5, self.btn_6, self.btn_7, self.btn_8, self.btn_9,
+            self.btn_decimal
         ]
+        for button in number_buttons:
+            button.clicked.connect(lambda _, text=button.text(): self.append_to_display(text))
+            
+        # 연산자 버튼 연결
+        operator_buttons = [
+            self.btn_plus, self.btn_minus, self.btn_multiply, self.btn_divide,
+            self.btn_percent
+        ]
+        for button in operator_buttons:
+            button.clicked.connect(lambda _, text=button.text(): self.append_to_display(text))
 
-        # LED 디스플레이를 맨 위에 추가
-        grid_layout.addWidget(self.display, 0, 0, 1, 6)  # 첫 번째 행에 디스플레이를 추가하고, 6열을 차지하도록 설정합니다.
-
-        # 위 5줄의 버튼 추가
-        for row_idx, row in enumerate(buttons_top, 1):  # 버튼을 위 그룹에서 하나씩 추가합니다.
-            for col_idx, button_text in enumerate(row):  # 각 행의 버튼을 차례대로 추가합니다.
-                button = QPushButton(button_text)  # QPushButton을 생성하여 텍스트를 버튼에 할당합니다.
-                button.setStyleSheet("font-size: 20px; background-color: #444; color: white;")  # 버튼의 스타일을 설정합니다.
-                button.clicked.connect(self.button_clicked)  # 버튼을 클릭했을 때 호출될 메서드를 연결합니다.
-                grid_layout.addWidget(button, row_idx, col_idx)  # 버튼을 그리드 레이아웃에 추가합니다.
-
-        # 아래 5줄의 버튼 추가
-        for row_idx, row in enumerate(buttons_bottom, 6):  # 버튼을 아래 그룹에서 하나씩 추가합니다.
-            for col_idx, button_text in enumerate(row):  # 각 행의 버튼을 차례대로 추가합니다.
-                button = QPushButton(button_text)  # QPushButton을 생성하여 텍스트를 버튼에 할당합니다.
-                button.setStyleSheet("font-size: 20px; background-color: #444; color: white;")  # 버튼의 스타일을 설정합니다.
-                button.clicked.connect(self.button_clicked)  # 버튼을 클릭했을 때 호출될 메서드를 연결합니다.
-                grid_layout.addWidget(button, row_idx, col_idx)  # 버튼을 그리드 레이아웃에 추가합니다.
-
-        # 그리드 레이아웃에 각 버튼의 크기 설정 (열 비율)
-        grid_layout.setColumnStretch(0, 1)  # 0번째 열의 너비를 균등하게 조정합니다.
-        grid_layout.setColumnStretch(1, 1)  # 1번째 열의 너비를 균등하게 조정합니다.
-        grid_layout.setColumnStretch(2, 1)  # 2번째 열의 너비를 균등하게 조정합니다.
-        grid_layout.setColumnStretch(3, 1)  # 3번째 열의 너비를 균등하게 조정합니다.
-        grid_layout.setColumnStretch(4, 1)  # 4번째 열의 너비를 균등하게 조정합니다.
-        grid_layout.setColumnStretch(5, 1)  # 5번째 열의 너비를 균등하게 조정합니다.
-
-        # 버튼들이 화면을 꽉 채우도록 비율 맞추기 (행 비율)
-        for i in range(1, 10):  # 각 행의 높이를 균등하게 조정합니다.
-            grid_layout.setRowStretch(i, 1)
-
-        self.setLayout(grid_layout)  # 계산기의 레이아웃을 설정합니다.
-
-    def button_clicked(self):
-        button = self.sender()  # 클릭된 버튼을 가져옵니다.
-        button_text = button.text()  # 버튼에 있는 텍스트를 가져옵니다.
-
-        if button_text == "=":
-            # "=" 버튼이 클릭되었을 때 계산 결과를 화면에 표시합니다.
-            self.calculate_result()
-        elif button_text == "Rad" or button_text == "Deg":
-            # Rad/deg 단위를 변경하는 버튼이 클릭되었을 때 호출됩니다.
-            self.switch_angle_unit(button_text)
+        # 공학용 함수 및 기타 버튼 연결
+        engineering_buttons = [
+            self.btn_open_paren, self.btn_close_paren, self.btn_x_squared,
+            self.btn_x_cubed, self.btn_x_power_y, self.btn_e_power_x,
+            self.btn_10_power_x, self.btn_1_over_x, self.btn_2_root_x,
+            self.btn_3_root_x, self.btn_y_root_x, self.btn_ln, self.btn_log10,
+            self.btn_x_factorial, self.btn_sin, self.btn_cos, self.btn_tan,
+            self.btn_e, self.btn_ee, self.btn_rand, self.btn_sinh, self.btn_cosh,
+            self.btn_tanh, self.btn_pi, self.btn_rad, self.btn_plus_minus
+        ]
+        for button in engineering_buttons:
+            button.clicked.connect(lambda _, text=button.text(): self.append_to_display(text))
+            
+        # 특수 기능 버튼 연결
+        self.btn_backspace.clicked.connect(self.backspace)
+        self.btn_ac.clicked.connect(self.clear_display)
+        self.btn_equals.clicked.connect(self.equals) # 과제 요구사항에 따라 기능은 없지만 이벤트만 연결
+        self.btn_mc.clicked.connect(self.clear_memory)
+        self.btn_m_plus.clicked.connect(self.add_to_memory)
+        self.btn_m_minus.clicked.connect(self.subtract_from_memory)
+        self.btn_mr.clicked.connect(self.recall_memory)
+        self.btn_2nd.clicked.connect(self.toggle_2nd_function)
+        #self.btn_mode.clicked.connect(self.change_mode)
+        
+    def append_to_display(self, text):
+        """
+        버튼의 텍스트를 디스플레이에 추가합니다.
+        """
+        current_text = self.display.text()
+        # sin, cos, tan 같은 함수 버튼은 괄호를 추가하여 함수형태로 표시합니다.
+        if text in ['sin', 'cos', 'tan', 'sinh', 'cosh', 'tanh', 'ln', 'log₁₀']:
+            self.display.setText(current_text + text + '(')
         else:
-            current_text = self.display.text()  # 현재 디스플레이에 표시된 텍스트를 가져옵니다.
-            new_text = current_text + button_text  # 버튼의 텍스트를 디스플레이에 추가합니다.
-            self.display.setText(new_text)  # 새로운 텍스트를 디스플레이에 표시합니다.
+            self.display.setText(current_text + text)
 
-    def calculate_result(self):
-        try:
-            current_text = self.display.text()  # 디스플레이에 표시된 텍스트를 가져옵니다.
-            result = eval(current_text)  # 수식을 계산합니다 (eval 함수는 문자열을 파이썬 코드로 실행합니다).
-            self.display.setText(str(result))  # 계산 결과를 디스플레이에 표시합니다.
-        except Exception as e:
-            self.display.setText("Error")  # 계산 오류가 발생하면 "Error"를 표시합니다.
+    def backspace(self):
+        """
+        디스플레이의 마지막 글자를 지웁니다.
+        """
+        current_text = self.display.text()
+        self.display.setText(current_text[:-1])
 
-    def switch_angle_unit(self, button_text):
-        if button_text == "Rad":
-            self.angle_unit = "rad"  # Rad로 변경합니다.
-            self.display.setText("Rad Mode")  # 화면에 "Rad Mode"를 표시합니다.
-        elif button_text == "Deg":
-            self.angle_unit = "deg"  # Deg로 변경합니다.
-            self.display.setText("Deg Mode")  # 화면에 "Deg Mode"를 표시합니다.
+    def clear_display(self):
+        """
+        디스플레이의 모든 텍스트를 지웁니다.
+        """
+        self.display.clear()
+
+    # 다음은 과제 요구사항에 따라 빈 함수로 남겨둔 기능들입니다.
+    def equals(self):
+        # '=' 버튼 클릭 시 아무것도 하지 않습니다.
+        pass
+
+    def clear_memory(self):
+        pass
+    
+    def add_to_memory(self):
+        pass
+
+    def subtract_from_memory(self):
+        pass
+
+    def recall_memory(self):
+        pass
+
+    def toggle_2nd_function(self):
+        pass
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)  # QApplication 객체를 생성하여 PyQt6 애플리케이션을 실행합니다.
-    window = EngineeringCalculator()  # EngineeringCalculator 객체를 생성하여 계산기 창을 만듭니다.
-    window.show()  # 계산기 창을 화면에 표시합니다.
-    sys.exit(app.exec())  # 이벤트 루프를 실행하여 애플리케이션을 실행합니다.
+    # 스크립트 실행 시 작업 디렉터리를 스크립트가 있는 디렉터리로 변경합니다.
+    os.chdir(os.path.dirname(__file__))
+    app = QApplication(sys.argv)
+    window = EngineeringCalculator()
+    window.show()
+    sys.exit(app.exec())
