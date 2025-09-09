@@ -103,7 +103,7 @@ class AppController:
         if length <= 10:
             size = 48
         else:
-            size = max(12, int(480 / length))
+            size = max(12, min(48, int(480 / length)))
         font = QFont()
         font.setBold(True)
         font.setPointSize(size)
