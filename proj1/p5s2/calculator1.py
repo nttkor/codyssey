@@ -15,19 +15,14 @@ except FileNotFoundError:
     print("UI 파일(caculator.ui)을 찾을 수 없습니다. 경로를 확인해주세요.")
     sys.exit(1)
 
-class Calculator:
+class CalculatorLogic:
     """계산 로직을 담당하는 클래스입니다."""
     def __init__(self):
-        # 현재 입력되는 숫자를 저장하는 변수
-        self.num = ""
-        # 첫 번째 피연산자를 저장하는 변수
-        self.op1 = None
-        # 두 번째 피연산자를 저장하는 변수
-        self.op2 = None
-        # 연산자를 저장하는 변수
-        self.operator = None
-        # 최종 결과를 저장하는 변수
-        self.result = 0.0
+        self.num = "" # 현재 입력되고 있는 숫자를 저장하는 문자열 변수
+        self.op1 = None # 첫 번째 피연산자를 저장하는 변수
+        self.op2 = None # 두 번째 피연산자를 저장하는 변수
+        self.operator = None # 현재 연산자를 저장하는 변수
+        self.result = 0.0 # 최종 결과를 저장하는 변수
 
     def reset(self):
         """모든 계산기 상태를 초기화합니다."""
@@ -73,7 +68,6 @@ class Calculator:
     def equal(self):
         """최종 계산을 수행하고 결과를 반환합니다."""
         if self.op1 is not None and self.num:
-            # num 변수의 값을 op2에 실수형으로 저장합니다.
             self.op2 = float(self.num)
             
             # operator 변수에 따라 적절한 연산을 호출합니다.
@@ -87,10 +81,6 @@ class Calculator:
                 res = self.divide()
                 if res == "Error":
                     return "Error"
-            elif self.operator == "%":
-                # 퍼센트 연산은 op1에 (op1 * (op2 / 100))을 더하는 방식으로 처리합니다.
-                self.op2 = self.op1 * (self.op2 / 100)
-                self.add()
 
             # 최종 결과를 소수점 6자리에서 반올림합니다.
             self.result = round(self.op1, 6)
@@ -106,17 +96,16 @@ class Calculator:
 
 class MainWindow(QMainWindow, form_class):
     def __init__(self):
-        super().__init__()
-        # UI 설정을 초기화합니다.
-        self.setupUi(self)
+        super().__init__() # 상위 클래스(QMainWindow)의 생성자를 호출하여 초기화합니다.
+        self.setupUi(self) # UI 파일을 기반으로 위젯들을 설정합니다.
 
-        # 계산 로직을 담당하는 Calculator 클래스의 인스턴스를 생성합니다.
-        self.calc = Calculator()
+        # 계산 로직을 담당하는 CalculatorLogic 클래스의 인스턴스를 생성합니다.
+        self.calc = CalculatorLogic()
         
-        # `=` 버튼이 눌렸는지 추적하는 UI 상태 변수
-        self.equals_pressed = False
+        # UI 상태 변수
+        self.equals_pressed = False # = 버튼이 눌렸는지 추적하는 플래그
         
-        # 디스플레이를 초기화하고 초기 폰트 크기를 설정합니다.
+        # 디스플레이를 "0"으로 초기화하고 초기 폰트 크기를 설정합니다.
         self.led.setText("0")
         self.set_display_font_size("0")
         
@@ -139,14 +128,14 @@ class MainWindow(QMainWindow, form_class):
         self.btn_minus.clicked.connect(lambda: self.input_operator("-"))
         self.btn_multiply.clicked.connect(lambda: self.input_operator("X"))
         self.btn_divide.clicked.connect(lambda: self.input_operator("/"))
-        self.btn_percent.clicked.connect(self.handle_percent)
-        self.btn_plus_minus.clicked.connect(self.handle_negative_positive)
-        self.btn_equals.clicked.connect(self.handle_equal)
-        self.btn_ac.clicked.connect(self.handle_reset)
+        self.btn_percent.clicked.connect(self.handle_percent) # % 버튼 클릭 핸들러
+        self.btn_plus_minus.clicked.connect(self.handle_negative_positive) # +/- 버튼 클릭 핸들러
+        self.btn_equals.clicked.connect(self.handle_equal) # = 버튼 클릭 핸들러
+        self.btn_ac.clicked.connect(self.handle_reset) # AC 버튼 클릭 핸들러
         self.btn_mode.clicked.connect(self.handle_reset) # 임시로 AC와 동일 기능
 
     def set_display_font_size(self, text):
-        """텍스트 길이에 따라 폰트 크기를 동적으로 조절합니다."""
+        """텍스트 길이에 따라 폰트 크기를 동적으로 조절합니다. (단순 비율 계산)"""
         font = QFont()
         font.setBold(True)
         length = len(text)
@@ -163,20 +152,16 @@ class MainWindow(QMainWindow, form_class):
 
     def input_number(self, digit):
         """숫자 버튼 클릭을 처리합니다."""
-        # `=` 이후에 숫자를 입력하면 초기화합니다.
-        if self.equals_pressed:
+        if self.equals_pressed: # = 버튼이 눌린 후라면 초기화합니다.
             self.handle_reset()
         
-        # 소수점 중복 입력을 방지합니다.
-        if digit == "." and "." in self.calc.num:
+        if digit == "." and "." in self.calc.num: # 소수점 중복 입력을 방지합니다.
             return
 
-        # '0'이 표시된 상태에서 새로운 숫자를 입력하면 '0'을 지웁니다.
-        if self.led.text() == "0" and digit != ".":
+        if self.led.text() == "0" and digit != ".": # "0"이 표시된 상태에서 새 숫자를 입력하면 지웁니다.
             self.led.clear()
 
-        # 현재 숫자에 새 숫자를 추가하고 디스플레이를 업데이트합니다.
-        self.calc.num += digit
+        self.calc.num += digit # 현재 숫자에 새 숫자를 추가하고 디스플레이를 업데이트합니다.
         self.led.setText(self.calc.num)
         self.set_display_font_size(self.calc.num)
 
@@ -184,91 +169,68 @@ class MainWindow(QMainWindow, form_class):
         """연산자 버튼 클릭을 처리합니다."""
         self.equals_pressed = False
         
-        # 현재 숫자가 입력된 상태일 때
-        if self.calc.num:
-            # op1이 비었다면 num을 op1에 저장합니다.
-            if self.calc.op1 is None:
+        if self.calc.num: # 현재 숫자가 입력된 상태일 때
+            if self.calc.op1 is None: # op1이 비었다면 num을 op1에 저장합니다.
                 self.calc.op1 = float(self.calc.num)
             else:
-                # op1이 있다면 중간 계산을 수행합니다.
                 self.calc.op2 = float(self.calc.num)
                 self.calc.equal()
             
-            # 연산자를 저장하고 num을 초기화합니다.
-            self.calc.operator = op
+            self.calc.operator = op # 연산자를 저장하고 num을 초기화합니다.
             self.calc.num = ""
-            # 디스플레이에 op1과 연산자를 표시합니다.
             self.led.setText(f"{self.calc.op1} {self.calc.operator}")
             self.set_display_font_size(self.led.text())
 
-        # 현재 숫자가 입력되지 않은 상태일 때 (연속 연산자 입력)
-        else:
-            # op1, operator가 비어있고 '-'가 입력되면 음수 처리를 시작합니다.
-            if op == "-" and self.calc.operator is None and self.calc.op1 is None:
+        else: # 현재 숫자가 입력되지 않은 상태일 때 (연속 연산자 입력)
+            if op == "-" and self.calc.operator is None and self.calc.op1 is None: # 첫 입력이 '-'라면
                 self.calc.num = "-"
                 self.led.setText("-")
                 return
 
-            # 이미 연산자가 있다면, 새로운 연산자로 변경합니다.
-            if self.calc.operator:
-                if op != "-" and op != "+":
-                    self.calc.operator = op
-                    self.led.setText(f"{self.calc.op1} {self.calc.operator}")
-            # op1은 있지만 연산자가 없을 때, 연산자를 설정합니다.
-            elif self.calc.op1 is not None:
+            if self.calc.operator: # 이미 연산자가 있다면, 새로운 연산자로 변경합니다.
+                self.calc.operator = op
+                self.led.setText(f"{self.calc.op1} {self.calc.operator}")
+            elif self.calc.op1 is not None: # op1은 있지만 연산자가 없을 때, 연산자를 설정합니다.
                 self.calc.operator = op
                 self.led.setText(f"{self.calc.op1} {self.calc.operator}")
 
     def handle_equal(self):
         """등호(=) 버튼 클릭을 처리합니다."""
-        # Calculator 클래스의 equal() 메서드를 호출하여 결과를 받습니다.
         result = self.calc.equal()
-        if result == "Error":
-            # 에러 발생 시 에러 메시지를 표시하고 초기화합니다.
+        if result == "Error": # 에러 발생 시 에러 메시지를 표시하고 초기화합니다.
             self.led.setText("Error")
             self.handle_reset()
-        else:
-            # 결과를 디스플레이에 표시하고 폰트 크기를 조절합니다.
+        else: # 결과를 디스플레이에 표시하고 폰트 크기를 조절합니다.
             self.led.setText(str(result))
             self.set_display_font_size(str(result))
-            # `=` 버튼이 눌렸음을 기록합니다.
             self.equals_pressed = True
 
     def handle_reset(self):
         """AC 버튼 클릭을 처리합니다."""
-        # Calculator 클래스의 reset() 메서드를 호출하여 상태를 초기화합니다.
-        self.calc.reset()
-        # 디스플레이를 "0"으로 초기화하고 폰트 크기를 재설정합니다.
-        self.led.setText("0")
+        self.calc.reset() # CalculatorLogic의 reset() 메서드를 호출하여 상태를 초기화합니다.
+        self.led.setText("0") # 디스플레이를 "0"으로 초기화하고 폰트 크기를 재설정합니다.
         self.set_display_font_size("0")
         self.equals_pressed = False
 
     def handle_negative_positive(self):
         """+/- 버튼 클릭을 처리합니다."""
-        # Calculator 클래스의 negative_positive() 메서드를 호출합니다.
-        self.calc.negative_positive()
-        # 변경된 숫자를 디스플레이에 표시하고 폰트 크기를 조절합니다.
-        self.led.setText(self.calc.num)
+        self.calc.negative_positive() # CalculatorLogic의 negative_positive() 메서드를 호출합니다.
+        self.led.setText(self.calc.num) # 변경된 숫자를 디스플레이에 표시하고 폰트 크기를 조절합니다.
         self.set_display_font_size(self.calc.num)
 
     def handle_percent(self):
         """% 버튼 클릭을 처리합니다."""
-        # num 또는 op1에 퍼센트 연산을 적용하고 결과를 표시합니다.
-        if self.calc.num:
-            self.calc.percent()
-            self.led.setText(self.calc.num)
+        if self.calc.num: # 현재 숫자가 입력된 상태라면
+            self.calc.percent() # CalculatorLogic의 percent() 메서드를 호출합니다.
+            self.led.setText(self.calc.num) # 변경된 숫자를 디스플레이에 표시하고 폰트 크기를 조절합니다.
             self.set_display_font_size(self.calc.num)
-        elif self.calc.op1 is not None:
-            self.calc.percent()
-            self.led.setText(str(self.calc.op1))
+        elif self.calc.op1 is not None: # op1이 저장된 상태라면
+            self.calc.percent() # CalculatorLogic의 percent() 메서드를 호출합니다.
+            self.led.setText(str(self.calc.op1)) # 변경된 op1을 디스플레이에 표시하고 폰트 크기를 조절합니다.
             self.set_display_font_size(str(self.calc.op1))
 
 if __name__ == '__main__':
-    # QApplication 인스턴스를 생성합니다.
-    app = QApplication(sys.argv)
-    # MainWindow 인스턴스를 생성합니다.
-    window = MainWindow()
-    # 윈도우를 화면에 표시합니다.
-    window.show()
-    # 이벤트 루프를 실행합니다.
-    sys.exit(app.exec())
+    app = QApplication(sys.argv) # QApplication 인스턴스를 생성합니다.
+    window = MainWindow() # MainWindow 인스턴스를 생성합니다.
+    window.show() # 창을 화면에 표시합니다.
+    sys.exit(app.exec()) # 이벤트 루프를 시작하고 창이 닫힐 때까지 대기합니다.
