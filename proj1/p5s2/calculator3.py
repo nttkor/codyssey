@@ -1,117 +1,261 @@
-import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLineEdit
-from PyQt6 import uic
-import os
+# app.py
+import sys, os, re
+from pathlib import Path
 
-class EngineeringCalculator(QMainWindow):
+from PyQt6 import uic
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit
+from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt
+
+
+def find_ui_path(name: str) -> str:
     """
-    공학용 계산기 애플리케이션 클래스입니다.
+    name: 'engineering.ui' or 'caculator.ui'
+    1) 스크립트 폴더, 2) 현재 작업폴더, 3) /mnt/data 순서로 탐색
+    """
+    cand = [
+        Path(__file__).parent / name,
+        Path(os.getcwd()) / name,
+        Path("/mnt/data") / name,
+    ]
+    for p in cand:
+        if p.exists():
+            return str(p)
+    raise FileNotFoundError(f"UI not found: {name} (searched: {', '.join(map(str, cand))})")
+
+
+class UIWindow(QMainWindow):
+    """단순 UI 로더. led/QPushButton을 찾아 쓰기 좋게 보조 기능만 제공."""
+    def __init__(self, ui_path: str):
+        super().__init__()
+        uic.loadUi(ui_path, self)
+        self.ui_path = ui_path
+
+        # led 찾기(우선 objectName='led', 아니면 첫 QLineEdit)
+        self.led = getattr(self, "led", None)
+        if self.led is None:
+            qles = self.findChildren(QLineEdit)
+            self.led = qles[0] if qles else None
+
+        # led 기본 속성
+        if self.led is not None:
+            self.led.setReadOnly(True)
+            self.led.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+        # 모든 버튼 수집
+        self.all_buttons: list[QPushButton] = self.findChildren(QPushButton)
+
+    def find_mode_button(self) -> QPushButton | None:
+        # 1) objectName 최우선
+        for b in self.all_buttons:
+            if b.objectName().lower() == "btn_mode":
+                return b
+        # 2) 텍스트로 추정 (mode)
+        for b in self.all_buttons:
+            if "mode" in b.text().lower():
+                return b
+        return None
+
+
+class AppController:
+    """
+    - expression_buffer 문자열로 '표시만' 누적
+    - engineering/basic 두 창을 만들고 show/hide 전환
+    - 버튼 → 토큰 매핑: 숫자/연산자/함수/공학키를 가능한 한 자동 규칙으로 처리
     """
     def __init__(self):
-        super().__init__()
+        self.expression_buffer = ""
 
-        # Qt Designer에서 생성한 UI 파일(caculator.ui)을 로드합니다.
-        uic.loadUi("caculator.ui", self)
-        
-        # 디스플레이 역할을 하는 QLineEdit 위젯에 대한 참조를 저장합니다.
-        self.display = self.findChild(QLineEdit, "led")
+        # UI 로드
+        self.ui_engineering = UIWindow(find_ui_path("engineering.ui"))
+        self.ui_basic = UIWindow(find_ui_path("caculator.ui"))
 
-        # 모든 버튼에 대한 클릭 이벤트를 연결합니다.
-        self.connect_buttons()
+        # 시작 모드는 engineering
+        self.current = self.ui_engineering
+        self.other = self.ui_basic
+        self._apply_display("0")  # 초기 표시
 
-    def connect_buttons(self):
-        """
-        UI 파일의 모든 버튼을 기능과 연결합니다.
-        """
-        # 숫자 및 소수점 버튼 연결
-        number_buttons = [
-            self.btn_0, self.btn_1, self.btn_2, self.btn_3, self.btn_4,
-            self.btn_5, self.btn_6, self.btn_7, self.btn_8, self.btn_9,
-            self.btn_decimal
-        ]
-        for button in number_buttons:
-            button.clicked.connect(lambda _, text=button.text(): self.append_to_display(text))
-            
-        # 연산자 버튼 연결
-        operator_buttons = [
-            self.btn_plus, self.btn_minus, self.btn_multiply, self.btn_divide,
-            self.btn_percent
-        ]
-        for button in operator_buttons:
-            button.clicked.connect(lambda _, text=button.text(): self.append_to_display(text))
+        # 버튼 연결
+        self._wire_window(self.ui_engineering)
+        self._wire_window(self.ui_basic)
 
-        # 공학용 함수 및 기타 버튼 연결
-        engineering_buttons = [
-            self.btn_open_paren, self.btn_close_paren, self.btn_x_squared,
-            self.btn_x_cubed, self.btn_x_power_y, self.btn_e_power_x,
-            self.btn_10_power_x, self.btn_1_over_x, self.btn_2_root_x,
-            self.btn_3_root_x, self.btn_y_root_x, self.btn_ln, self.btn_log10,
-            self.btn_x_factorial, self.btn_sin, self.btn_cos, self.btn_tan,
-            self.btn_e, self.btn_ee, self.btn_rand, self.btn_sinh, self.btn_cosh,
-            self.btn_tanh, self.btn_pi, self.btn_rad, self.btn_plus_minus
-        ]
-        for button in engineering_buttons:
-            button.clicked.connect(lambda _, text=button.text(): self.append_to_display(text))
-            
-        # 특수 기능 버튼 연결
-        self.btn_backspace.clicked.connect(self.backspace)
-        self.btn_ac.clicked.connect(self.clear_display)
-        self.btn_equals.clicked.connect(self.equals) # 과제 요구사항에 따라 기능은 없지만 이벤트만 연결
-        self.btn_mc.clicked.connect(self.clear_memory)
-        self.btn_m_plus.clicked.connect(self.add_to_memory)
-        self.btn_m_minus.clicked.connect(self.subtract_from_memory)
-        self.btn_mr.clicked.connect(self.recall_memory)
-        self.btn_2nd.clicked.connect(self.toggle_2nd_function)
-        #self.btn_mode.clicked.connect(self.change_mode)
-        
-    def append_to_display(self, text):
-        """
-        버튼의 텍스트를 디스플레이에 추가합니다.
-        """
-        current_text = self.display.text()
-        # sin, cos, tan 같은 함수 버튼은 괄호를 추가하여 함수형태로 표시합니다.
-        if text in ['sin', 'cos', 'tan', 'sinh', 'cosh', 'tanh', 'ln', 'log₁₀']:
-            self.display.setText(current_text + text + '(')
+        # 모드 버튼
+        self._connect_mode_button(self.ui_engineering)
+        self._connect_mode_button(self.ui_basic)
+
+        # 기본 창 표시
+        self.ui_engineering.show()
+
+    # -----------------------
+    # 표시/폰트
+    # -----------------------
+    def _apply_display(self, text: str):
+        if self.current.led is None:
+            return
+        if not text:
+            text = "0"
+        self.current.led.setText(text)
+        self._fit_font(text)
+
+    def _fit_font(self, text: str):
+        # 길이에 따라 폰트 크기 동적 조절 (최소 12pt)
+        length = max(1, len(text))
+        if length <= 10:
+            size = 48
         else:
-            self.display.setText(current_text + text)
+            size = max(12, int(480 / length))
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(size)
+        self.current.led.setFont(font)
 
-    def backspace(self):
-        """
-        디스플레이의 마지막 글자를 지웁니다.
-        """
-        current_text = self.display.text()
-        self.display.setText(current_text[:-1])
+    # -----------------------
+    # 모드 전환
+    # -----------------------
+    def toggle_mode(self):
+        # 현재 창 숨기고, 반대 창 보여주기 + 버퍼 동기화
+        self.current.hide()
+        self.current, self.other = self.other, self.current
+        # 새 창에 버퍼 반영
+        self._apply_display(self.expression_buffer if self.expression_buffer else "0")
+        self.current.show()
+        self.current.activateWindow()
 
-    def clear_display(self):
-        """
-        디스플레이의 모든 텍스트를 지웁니다.
-        """
-        self.display.clear()
+    def _connect_mode_button(self, window: UIWindow):
+        btn = window.find_mode_button()
+        if btn:
+            btn.clicked.connect(self.toggle_mode)
 
-    # 다음은 과제 요구사항에 따라 빈 함수로 남겨둔 기능들입니다.
-    def equals(self):
-        # '=' 버튼 클릭 시 아무것도 하지 않습니다.
-        pass
+    # -----------------------
+    # 버튼 연결
+    # -----------------------
+    def _wire_window(self, window: UIWindow):
+        # 특수키 식별(객체명과 라벨 모두 사용)
+        for b in window.all_buttons:
+            name = b.objectName().lower()
+            text = b.text().strip()
 
-    def clear_memory(self):
-        pass
-    
-    def add_to_memory(self):
-        pass
+            # Mode는 따로 연결하므로 skip
+            if name == "btn_mode" or "mode" in text.lower():
+                continue
 
-    def subtract_from_memory(self):
-        pass
+            # AC / Clear류
+            if name.startswith("btn_ac") or text in {"AC", "C", "CE"}:
+                b.clicked.connect(self.on_ac)
+                continue
 
-    def recall_memory(self):
-        pass
+            # Backspace
+            if "back" in name or text in {"⌫", "Back", "Backspace"}:
+                b.clicked.connect(self.on_backspace)
+                continue
 
-    def toggle_2nd_function(self):
-        pass
+            # =
+            if text == "=" or name.endswith("equals"):
+                b.clicked.connect(self.on_equal)
+                continue
 
-if __name__ == '__main__':
-    # 스크립트 실행 시 작업 디렉터리를 스크립트가 있는 디렉터리로 변경합니다.
-    os.chdir(os.path.dirname(__file__))
+            # 일반 키: 토큰 생성 → on_token
+            token = self._token_from_button(text, name)
+            if token is not None:
+                b.clicked.connect(lambda _=False, t=token: self.on_token(t))
+            else:
+                # 토큰 미매핑: 버튼 라벨 그대로 추가(표시만 목적이므로)
+                b.clicked.connect(lambda _=False, t=text: self.on_token(t))
+
+    # -----------------------
+    # 토큰 규칙
+    # -----------------------
+    _func_like = {
+        "sin", "cos", "tan", "sinh", "cosh", "tanh",
+        "asin", "acos", "atan",
+        "ln", "log", "log10", "rand", "abs",
+    }
+
+    _exact_map = {
+        # 공학 특수
+        "x²": "^2",
+        "x³": "^3",
+        "x^y": "^",
+        "e^x": "e^",
+        "10^x": "10^",
+        "1/x": "1/(",
+        "√x": "√(",
+        "²√x": "2√(",
+        "2√x": "2√(",
+        "³√x": "3√(",
+        "3√x": "3√(",
+        "y√x": "√(",
+        "x!": "!",
+        # 상수/표식
+        "π": "π",
+        "e": "e",
+        "+/-": "±",
+        "±": "±",
+        "%": "%",
+        "(": "(",
+        ")": ")",
+        "+": "+",
+        "-": "-",
+        "/": "/",
+        ".": ".",
+        "×": "×",   # 곱 기호가 ×인 경우
+        "X": "X",   # 곱 기호가 X인 경우
+    }
+
+    _simple_chars = set("0123456789+-/*().%")
+
+    def _normalize_log_label(self, text: str) -> str:
+        # log, log10, log₁₀ → log10 로 정규화
+        t = text.lower()
+        t = t.replace("log₁₀", "log10")
+        return t
+
+    def _token_from_button(self, text: str, object_name: str) -> str | None:
+        # 1) 완전 일치 매핑
+        if text in self._exact_map:
+            return self._exact_map[text]
+
+        # 2) 숫자/기본 기호
+        if all(ch in self._simple_chars for ch in text) and len(text) == 1:
+            return text
+
+        # 3) 함수형 추정: (라벨이 영문/함수패턴) → "name("
+        norm = self._normalize_log_label(text)
+        # 알파/숫자/밑줄/지수 표기를 뺀 클린 문자열
+        id_like = re.sub(r"[^a-z0-9_]", "", norm)
+        if id_like in self._func_like:
+            return f"{id_like}("
+
+        # 4) 'deg/rad' 등은 버퍼 오염 방지를 위해 None 반환(표시만 하고 싶으면 여기서 문자열 지정)
+        if id_like in {"deg", "rad"}:
+            return None
+
+        # 5) 나머지는 버튼 텍스트를 그대로(표시 목적)
+        return text
+
+    # -----------------------
+    # 핸들러
+    # -----------------------
+    def on_token(self, token: str):
+        self.expression_buffer += token
+        self._apply_display(self.expression_buffer)
+
+    def on_ac(self):
+        self.expression_buffer = ""
+        self._apply_display("0")
+
+    def on_backspace(self):
+        if self.expression_buffer:
+            self.expression_buffer = self.expression_buffer[:-1]
+        self._apply_display(self.expression_buffer if self.expression_buffer else "0")
+
+    def on_equal(self):
+        # 계산은 하지 않고 '='만 누적
+        self.expression_buffer += "="
+        self._apply_display(self.expression_buffer)
+
+
+if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = EngineeringCalculator()
-    window.show()
+    ctrl = AppController()
     sys.exit(app.exec())
