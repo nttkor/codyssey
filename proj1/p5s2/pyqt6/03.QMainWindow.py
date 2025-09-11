@@ -4,6 +4,9 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
 class MainWindow(QMainWindow):
+    '''
+    다양한 widget 자식 클래스를 보여주기 위한 예제 굳이 이렇게 짤 필요는 없음
+    '''
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PyQt6 Hello Example")
