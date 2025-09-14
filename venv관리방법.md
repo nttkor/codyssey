@@ -991,3 +991,89 @@ alias use-opencv="source $CODYSSEY_ROOT/activate-opencv.sh"
 ✅ 이렇게 해두면 Ubuntu 어디서든 `use-yolo`, `use-opencv`, `use-base` 명령으로 바로 환경을 켤 수 있습니다.
 
 👉 원하시면 제가 `~/codyssey` 밑에 둘 `activate-base.sh`, `activate-yolo.sh`, `activate-opencv.sh` 스크립트 내용도 완성본으로 정리해 드릴까요?
+네, 아주 좋은 고민이에요 👍
+`venv`를 **리포지토리 안에 둘지**, 아니면 **홈 디렉토리(리포지토리 바깥)에 둘지**는 상황마다 장단점이 있습니다.
+
+---
+
+## 📌 리포지토리 안(`~/codyssey/.envs/…`)에 두는 경우
+
+### 장점
+
+* 프로젝트 폴더만 보면 관련 venv가 어디 있는지 바로 보임 → 구조가 명확
+* VS Code, PyCharm이 자동으로 `.venv`나 `.envs`를 감지 → 설정 간편
+* 프로젝트별 환경을 독립적으로 쉽게 관리
+
+### 단점
+
+* 리포지토리를 다른 PC/서버로 옮길 때 `.envs`까지 복사되면 커밋/디스크 낭비 가능 → `.gitignore` 필수
+* 같은 라이브러리를 여러 프로젝트에서 중복 설치하게 됨 → 디스크 공간 낭비
+
+---
+
+## 📌 홈 디렉토리 밖(`~/.venvs/…`)에 두는 경우
+
+예:
+
+```
+~/.venvs/base
+~/.venvs/yolo
+~/.venvs/opencv
+```
+
+### 장점
+
+* **여러 프로젝트에서 같은 venv 재사용 가능** → 설치 중복 줄고 속도 ↑
+* 리포지토리는 깔끔하게 코드만 포함 → 협업 시에도 혼동 없음
+* 홈 디렉토리에 있으니 어떤 리포에서든 불러다 쓸 수 있음
+
+### 단점
+
+* 프로젝트 디렉토리만 봐서는 어떤 venv를 쓰는지 잘 안 보임 → 관리 규칙 필요
+* IDE에서 자동 감지가 잘 안 될 수 있음 → 수동으로 경로 지정해야 할 때 있음
+
+---
+
+## 📌 추천 (당신 상황 기준)
+
+* 지금은 **공용 PC + 여러 과제(subdir 많음)** → **홈 디렉토리 `~/.venvs`에 공용 환경을 두는 게 더 깔끔**합니다.
+* alias나 스크립트에서 경로만 `~/.venvs/yolo` 식으로 바꾸면 돼요.
+* 그러면 `~/codyssey`는 코드 전용, `~/.venvs`는 환경 전용 → 코드/환경 깔끔히 분리 👍
+
+---
+
+## 📌 예시 구조
+
+```
+~/.venvs/
+  base/
+  yolo/
+  opencv/
+
+~/codyssey/
+  proj1/
+    p1s1/ ...
+    p5s3/ ...
+  activate-base.sh
+  activate-yolo.sh
+  activate-opencv.sh
+```
+
+`activate-yolo.sh` 예시:
+
+```bash
+#!/usr/bin/env bash
+source ~/.venvs/yolo/bin/activate
+```
+
+---
+
+✅ 정리:
+
+* **리포 안** → 독립성 ↑ / 중복 설치 ↑
+* **홈 디렉토리(\~/.venvs)** → 재사용성 ↑ / 깔끔함 ↑
+* 과제가 많고, base/yolo/opencv 3개면 **홈 디렉토리 방식**이 더 편합니다.
+
+---
+
+👉 원하시면 제가 `~/.venvs` 구조 기준으로 다시 **3개 activate-\*.sh 스크립트 + .bashrc alias** 완성본을 만들어 드릴까요?
