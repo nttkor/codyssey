@@ -1,4 +1,6 @@
 **/.venv/
 **/venv/
+**/.env/
+**/env/
 **/__pycache__/무료와 유료 요금제의 차이
 .vscode/settings.json
