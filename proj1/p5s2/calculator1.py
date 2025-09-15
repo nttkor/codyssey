@@ -10,7 +10,8 @@ os.chdir(os.path.dirname(__file__))
 
 # UI 파일(caculator.ui)을 로드합니다. 파일이 없으면 오류 메시지를 출력하고 종료합니다.
 try:
-    form_class = uic.loadUiType("caculator.ui")[0]
+    form_class = uic.loadUiType("calculator.ui")[0]
+    #(form_class, base_class) = uic.loadUiType("calculator.ui")
 except FileNotFoundError:
     print("UI 파일(caculator.ui)을 찾을 수 없습니다. 경로를 확인해주세요.")
     sys.exit(1)
@@ -97,7 +98,7 @@ class CalculatorLogic:
 class MainWindow(QMainWindow, form_class):
     def __init__(self):
         super().__init__() # 상위 클래스(QMainWindow)의 생성자를 호출하여 초기화합니다.
-        self.setupUi(self) # UI 파일을 기반으로 위젯들을 설정합니다.
+        self.setupUi(self) # form_class 메쏘드, UI 파일을 기반으로 위젯들을 설정합니다.
 
         # 계산 로직을 담당하는 CalculatorLogic 클래스의 인스턴스를 생성합니다.
         self.calc = CalculatorLogic()
@@ -162,7 +163,7 @@ class MainWindow(QMainWindow, form_class):
             self.led.clear()
 
         self.calc.num += digit # 현재 숫자에 새 숫자를 추가하고 디스플레이를 업데이트합니다.
-        self.led.setText(self.calc.num)
+        self.led.setText(self.calc.num)  # ui.led 객체의 메소드 setText()를 호출하여 디스플레이에 현재 숫자를 표시합니다.
         self.set_display_font_size(self.calc.num)
 
     def input_operator(self, op):
@@ -177,7 +178,7 @@ class MainWindow(QMainWindow, form_class):
                 self.calc.equal()
             
             self.calc.operator = op # 연산자를 저장하고 num을 초기화합니다.
-            self.calc.num = ""
+            self.calc.num = "" # 연산자는 숫자입력을 종료하는것임. 현재 입력된 숫자를 초기화합니다.
             self.led.setText(f"{self.calc.op1} {self.calc.operator}")
             self.set_display_font_size(self.led.text())
 
@@ -231,6 +232,13 @@ class MainWindow(QMainWindow, form_class):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv) # QApplication 인스턴스를 생성합니다.
+    # 운영체제(OS)와 연결됨마우스/키보드 이벤트, 타이머 이벤트, 창 닫기 이벤트 등 "윈도우 시스템 이벤트"를 받아오는 역할
     window = MainWindow() # MainWindow 인스턴스를 생성합니다.
+    # 실제 화면(UI) 객체, 버튼, 텍스트박스, 라벨 등 위젯이 이 안에 들어있음
     window.show() # 창을 화면에 표시합니다.
     sys.exit(app.exec()) # 이벤트 루프를 시작하고 창이 닫힐 때까지 대기합니다.
+    # 이벤트 루프(Event Loop) 시작
+    # 운영체제로부터 이벤트를 받아 PyQt 위젯에게 전달
+    # 마우스 클릭 → QPushButton 객체로 전달
+    # 키보드 입력 → QLineEdit 객체로 전달
+    # 창 닫기 버튼 클릭 → MainWindow.close() 호출
