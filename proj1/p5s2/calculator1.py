@@ -10,7 +10,7 @@ os.chdir(os.path.dirname(__file__))
 
 # UI 파일(caculator.ui)을 로드합니다. 파일이 없으면 오류 메시지를 출력하고 종료합니다.
 try:
-    form_class = uic.loadUiType("calculator.ui")[0]
+    form_class = uic.loadUiType("calculator.ui")[0]  #.ui를 Python 클래스처럼 상속해서 쓰는 방식, uic.load()는 런타임에 객체로 로딩하는 방식
     #(form_class, base_class) = uic.loadUiType("calculator.ui")
 except FileNotFoundError:
     print("UI 파일(caculator.ui)을 찾을 수 없습니다. 경로를 확인해주세요.")

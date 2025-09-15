@@ -10,8 +10,12 @@ from PyQt6.QtCore import Qt
 
 def find_ui_path(name: str) -> str:
     """
-    name: 'engineering.ui' or 'caculator.ui'
-    1) 스크립트 폴더, 2) 현재 작업폴더, 3) /mnt/data 순서로 탐색
+    "engineering.ui" 또는 "calculator.ui"를 탐색
+    3곳 순서대로 확인:
+    스크립트 폴더 (__file__)
+    현재 작업 디렉토리 (os.getcwd())
+    /mnt/data
+    없으면 FileNotFoundError
     """
     cand = [
         Path(__file__).parent / name,
@@ -25,10 +29,19 @@ def find_ui_path(name: str) -> str:
 
 
 class UIWindow(QMainWindow):
-    """단순 UI 로더. led/QPushButton을 찾아 쓰기 좋게 보조 기능만 제공."""
+    """
+    단순 UI 로더. led/QPushButton을 찾아 쓰기 좋게 보조 기능만 제공.
+    *.ui 파일을 런타임에 로딩 (uic.loadUi(ui_path, self))
+    UI에 있는 LED(QLineEdit) 자동 찾기 (objectName='led' 우선, 없으면 첫 QLineEdit)
+    LED 기본 속성 세팅: 읽기 전용, 우측 정렬
+    모든 버튼 수집: self.all_buttons = self.findChildren(QPushButton)
+    특정 버튼 찾기 메서드: find_mode_button()
+    objectName 우선, 텍스트 fallback
+    역할: UI를 동적으로 로딩하고, LED/버튼을 쉽게 찾도록 보조
+    """
     def __init__(self, ui_path: str):
         super().__init__()
-        uic.loadUi(ui_path, self)
+        uic.loadUi(ui_path, self)  # .ui를 런타임에 객체로 로딩하는 방식, self를 전달해서 그 객체 안에 UI를 주입하는 방식
         self.ui_path = ui_path
 
         # led 찾기(우선 objectName='led', 아니면 첫 QLineEdit)
@@ -68,7 +81,7 @@ class AppController:
 
         # UI 로드
         self.ui_engineering = UIWindow(find_ui_path("engineering.ui"))
-        self.ui_basic = UIWindow(find_ui_path("caculator.ui"))
+        self.ui_basic = UIWindow(find_ui_path("calculator.ui"))
 
         # 시작 모드는 engineering
         self.current = self.ui_engineering
