@@ -84,7 +84,7 @@ QPushButton:pressed {
       </property>
       <layout class="QGridLayout" name="gridLayoutUpper">
        <item row="5" column="6">
-        <widget class="QPushButton" name="btno_backspace">
+        <widget class="QPushButton" name="btn_o_delete">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -92,10 +92,10 @@ QPushButton:pressed {
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="backspace">background-color: rgb(0, 0, 128);</string>
+          <string notr="true">background-color: rgb(0, 0, 128);</string>
          </property>
          <property name="text">
-          <string>backspace</string>
+          <string>del</string>
          </property>
         </widget>
        </item>
