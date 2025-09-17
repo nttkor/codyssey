@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-engineering_calculator.py (rev8)
-- UI 표시는 곱셈 'x', 나눗셈 '÷'
-- 평가 직전 내부식 변환: 'x'/'×' -> '*', '÷' -> '/'
-- '=' 후 동작:
-  - 사칙/제곱(²/³): le_result 유지, le_expr에 'Ans'를 자동 채우고 연산자/제곱 붙여 이어 계산
-  - 함수(sin/cos/tan/sinh/cosh/tanh): 기존처럼 새 식 시작(표시 초기화 후 함수 입력)
-    * 단, 이미 'Ans x' 상태에서 함수 입력 시엔 그대로 'sin(' 등 이어 붙음
-- '(' 은 숫자 뒤에서 자동으로 'x(' 삽입
-- '%' 는 숫자 뒤 후위 연산자: 해당 숫자에 0.01 곱하기(단순 퍼센트)
-- del: 함수 머리 통삭제(sin(, cos(, tan(, sinh(, cosh(, tanh(), re 미사용)
-- 미구현 함수 + 2nd, Rand, ± 비활성/회색 처리
-- 평가기는 샌딩-야드 + RPN (eval 미사용)
+engineering_calculator.py (rev4: '=' 후 다음 입력 시 클리어)
+
+변경점
+- '=' 누를 때 le_expr/le_result를 즉시 지우지 않음.
+- 대신 내부 플래그 self._pending_clear = True 로 표시.
+- 이후 "표현식을 변경하는" 다음 입력(숫자/소수점/연산자/괄호/함수/π/제곱/세제곱/MR)이 들어오면
+  해당 입력을 처리하기 전에 le_expr, le_result 모두 클리어하고 플래그 해제.
+- DEL은 예외: 플래그가 켜져 있어도 클리어하지 않고, 기존 수식을 편집할 수 있음(플래그 해제).
+
+나머지 요구사항 유지
+- 공학함수 즉시계산형 없음, 값 뒤 함수/π는 '*' 암시적 곱셈
+- del은 sin(, cos(, tan(, sinh(, cosh(, tanh( 머리를 통째 삭제(고정 접미사 비교, re 미사용)
+- 미구현 함수 비활성/회색
+- 메모리 MC/MR/M+/M-, 라디안/디그리 토글
+- 평가기: 샌딩-야드 + RPN (eval 미사용)
 """
 import sys, os, math
 from PyQt6 import uic, QtWidgets, QtCore
@@ -23,7 +26,7 @@ def fmt_number(x: float) -> str:
         return ""
     if math.isfinite(x) and abs(x - int(x)) < 1e-12:
         return str(int(x))
-    return "{:.12g}".format(x)
+    return ("{:.12g}".format(x))
 
 
 class Token:
@@ -37,25 +40,28 @@ class Token:
 class Calculator:
     def __init__(self):
         self.memory = 0.0
-        self.last_result = None  # Ans
+        self.last_result = None
 
-    # 메모리
-    def mem_clear(self): self.memory = 0.0
-    def mem_recall(self) -> float: return self.memory
+    def mem_clear(self):
+        self.memory = 0.0
+    def mem_recall(self) -> float:
+        return self.memory
     def mem_add(self, x: float):
-        if x is not None and math.isfinite(x): self.memory += x
+        if x is not None and math.isfinite(x):
+            self.memory += x
     def mem_sub(self, x: float):
-        if x is not None and math.isfinite(x): self.memory -= x
+        if x is not None and math.isfinite(x):
+            self.memory -= x
 
-    # 평가
     def evaluate_expr(self, s: str, angle_mode_rad: bool) -> float:
-        if not s: raise ValueError("empty expression")
+        if not s:
+            raise ValueError("empty expression")
         tokens = self._tokenize(s)
         tokens = self._fix_unary_minus(tokens)
         rpn = self._to_rpn(tokens)
-        return self._eval_rpn(rpn, angle_mode_rad)
+        val = self._eval_rpn(rpn, angle_mode_rad)
+        return val
 
-    # 토큰화(re 미사용)
     def _tokenize(self, s: str):
         tokens = []
         i, n = 0, len(s)
@@ -88,32 +94,26 @@ class Calculator:
             if ch == 'π':
                 tokens.append(Token('CONST','pi')); i += 1; continue
 
-            if ch in ('²','³','%'):
+            if ch in ('²','³'):
                 tokens.append(Token('POST', ch)); i += 1; continue
 
             if is_alpha(ch):
                 start = i; i += 1
                 while i < n and is_alpha(s[i]): i += 1
-                name = s[start:i]
-                low = name.lower()
-                if low == 'pi':
-                    tokens.append(Token('CONST','pi'))
-                elif low == 'ans':
-                    tokens.append(Token('CONST','ans'))
-                else:
-                    tokens.append(Token('FUNC', low))
+                name = s[start:i].lower()
+                if name == 'pi': tokens.append(Token('CONST','pi'))
+                else: tokens.append(Token('FUNC', name))
                 continue
 
             raise ValueError(f"invalid char: {ch}")
         return tokens
 
-    # 단항 마이너스(0-x)
     def _fix_unary_minus(self, tokens):
         res = []; prev_type = 'START'
         for tk in tokens:
             if tk.t == 'OP' and tk.v == '-':
                 if prev_type in ('START','OP','LPAREN','FUNC'):
-                    res.append(Token('NUM', 0.0)); res.append(Token('OP','-'))
+                    res.append(Token('NUM', 0.0)); res.append(Token('OP', '-'))
                 else:
                     res.append(tk)
                 prev_type = 'OP'; continue
@@ -124,7 +124,6 @@ class Calculator:
             else: prev_type = 'OP'
         return res
 
-    # 샌딩-야드
     def _to_rpn(self, tokens):
         out = []; st = []
         def prec(op):
@@ -132,48 +131,34 @@ class Calculator:
             if op in ('*','/'): return 2
             return 0
         for tk in tokens:
-            if tk.t in ('NUM','CONST'):
-                out.append(tk)
-            elif tk.t == 'POST':
-                out.append(tk)
-            elif tk.t == 'FUNC':
-                st.append(tk)
-            elif tk.t == 'LPAREN':
-                st.append(tk)
+            if tk.t in ('NUM','CONST'): out.append(tk)
+            elif tk.t == 'POST': out.append(tk)
+            elif tk.t == 'FUNC': st.append(tk)
+            elif tk.t == 'LPAREN': st.append(tk)
             elif tk.t == 'RPAREN':
-                while st and st[-1].t != 'LPAREN':
-                    out.append(st.pop())
+                while st and st[-1].t != 'LPAREN': out.append(st.pop())
                 if not st: raise ValueError("mismatched parenthesis")
                 st.pop()
-                if st and st[-1].t == 'FUNC':
-                    out.append(st.pop())
+                if st and st[-1].t == 'FUNC': out.append(st.pop())
             elif tk.t == 'OP':
-                while st and st[-1].t == 'OP' and prec(st[-1].v) >= prec(tk.v):
-                    out.append(st.pop())
+                while st and st[-1].t == 'OP' and prec(st[-1].v) >= prec(tk.v): out.append(st.pop())
                 st.append(tk)
-            else:
-                raise ValueError("unknown token type")
+            else: raise ValueError("unknown token type")
         while st:
             top = st.pop()
             if top.t in ('LPAREN','RPAREN'): raise ValueError("mismatched parenthesis")
             out.append(top)
         return out
 
-    # RPN 평가
     def _eval_rpn(self, rpn, angle_mode_rad: bool) -> float:
         st = []
         def need(n):
             if len(st) < n: raise ValueError("stack underflow")
         for tk in rpn:
-            if tk.t == 'NUM':
-                st.append(tk.v)
+            if tk.t == 'NUM': st.append(tk.v)
             elif tk.t == 'CONST':
-                if tk.v == 'pi':
-                    st.append(math.pi)
-                elif tk.v == 'ans':
-                    st.append(self.last_result if (self.last_result is not None) else 0.0)
-                else:
-                    raise ValueError("unknown const")
+                if tk.v == 'pi': st.append(math.pi)
+                else: raise ValueError("unknown const")
             elif tk.t == 'OP':
                 need(2); b = st.pop(); a = st.pop()
                 if tk.v == '+': st.append(a + b)
@@ -196,10 +181,8 @@ class Calculator:
                 need(1); a = st.pop()
                 if tk.v == '²': st.append(a * a)
                 elif tk.v == '³': st.append(a * a * a)
-                elif tk.v == '%': st.append(a * 0.01)
                 else: raise ValueError("unknown postfix")
-            else:
-                raise ValueError("unknown token in rpn")
+            else: raise ValueError("unknown token in rpn")
         if len(st) != 1: raise ValueError("invalid expression")
         return st[0]
 
@@ -211,9 +194,9 @@ class EngineeringCalculator(Calculator):
 
 
 class MainWindow(QMainWindow):
-    ENABLED_FUNCS = {"sin","cos","tan","sinh","cosh","tanh","pi","pow2","pow3","percent"}
+    ENABLED_FUNCS = {"sin","cos","tan","sinh","cosh","tanh","pi","pow2","pow3"}
     FUNC_HEADERS = ["sinh(", "cosh(", "tanh(", "sin(", "cos(", "tan("]
-    VALUE_TAILS = set('0123456789)') | {'π', '²', '³', '%'}  # '%' 뒤에 또 % 허용 안 하지만 값으로 간주
+    VALUE_TAILS = set('0123456789)') | {'π', '²', '³'}
 
     def __init__(self):
         super().__init__()
@@ -226,45 +209,26 @@ class MainWindow(QMainWindow):
         self.le_result: QLineEdit = self.findChild(QLineEdit, "le_result", opts)
 
         self.engine = EngineeringCalculator()
-        self.inv_mode = False
-        self._pending_clear = False  # '=' 이후 특별 처리 플래그
+        self.inv_mode = False  # 라벨만 유지
+        self._pending_clear = False  # '=' 후 다음 입력에서 클리어
 
         self._bind_all_buttons()
         self._disable_unimplemented_functions()
-        self._disable_2nd_rand_plusminus()
         self._sync_rad_button_text()
 
-    # -------- 표시식 -> 내부식 변환 --------
-    def _to_internal_expr(self, expr: str) -> str:
-        return expr.replace('×', '*').replace('x', '*').replace('÷', '/')
-
-    # -------- 다음 입력에서 클리어/Ans 시드 --------
-    def _ans_seed_if_needed(self, want_ans: bool):
-        """
-        '=' 직후에 연산자/제곱이 눌린 경우:
-          - 결과(하단)는 유지
-          - le_expr가 비어 있고 want_ans=True면 'Ans'를 심고 플래그 해제
-        그 외의 일반 입력은 기존처럼 클리어.
-        """
-        if self._pending_clear:
-            if want_ans and (self._text() == ""):
-                # 결과 유지는 그대로, 식만 'Ans'로 시드
-                self.le_expr.setText("Ans")
-                self._pending_clear = False
-            else:
-                # 일반 입력: 기존처럼 초기화 후 새 식
-                self.le_expr.clear()
-                self.le_result.clear()
-                self._pending_clear = False
-
+    # ----------------- 공통: 다음 입력에서 클리어 처리 -----------------
     def _prepare_for_input(self, will_modify_expr: bool):
-        # 유지: (rev7까지의 기본 클리어 경로)
+        """
+        will_modify_expr=True 인 입력(숫자/점/연산/괄호/함수/π/제곱/세제곱/MR 등) 전에 호출.
+        self._pending_clear 가 True면 le_expr, le_result를 비우고 플래그 해제.
+        DEL은 will_modify_expr=False로 호출하여 기존 수식을 유지/편집 가능.
+        """
         if will_modify_expr and self._pending_clear:
             self.le_expr.clear()
             self.le_result.clear()
             self._pending_clear = False
 
-    # -------- 바인딩 --------
+    # ----------------- 바인딩 -----------------
     def _bind_all_buttons(self):
         for w in self.findChildren(QPushButton) + self.findChildren(QToolButton):
             name = w.objectName()
@@ -285,87 +249,36 @@ class MainWindow(QMainWindow):
                 except Exception:
                     pass
 
-    # -------- 2nd / Rand / ± 비활성화 --------
-    def _disable_2nd_rand_plusminus(self):
-        candidates = self.findChildren(QPushButton) + self.findChildren(QToolButton)
-        for w in candidates:
-            nm = (w.objectName() or "").lower()
-            tx = (getattr(w, "text", lambda:"")() or "").strip().lower()
-            if ("2nd" in nm) or ("rand" in nm) or (tx in {"2nd","rand"}):
-                pass_match = True
-            else:
-                pass_match = False
-            # ± / plus-minus
-            if ("plusminus" in nm) or ("pm" in nm) or ("±" in nm) or (tx in {"±","+/-","plus/minus"}):
-                pass_match = True
-            if pass_match:
-                w.setEnabled(False)
-                try:
-                    old = w.styleSheet() or ""
-                    w.setStyleSheet(old + "; color:#888;")
-                except Exception:
-                    pass
-
-    # -------- 버튼 텍스트 폴백 --------
-    def _key_from_text(self, txt):
-        t = (txt or "").strip().lower()
-        if not t: return None
-        if len(t) == 1 and '0' <= t <= '9': return t
-        if t in {"(", ")"}: return "open" if t == "(" else "close"
-        if t in {"=", "eq"}: return "equal"
-        if t in {"+", "add"}: return "plus"
-        if t in {"-", "sub"}: return "minus"
-        if t in {"*", "x", "×", "times"}: return "mul"
-        if t in {"/", "÷", "divide"}: return "div"
-        if t in {".", "·"}: return "dot"
-        if t in {"%","percent"}: return "percent"
-        if t in {"ac","c","clear"}: return "ac"
-        if t in {"del","⌫","back","bksp"}: return "del"
-        if t in {"rad","deg"}: return "rad"
-        if t == "mc": return "m_c"
-        if t == "mr": return "m_r"
-        if t in {"m+","madd"}: return "m_plus"
-        if t in {"m-","msub"}: return "m_minus"
-        if t in {"sin","cos","tan","sinh","cosh","tanh"}: return t
-        if t in {"π","pi"}: return "pi"
-        if t in {"x²","x^2","x2"}: return "pow2"
-        if t in {"x³","x^3","x3"}: return "pow3"
-        return None
-
-    # -------- 디스패치 --------
+    # ----------------- 디스패치 -----------------
     def on_button_clicked(self, btn):
         name = btn.objectName() or ""
-        key = None
-        if "_" in name:
-            prefix, raw = name.split("_",1)
-            key = self._alias(raw)
+        if "_" not in name: return
+        prefix, key = name.split("_",1)
+        key = self._alias(key)
 
-            # 숫자/소수점
-            if prefix == "btnn":
-                if key and key.isdigit(): self._append_digit(key); return
-                if key in (".","dot","point","decimal"): self._append_dot(); return
+        # 숫자/소수점
+        if prefix == "btnn":
+            if key.isdigit(): self._append_digit(key); return
+            if key in (".","dot","point","decimal"): self._append_dot(); return
 
-            # 공학 함수
-            if prefix == "btnf":
-                handler = getattr(self, f"do_{key}", None)
-                if callable(handler): handler(); return
-
-            # 연산/시스템
+        # 공학 함수
+        if prefix == "btnf":
             handler = getattr(self, f"do_{key}", None)
             if callable(handler): handler(); return
 
-        # objectName 실패 시 텍스트 폴백
-        tkey = self._key_from_text(getattr(btn, "text", lambda:"")())
-        if tkey:
-            handler = getattr(self, f"do_{tkey}", None)
-            if callable(handler): handler(); return
+        # 연산/시스템 포함
+        handler = getattr(self, f"do_{key}", None)
+        if callable(handler): handler(); return
 
-    # -------- 별칭 --------
+        if key in ("plus","minus","mul","div","open","close","equal"):
+            getattr(self, f"do_{key}")()
+
+    # ----------------- 별칭 -----------------
     def _alias(self, key: str) -> str:
-        k = (key or "").lower()
+        k = key.lower()
         if k in {"+","add","plus"}: return "plus"
         if k in {"-","sub","minus"}: return "minus"
-        if k in {"*","x","×","times","mul"}: return "mul"
+        if k in {"*","x","times","mul"}: return "mul"
         if k in {"/","÷","div","divide"}: return "div"
         if k in {"(","open","lparen"}: return "open"
         if k in {")","close","rparen"}: return "close"
@@ -378,24 +291,19 @@ class MainWindow(QMainWindow):
         if k in {"pi","π"}: return "pi"
         if k in {"x2","square","sqr","pow2"}: return "pow2"
         if k in {"x3","cube","pow3"}: return "pow3"
-        if k in {"percent","%"}: return "percent"
         return k
 
-    # -------- 입력 구성 --------
+    # ----------------- 입력 구성 -----------------
     def _text(self) -> str: return self.le_expr.text() or ""
     def _set_text(self, s: str): self.le_expr.setText(s)
     def _append(self, s: str): self.le_expr.setText(self._text() + s)
     def _ends_with_value(self) -> bool:
         t = self._text()
         return bool(t) and (t[-1] in self.VALUE_TAILS)
-    def _ends_with_digit(self) -> bool:
-        t = self._text()
-        return bool(t) and ('0' <= t[-1] <= '9')
 
     def _maybe_mul(self):
-        # 암시적 곱셈도 'x'로 표시
         if self._ends_with_value():
-            self._append("x")
+            self._append("*")
 
     def _append_digit(self, d: str):
         self._prepare_for_input(True)
@@ -409,12 +317,12 @@ class MainWindow(QMainWindow):
         if '.' in seg: return
         self._append(".")
 
-    # -------- 공학 함수/상수 --------
+    # ----------------- 공학 함수/상수 -----------------
     def insert_function(self, name: str):
-        # '=' 직후 함수는 새 식 시작(기존 처리 유지)
         self._prepare_for_input(True)
         self._maybe_mul()
         self._append(name + "(")
+
     def do_sin(self):  self.insert_function("sin")
     def do_cos(self):  self.insert_function("cos")
     def do_tan(self):  self.insert_function("tan")
@@ -425,58 +333,36 @@ class MainWindow(QMainWindow):
     def do_pi(self):
         self._prepare_for_input(True)
         if self._ends_with_value():
-            self._append("x")
+            self._append("*")
         self._append("π")
 
     def do_pow2(self):
-        # '=' 직후면 Ans 시드 + 제곱
-        self._ans_seed_if_needed(want_ans=True)
-        if self._ends_with_value() or self._text() == "Ans":
+        self._prepare_for_input(True)
+        if self._ends_with_value():
             self._append("²")
 
     def do_pow3(self):
-        self._ans_seed_if_needed(want_ans=True)
-        if self._ends_with_value() or self._text() == "Ans":
+        self._prepare_for_input(True)
+        if self._ends_with_value():
             self._append("³")
 
-    # -------- % (후위, 숫자 뒤에서만) --------
-    def do_percent(self):
-        self._prepare_for_input(True)
-        # 숫자/괄호닫힘/π/제곱 뒤에서만 허용(간단화)
-        if self._ends_with_value() and ('0' <= self._text()[-1] <= '9'):
-            self._append("%")
+    # ----------------- 일반 연산 -----------------
+    def do_plus(self):  self._prepare_for_input(True); self._append("+")
+    def do_minus(self): self._prepare_for_input(True); self._append("-")
+    def do_mul(self):   self._prepare_for_input(True); self._append("*")
+    def do_div(self):   self._prepare_for_input(True); self._append("/")
+    def do_open(self):  self._prepare_for_input(True); self._append("(")
+    def do_close(self): self._prepare_for_input(True); self._append(")")
 
-    # -------- 일반 연산(표시 전용 기호) --------
-    def do_plus(self):
-        self._ans_seed_if_needed(want_ans=True)
-        self._append("+")
-    def do_minus(self):
-        self._ans_seed_if_needed(want_ans=True)
-        self._append("-")
-    def do_mul(self):
-        self._ans_seed_if_needed(want_ans=True)
-        self._append("x")   # 곱셈: x
-    def do_div(self):
-        self._ans_seed_if_needed(want_ans=True)
-        self._append("÷")   # 나눗셈: ÷
-    def do_open(self):
-        self._prepare_for_input(True)
-        # 숫자 뒤 '(' -> 'x('
-        if self._ends_with_digit():
-            self._append("x(")
-        else:
-            self._append("(")
-    def do_close(self):
-        self._prepare_for_input(True)
-        self._append(")")
-
-    # -------- 시스템 --------
+    # ----------------- 시스템 -----------------
     def do_ac(self):
+        # AC는 무조건 전부 초기화
         self._pending_clear = False
         self._set_text("")
         self.le_result.setText("")
+
     def do_del(self):
-        # DEL은 플래그만 해제하고 편집
+        # DEL은 다음입력시클리어를 해제하고, 즉시 클리어하지 않음
         if self._pending_clear:
             self._pending_clear = False
         s = self._text()
@@ -484,35 +370,24 @@ class MainWindow(QMainWindow):
         for header in sorted(self.FUNC_HEADERS, key=len, reverse=True):
             if s.endswith(header):
                 self._set_text(s[:-len(header)]); return
-        if s.endswith("²") or s.endswith("³") or s.endswith("%"):
+        if s.endswith("²") or s.endswith("³"):
             self._set_text(s[:-1]); return
         self._set_text(s[:-1])
 
-    def _auto_closed_expr(self, expr: str) -> str:
-        opens = 0
-        for ch in expr:
-            if ch == '(':
-                opens += 1
-            elif ch == ')':
-                if opens > 0:
-                    opens -= 1
-        return expr + (")" * opens) if opens > 0 else expr
-
     def do_equal(self):
-        expr_display = self._text()
+        expr = self._text()
         try:
-            to_eval = self._auto_closed_expr(expr_display)
-            to_eval = self._to_internal_expr(to_eval)
-            val = self.engine.evaluate_expr(to_eval, self.engine.angle_mode_rad)
+            val = self.engine.evaluate_expr(expr, self.engine.angle_mode_rad)
             self.engine.last_result = val
             self.le_result.setText(fmt_number(val))
         except Exception:
             self.engine.last_result = None
             self.le_result.setText("Error")
-        # 다음 입력 특별 처리용 플래그
+        # 여기서는 expr/result를 지우지 않음.
+        # 다음 입력이 표현식을 변경하려고 할 때 클리어되도록 플래그만 세팅
         self._pending_clear = True
 
-    # -------- 각도 모드 --------
+    # ----------------- 각도 모드 -----------------
     def do_rad(self):
         self.engine.angle_mode_rad = not self.engine.angle_mode_rad
         self._sync_rad_button_text()
@@ -522,7 +397,7 @@ class MainWindow(QMainWindow):
         if btn:
             btn.setText("Rad" if self.engine.angle_mode_rad else "Deg")
 
-    # -------- 메모리 --------
+    # ----------------- 메모리 -----------------
     def _current_value_for_memory(self):
         txt = (self.le_result.text() or "").strip()
         if txt and txt != "Error":
@@ -530,22 +405,27 @@ class MainWindow(QMainWindow):
             except Exception: pass
         expr = self._text()
         if expr:
-            try:
-                expr2 = self._to_internal_expr(self._auto_closed_expr(expr))
-                return self.engine.evaluate_expr(expr2, self.engine.angle_mode_rad)
-            except Exception:
-                return None
+            try: return self.engine.evaluate_expr(expr, self.engine.angle_mode_rad)
+            except Exception: return None
         return None
-    def do_m_c(self): self.engine.mem_clear()
+
+    def do_m_c(self):
+        self.engine.mem_clear()
+
     def do_m_r(self):
+        # MR은 표현식을 "변경"하므로 next-input 클리어 대상으로 취급
         self._prepare_for_input(True)
         v = self.engine.mem_recall()
-        if self._ends_with_value(): self._append("x")
+        if self._ends_with_value(): self._append("*")
         self._append(fmt_number(v))
+
     def do_m_plus(self):
-        v = self._current_value_for_memory(); self.engine.mem_add(v)
+        v = self._current_value_for_memory()
+        self.engine.mem_add(v)
+
     def do_m_minus(self):
-        v = self._current_value_for_memory(); self.engine.mem_sub(v)
+        v = self._current_value_for_memory()
+        self.engine.mem_sub(v)
 
 
 def main():

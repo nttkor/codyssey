@@ -84,7 +84,7 @@ QPushButton:pressed {
       </property>
       <layout class="QGridLayout" name="gridLayoutUpper">
        <item row="5" column="6">
-        <widget class="QPushButton" name="btn_mode">
+        <widget class="QPushButton" name="btn_delete">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -95,7 +95,7 @@ QPushButton:pressed {
           <string notr="true">background-color: rgb(0, 0, 128);</string>
          </property>
          <property name="text">
-          <string>mode</string>
+          <string>del</string>
          </property>
         </widget>
        </item>
