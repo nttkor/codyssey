@@ -299,7 +299,7 @@ class MainWindow(QMainWindow):
 
         self._handlers = h
 
-        # 5) 공용 클릭 라우팅(캡처로 late-binding 방지)
+        # # 5) 공용 클릭 라우팅(캡처로 late-binding 방지)
         for b in buttons:
             b.clicked.connect(lambda _=False, obj=b: self._handlers.get(obj.objectName(), lambda: None)())
 

@@ -94,7 +94,6 @@
        <font>
         <pointsize>14</pointsize>
         <bold>true</bold>
-        <kerning>true</kerning>
        </font>
       </property>
       <property name="styleSheet">
@@ -169,11 +168,17 @@ QPushButton:pressed {
        </item>
        <item row="0" column="7">
         <widget class="QPushButton" name="btno_sign">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>+/-</string>
@@ -207,6 +212,9 @@ QPushButton:pressed {
            <verstretch>1</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
+         </property>
          <property name="text">
           <string>log₁₀</string>
          </property>
@@ -222,6 +230,9 @@ QPushButton:pressed {
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>x!</string>
@@ -271,6 +282,9 @@ QPushButton:pressed {
            <verstretch>1</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
+         </property>
          <property name="text">
           <string>EE</string>
          </property>
@@ -318,7 +332,7 @@ QPushButton:pressed {
        <item row="1" column="1">
         <widget class="QPushButton" name="btnf_pow2">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -341,6 +355,9 @@ QPushButton:pressed {
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>2√x</string>
@@ -370,6 +387,9 @@ QPushButton:pressed {
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>10^x</string>
@@ -478,11 +498,17 @@ QPushButton:pressed {
        </item>
        <item row="0" column="8">
         <widget class="QPushButton" name="btno_percent">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>%</string>
@@ -516,6 +542,9 @@ QPushButton:pressed {
            <verstretch>1</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
+         </property>
          <property name="text">
           <string>y√x</string>
          </property>
@@ -532,6 +561,9 @@ QPushButton:pressed {
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
+         </property>
          <property name="text">
           <string>3√x</string>
          </property>
@@ -544,6 +576,9 @@ QPushButton:pressed {
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>e</string>
@@ -560,6 +595,9 @@ QPushButton:pressed {
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>x^y</string>
@@ -589,6 +627,9 @@ QPushButton:pressed {
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>Rand</string>
@@ -670,6 +711,9 @@ QPushButton:pressed {
            <verstretch>1</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
+         </property>
          <property name="text">
           <string>2nd</string>
          </property>
@@ -685,6 +729,9 @@ QPushButton:pressed {
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>e^x</string>
@@ -702,6 +749,9 @@ QPushButton:pressed {
            <verstretch>1</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
+         </property>
          <property name="text">
           <string>ln</string>
          </property>
@@ -710,7 +760,7 @@ QPushButton:pressed {
        <item row="1" column="2">
         <widget class="QPushButton" name="btnf_pow3">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -836,6 +886,9 @@ QPushButton:pressed {
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>1/x</string>
