@@ -28,7 +28,7 @@ import sys, os, math
 from PyQt6 import uic, QtWidgets, QtCore
 from PyQt6.QtWidgets import QMainWindow, QPushButton, QToolButton, QLineEdit
 
-SIG_DIGITS = 12        # 기본 유효숫자 자릿수
+SIG_DIGITS = 16        # 기본 유효숫자 자릿수
 FIXED_DECIMALS = None  # 고정 소수 자리수 (None이면 유효숫자 모드)
 
 def fmt_number(x: float) -> str:
@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
         """UI 로드, 디스플레이 바인딩, 자동 핸들러 라우팅을 설정한다."""
         super().__init__()
         ui_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "engineering.ui")
-        uic.loadUi(ui_path, self)
+        uic.loadUi(ui_path, self) #`.ui` 로드: self에 위젯 바인딩
 
         opts = QtCore.Qt.FindChildOption.FindChildrenRecursively
         self.le_expr: QLineEdit = self.findChild(QLineEdit, "le_expr", opts)
@@ -276,7 +276,7 @@ class MainWindow(QMainWindow):
 
         # ---------------- 핸들러 딕셔너리 구성 ----------------
         # 1) 모든 버튼 수집
-        buttons = self.findChildren(QPushButton) + self.findChildren(QToolButton)
+        buttons = self.findChildren(QPushButton) #+ self.findChildren(QToolButton)
 
         h = {}
         # 2) 선점: 숫자/점 (람다 기본인자로 late-binding 회피)
