@@ -1,0 +1,240 @@
+좋아. 😄 그럼 위 `engineering_calculator_eval.py` 코드가 **실행될 때 순서대로 어떤 일이 일어나는지**, 단계별로 아주 자세히 설명해줄게.
+
+---
+
+## 1️⃣ 프로그램 시작
+
+```python
+if __name__=="__main__":
+    main()
+```
+
+* Python 스크립트를 직접 실행하면 `main()` 함수가 호출됨.
+* 여기서 PyQt 애플리케이션 객체 생성, 메인 윈도우 생성, 이벤트 루프 시작이 이루어짐.
+
+---
+
+## 2️⃣ PyQt 애플리케이션 생성
+
+```python
+app = QtWidgets.QApplication(sys.argv)
+```
+
+* PyQt6 GUI 애플리케이션 객체 생성
+* `sys.argv`는 명령행 인자를 전달
+* QApplication이 있어야 모든 위젯이 동작 가능
+
+---
+
+## 3️⃣ 메인 윈도우 생성
+
+```python
+w = MainWindow(); w.show()
+```
+
+### MainWindow.**init**()
+
+1. **UI 파일 로드**
+
+```python
+ui_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "engineering.ui")
+uic.loadUi(ui_path, self)
+```
+
+* `.ui` 파일을 읽어 위젯들을 `self`에 바인딩
+* 예: 버튼 `btnn_0` → `self.btnn_0`
+
+2. **QLineEdit 레퍼런스 확보**
+
+```python
+self.le_expr = self.findChild(QLineEdit, "le_expr", opts)
+self.le_result = self.findChild(QLineEdit, "le_result", opts)
+```
+
+* 표시용 입력창과 결과창 객체를 가져옴
+
+3. **텍스트 변경 시 폰트 자동 조절**
+
+```python
+self.le_expr.textChanged.connect(lambda s: self._fit_font(self.le_expr, s))
+self.le_result.textChanged.connect(lambda s: self._fit_font(self.le_result, s))
+```
+
+* 입력 길이에 따라 글자 크기 자동 조절
+* `_fit_font()` 함수에서 길이 기준으로 폰트 크기 계산
+
+4. **엔진 초기화**
+
+```python
+self.engine = EngineeringCalculator()
+self._pending_clear = False
+```
+
+* `EngineeringCalculator` 객체 생성 → 계산 로직 담당
+* `_pending_clear` 플래그: '=' 이후 첫 입력 처리용
+
+---
+
+## 4️⃣ 버튼 이벤트 라우팅 설정
+
+### 버튼 수집
+
+```python
+buttons = self.findChildren(QPushButton)
+```
+
+* UI에 있는 모든 버튼 객체를 리스트로 가져옴
+
+### 핸들러 딕셔너리 생성
+
+```python
+h = {}
+h.update({f"btnn_{d}": (lambda d=d: self._append_digit(d)) for d in "0123456789"})
+h["btnn_dot"] = self._append_dot
+h.update({f"btnf_{n}": (lambda n=n: self._insert_func(n)) for n in ("sin","cos","tan","sinh","cosh","tanh")})
+self._handlers = h
+```
+
+* 숫자 버튼: `_append_digit(d)` 연결
+* 소수점 버튼: `_append_dot`
+* 함수 버튼: `_insert_func(name)`
+* 나중에 다른 버튼도 이름에 따라 `on_btn_<tail>_pressed` 메서드 호출 가능
+
+### 클릭 시 공용 라우팅
+
+```python
+for b in buttons:
+    b.clicked.connect(lambda _=False, obj=b: self._handlers.get(obj.objectName(), lambda: None)())
+```
+
+* 버튼 클릭 시 `_handlers`에서 objectName에 맞는 함수 호출
+* late-binding 회피를 위해 lambda 기본인자 사용
+
+---
+
+## 5️⃣ MainWindow 이벤트 흐름
+
+### 1) 숫자 입력
+
+```python
+_append_digit(self,d)
+```
+
+* `_clear_if_pending()` → '=' 이후 초기화
+* `_append(d)` → 표시식 끝에 숫자 추가
+
+### 2) 점 입력
+
+```python
+_append_dot()
+```
+
+* 현재 숫자 세그먼트에 점이 없을 경우에만 추가
+
+### 3) 함수 입력
+
+```python
+_insert_func(name)
+```
+
+* `_maybe_mul()` → 값 뒤에 함수 입력 시 자동 곱셈
+* 표시식에 `name(` 추가
+
+### 4) 연산자 입력
+
+* `_seed_ans_then("+")` 형태로 처리
+* '=' 이후 입력 시 Ans 자동 시드
+* 표시식 끝에 연산자 추가
+
+### 5) 괄호 입력
+
+* 여는 괄호: `_clear_if_pending()` + `_append("(" or "x(")`
+* 닫는 괄호: `_append(")")`
+
+### 6) AC / DEL 버튼
+
+* AC: `_set_text("")`, 결과창 비움
+* DEL: 마지막 문자 삭제, 함수 머리는 통삭제
+
+### 7) = 버튼
+
+```python
+on_btno_equal_pressed()
+```
+
+1. 표시식 가져오기: `expr_display = self._text()`
+2. `_auto_closed_expr()` → 열린 괄호 자동 닫기
+3. `engine.evaluate_expr(expr, angle_mode_rad)` 호출
+
+   * 후위 연산 변환: ²,³,% → \*\*2,\*\*3,\*0.01
+   * 표시 기호 변환: x,× → \*, ÷ → /
+   * eval 안전 실행 (함수, 상수, Ans 허용)
+4. 결과 표시: `le_result.setText(fmt_number(val))`
+5. `_pending_clear=True` → '=' 이후 첫 입력 시 초기화
+
+### 8) Deg/Rad 버튼
+
+* 버튼 클릭 → 각도 모드 토글
+* 버튼 텍스트 동기화
+
+### 9) 메모리 버튼
+
+* M+: `_current_value_for_memory()` → 현재 값 → `engine.mem_add()`
+* M-: `_current_value_for_memory()` → 현재 값 → `engine.mem_sub()`
+* MR: 메모리 값 가져와 표시식에 삽입
+* MC: 메모리 초기화
+
+---
+
+## 6️⃣ 엔진 내부
+
+`EngineeringCalculator.evaluate_expr(expr, angle_mode_rad)`
+
+1. 표시식 후위 연산 변환: ²→\*\*2,³→\*\*3,%→\*0.01
+2. 기호 변환: x,× → \*, ÷ → /
+3. 안전한 `eval()` 환경 구성
+
+   * 로컬 딕셔너리: pi, Ans, trig/hyp 함수
+   * Deg 모드면 sin/cos/tan에 rad 변환 적용
+4. `eval()` 계산 후 결과 반환
+
+---
+
+## 7️⃣ 표시와 폰트 조절
+
+* `_fit_font()` → 표시식/결과 텍스트 길이에 따라 글자 크기 자동 조절
+* 19글자 이하: 48pt, 그 이상은 길이에 비례 감소, 최소 5pt
+
+---
+
+## 8️⃣ 전체 요약 실행 순서
+
+1. Python 스크립트 실행 → `main()` 호출
+2. QApplication 생성
+3. MainWindow 생성 → `.ui` 로드, 입력/결과 QLineEdit 확보
+4. 엔진 초기화, \_pending\_clear 플래그 초기화
+5. 버튼 객체 수집 → 핸들러 딕셔너리 생성
+6. 버튼 클릭 이벤트 연결 → \_handlers 참조
+7. UI 표시
+8. 사용자가 버튼 클릭 → 라우팅 → 표시식/결과 반영
+9. '=' 클릭 → `_auto_closed_expr` → `engine.evaluate_expr` → 결과 표시
+10. 폰트 자동 조절 → 다음 입력 처리
+
+---
+
+💡 핵심 포인트
+
+* `eval` 기반으로 후위 연산과 각도 모드를 안전하게 처리
+* `_pending_clear` 플래그로 '=' 이후 입력 정책 구현
+* 버튼 이름 → 핸들러 자동 매핑
+* 표시식은 UI 친화적 기호, 내부 계산용 기호 변환
+* 메모리/Ans/함수 지원
+
+---
+
+원하면 내가 이 실행 흐름을 **그림/순서도**로 만들어서
+
+* UI 버튼 클릭 → 표시식 → 엔진 평가 → 결과 표시
+  까지 직관적으로 보여줄 수도 있어.
+
+혹시 그걸 만들어줄까?

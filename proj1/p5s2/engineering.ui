@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>CalculatorUI</class>
  <widget class="QMainWindow" name="CalculatorUI">
@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>700</width>
-    <height>400</height>
+    <height>482</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="font">
    <font>
@@ -33,35 +39,61 @@
 }</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item><widget class="QLineEdit" name="le_expr"><property name="readOnly"><bool>true</bool></property><property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property><property name="placeholderText"><string /></property><property name="font"><font><family>Arial</family><pointsize>48</pointsize><bold>false</bold><weight>50</weight></font></property></widget></item><item>
+    <item>
+     <widget class="QLineEdit" name="le_expr">
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>48</pointsize>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="placeholderText">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLineEdit" name="le_result">
       <property name="enabled">
        <bool>true</bool>
       </property>
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>1</verstretch>
        </sizepolicy>
       </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>48</pointsize>
+        <bold>false</bold>
+       </font>
+      </property>
       <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
       <property name="readOnly">
-       <bool>true</bool></property>
-     <property name="placeholderText"><string /></property><property name="font"><font><family>Arial</family><pointsize>48</pointsize><bold>false</bold><weight>50</weight></font></property></widget>
+       <bool>true</bool>
+      </property>
+      <property name="placeholderText">
+       <string/>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QFrame" name="ButtonFrame">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>4</verstretch>
-       </sizepolicy>
-      </property>
       <property name="font">
        <font>
         <pointsize>14</pointsize>
-        <kerning>true</kerning>
+        <bold>true</bold>
        </font>
       </property>
       <property name="styleSheet">
@@ -136,11 +168,17 @@ QPushButton:pressed {
        </item>
        <item row="0" column="7">
         <widget class="QPushButton" name="btno_sign">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>+/-</string>
@@ -165,11 +203,17 @@ QPushButton:pressed {
        </item>
        <item row="2" column="5">
         <widget class="QPushButton" name="btnf_log10">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>log₁₀</string>
@@ -178,11 +222,17 @@ QPushButton:pressed {
        </item>
        <item row="3" column="0">
         <widget class="QPushButton" name="btnf_fact">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>x!</string>
@@ -223,11 +273,17 @@ QPushButton:pressed {
        </item>
        <item row="3" column="5">
         <widget class="QPushButton" name="btnf_EE">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>EE</string>
@@ -275,6 +331,9 @@ QPushButton:pressed {
        </item>
        <item row="1" column="1">
         <widget class="QPushButton" name="btnf_pow2">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -288,11 +347,17 @@ QPushButton:pressed {
        </item>
        <item row="2" column="1">
         <widget class="QPushButton" name="btnf_sqrt2">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>2√x</string>
@@ -314,11 +379,17 @@ QPushButton:pressed {
        </item>
        <item row="1" column="5">
         <widget class="QPushButton" name="btnf_10pow">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>10^x</string>
@@ -427,11 +498,17 @@ QPushButton:pressed {
        </item>
        <item row="0" column="8">
         <widget class="QPushButton" name="btno_percent">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>%</string>
@@ -456,11 +533,17 @@ QPushButton:pressed {
        </item>
        <item row="2" column="3">
         <widget class="QPushButton" name="btnf_yrootx">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>y√x</string>
@@ -469,11 +552,17 @@ QPushButton:pressed {
        </item>
        <item row="2" column="2">
         <widget class="QPushButton" name="btnf_sqrt3">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
-           <verstretch>1</verstretch>
+           <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>3√x</string>
@@ -488,6 +577,9 @@ QPushButton:pressed {
            <verstretch>1</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
+         </property>
          <property name="text">
           <string>e</string>
          </property>
@@ -495,11 +587,17 @@ QPushButton:pressed {
        </item>
        <item row="1" column="3">
         <widget class="QPushButton" name="btnf_pow_y">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>x^y</string>
@@ -521,11 +619,17 @@ QPushButton:pressed {
        </item>
        <item row="5" column="0">
         <widget class="QPushButton" name="btns_rand">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>Rand</string>
@@ -598,11 +702,17 @@ QPushButton:pressed {
        </item>
        <item row="1" column="0">
         <widget class="QPushButton" name="btns_2nd">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>2nd</string>
@@ -611,11 +721,17 @@ QPushButton:pressed {
        </item>
        <item row="1" column="4">
         <widget class="QPushButton" name="btnf_ex">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>e^x</string>
@@ -624,11 +740,17 @@ QPushButton:pressed {
        </item>
        <item row="2" column="4">
         <widget class="QPushButton" name="btnf_ln">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>ln</string>
@@ -637,6 +759,9 @@ QPushButton:pressed {
        </item>
        <item row="1" column="2">
         <widget class="QPushButton" name="btnf_pow3">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -753,11 +878,17 @@ QPushButton:pressed {
        </item>
        <item row="2" column="0">
         <widget class="QPushButton" name="btnf_invx">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(200,200, 200);</string>
          </property>
          <property name="text">
           <string>1/x</string>
@@ -783,6 +914,6 @@ QPushButton:pressed {
    </layout>
   </widget>
  </widget>
- <resources />
- <connections />
+ <resources/>
+ <connections/>
 </ui>
