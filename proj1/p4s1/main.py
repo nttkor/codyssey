@@ -17,7 +17,7 @@ def search_logs(log_dict, search_term):
 def main():
     log = str()
     log_list = list()
-    os.chdir('/home/mpeg4/Codyssey/proj1/p4s1')
+    os.chdir(os.path.dirname(__file__))  # 현재 스크립트 파일이 있는 디렉토리로 이동
 
     # 예외를 한 번에 처리할 try-except 구문
     try:
