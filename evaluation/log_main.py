@@ -28,52 +28,86 @@
 #  로그포맷오류 - Invalid Log Format.
 #  처리단계오류 - Processing Error.
 
+iimport json
+from datetime import datetime
+
+
 def read_file():
+    """
+    mission_computer_main.log 파일을 읽어 문자열로 반환.
+    예외 발생 시 상위로 전달.
+    """
     try:
-        with open("evaluation/mission_computer_main.lo", "r", encoding="utf-8") as f:
+        with open("evaluation/mission_computer_main.log", "r", encoding="utf-8") as f:
             return f.read()
-        
-    except FileNotFoundError:
-        print("Fileopen Error.")
-    except UnicodeDecodeError:
-        print("Decoding Error.")
-    except Exception as e:
-        print("Processing Error.")
+    except Exception:
+        raise  # 모든 예외를 상위로 전달
+
+
 def main():
-    data = read_file()
-    if not data:
-        return
-    
     try:
+        data = read_file()
+        if not data:
+            return  # 파일이 비어있으면 종료
+
         lines = data.splitlines()
         print("전체 출력:")
         print(data)
-        
+
         log_entries = []
+
         for line in lines:
             if not line.strip():
                 continue
-            parts = line.split(',', 2)
-            if len(parts) < 3:
-                print("Invalid Log Format.")
-                return
-            timestamp, event, message = parts
-            log_entries.append((timestamp, message))
-        
-        log_entries.sort(key=lambda x: x[0], reverse=True)
-        
+
+            # timestamp, event, message 분리 (쉼표 2개만 분리)
+            parts = line.split(",", 2)
+            if len(parts) != 3:
+                raise ValueError("Invalid Log Format.")
+
+            timestamp_str, event, message = parts
+
+            # timestamp 형식 확인
+            try:
+                datetime.strptime(timestamp_str, "%Y-%m-%d:%H%M%S")
+            except ValueError:
+                raise ValueError("Invalid Log Format.")
+
+            # 데이터 검증 예시: 메시지가 비어있으면 오류
+            if not message.strip():
+                raise ValueError("Invalid Data: empty message")
+
+            # event 필드는 사용하지 않고 timestamp와 message만 저장
+            log_entries.append((timestamp_str, message))
+
+        # 시간 역순 정렬
+        log_entries.sort(
+            key=lambda x: datetime.strptime(x[0], "%Y-%m-%d:%H%M%S"),
+            reverse=True,
+        )
+
         print("\n시간 역순 정렬된 로그:")
         for entry in log_entries:
             print(entry)
-        
+
+        # 딕셔너리 변환 및 JSON 출력
         log_dict = {timestamp: message for timestamp, message in log_entries}
-        
-        import json
         print("\nDict로 변환된 로그:")
         print(json.dumps(log_dict, ensure_ascii=False, indent=4))
-        
-    except Exception as e:
+
+    except (FileNotFoundError, IOError):
+        print("Fileopen Error.")
+        return
+    except UnicodeDecodeError:
+        print("Decoding Error.")
+        return
+    except ValueError as e:
+        print(e)
+        return
+    except Exception:
         print("Processing Error.")
+        return
+
 
 if __name__ == "__main__":
     main()
