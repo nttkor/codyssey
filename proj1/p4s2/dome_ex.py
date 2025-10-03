@@ -15,19 +15,27 @@
 # 무게는 **화성 중력(지구 중력의 약 0.38배)**을 반영하여 출력
 # 전역 변수 저장 및 다음 형식으로 출력:
 # 재질 ⇒ 유리, 지름 ⇒ 10, 두께 ⇒ 1, 면적 ⇒ 314.159, 무게 ⇒ 500.987 kg
-material = {
+material_dict = {
     '유리':2.4, "알루미늄":2.7, "탄소강":7.85
 }
 def sphere_area(diameter,material,thickness=1):
-    
+    density = material_dict[material]/1000
+    area = 2*3.14159265358979*(diameter/2)**2  #반구의 표면적
+    area = area * thickness*0.01
+    #area = float(f'{area:.3f}')
+    area = round(area,3)
+    print(area)
+    mass = density*area
+    to_mars_mass = mass * 0.38
+    return to_mars_mass
 def main():
-    diameter = 1 #m
+    diameter = 10 #m
     material = '유리' 
     thickness = 1 # cm
-    sphere_area(diameter, material,thickness)
-    
+    mars_mass = sphere_area(diameter, material,thickness)
+    print(mars_mass)
     return
-if __main__ == '__main__':
+if __name__ == '__main__':
     main()
 
 # 프로그램은 반복 실행되어야 하며, 종료 조건도 구현되어야 한다.
