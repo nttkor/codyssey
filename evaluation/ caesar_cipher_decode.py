@@ -22,6 +22,15 @@ def caesar_cipher_decode(target_text):
     - 주어진 텍스트에 대해 지정한 shift만큼 알파벳을 뒤로 이동시켜 복호화
     - 대소문자 구분하며 알파벳 이외 문자는 변경하지 않음
     """
+    for ch in target_text:
+        decoded = ''
+        if ch.isalpha():
+            base = ord('A') if ch.isupper() else ord('a')
+            decoded += chr((ord(ch)-1-base)%26+base)
+        else:
+            decoded += ch
+    return decoded
+
 
 
 
@@ -29,6 +38,10 @@ def main():
     try:
         target_text = open_file('evaluation/password.txt')
         print(target_text)
+        for i in range(0,26):
+            target_text = caesar_cipher_decode(target_text)
+            print()
+
     except:
         return
 
