@@ -1,1 +1,0 @@
-[김대웅](https://github.com/Daeung-03/Codyssey_mariner.git)
