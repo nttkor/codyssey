@@ -47,9 +47,6 @@ def main():
     try:
         log_data = read_log()
         print(log_data)
-        
-        if not log_data.startswith('timestamp,event,message'):
-            raise RuntimeError
 
 
         log_split = log_data.splitlines()
