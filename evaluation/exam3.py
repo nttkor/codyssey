@@ -6,7 +6,21 @@ material_dict = {
     '탄소강': 7.85
 }
 
-def sphere_area():
+def sphere_area(diameter,material,thickness):
+    if not isinstance(diameter,float):
+        raise ValueError
+    
+    try:
+        pass
+
+
+
+    except:
+        raise
+
+
+
+
     return round('면적', 3), round('무게', 3)
 
 def main():

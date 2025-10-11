@@ -8,8 +8,8 @@ LOG_FILE = 'data_source/mission_computer_main.log'
 def process_log_file(file_path=LOG_FILE, encoding='utf-8'):
     try:
         with open(file_path, 'r', encoding=encoding) as file:
-            return file.readlines()
-    except (FileNotFoundError, IOError):
+            return file.read()
+    except (FileNotFoundError, IOError): #
         print(f'Error: {file_path} not found')
         return []
     except UnicodeDecodeError as e:
@@ -36,7 +36,12 @@ def main():
         # log_list = [logs.strip('\n').split(',', 2) for logs in log_origin[1:]]
 
         log_list = []
-        for logs in log_origin[1:]:
+        log_lines = log_list.splitlines()
+        if log_lines[0] != 'timestamp,event,message':
+            raise ValueError
+        for logs in log_lines[1:]:
+            # if len(logs) <22:
+            #     raise ValueError
             log_data = logs.strip().split(',', 2)
             if len(log_data) == 3:
                 time_stamp, log_level, message = log_data
@@ -83,9 +88,9 @@ def main():
         # print(dict_result_pprint)
         # print(f'\n\n=== dictionary type:04 (json.dumps) ===')
         # NOTI: maybe? : json.dumps(dict_result, ensure_ascii=False, indent=2)
-        dict_result_json_dumps = json.dumps(dict_result, ensure_ascii=False, indent=2)
-        json.dumps(dict_result, ensure_ascii=False, indent=2)
-        print(dict_result_json_dumps)
+        # dict_result_json_dumps = json.dumps(dict_result, ensure_ascii=False, indent=2)
+        # json.dumps(dict_result, ensure_ascii=False, indent=2)
+        # print(dict_result_json_dumps)
 
     except (TypeError, ValueError) as e:
         print(f'Datetime type or Value Error : {e}')
