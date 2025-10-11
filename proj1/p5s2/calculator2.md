@@ -1,9 +1,10 @@
-좋아요! 😄
-그럼 아까 만들어둔 **연속 계산 + 연산자 연속 입력 버전 계산기 코드**를 **실행 순서 기준으로** 하나씩 자세히 분석해 드릴게요.
+좋아요 😄
+지금 코드를 **실행 순서대로, 특히 계산 부분을 중심으로** 자세히 설명해드릴게요.
+UI 연결, 버튼 입력, 연산 흐름, 결과 처리까지 순서대로 정리합니다.
 
 ---
 
-# 1️⃣ 프로그램 시작
+## 1️⃣ 프로그램 시작
 
 ```python
 if __name__ == "__main__":
@@ -13,307 +14,285 @@ if __name__ == "__main__":
     sys.exit(app.exec())
 ```
 
-1. `QApplication` 생성 → PyQt6 이벤트 루프 준비
-2. `MainWindow()` 생성 → GUI 창과 내부 `Calculator` 객체 초기화
-3. `window.show()` → GUI 화면 표시
-4. `app.exec()` → 이벤트 루프 실행 (버튼 클릭, 입력 등 이벤트 대기)
+* `QApplication(sys.argv)` → PyQt6 GUI 앱 생성, 이벤트 루프 준비
+* `MainWindow()` → GUI 클래스 객체 생성, UI 초기화(`setupUi`)
+* `window.show()` → 창 화면 표시
+* `app.exec()` → 이벤트 루프 시작, 버튼 클릭 등 모든 이벤트 처리
 
-> 여기까지가 **PyQt6 앱 시작 루틴**이에요.
+이 시점에서 **GUI 창이 뜨고 버튼이 모두 연결된 상태**입니다.
 
 ---
 
-# 2️⃣ MainWindow 초기화 (`__init__`)
+## 2️⃣ MainWindow 초기화 (`__init__`)
 
 ```python
-self.calc = Calculator()
-self.equals_pressed = False
-self.led.setText("0")
-self.set_display_font_size("0")
+self.calc = Calculator()  # 계산기 객체 생성
+self.equals_pressed = False  # = 마지막 눌림 여부
+self.update_display("0")  # 초기 화면 0 표시
 ```
 
-1. `Calculator` 객체 생성 → 내부 상태 초기화 (`op1`, `op2`, `num`, `operator`)
-2. `equals_pressed = False` → `=` 버튼이 마지막에 눌렸는지 추적
-3. 디스플레이 초기화: `"0"` 표시
-4. `set_display_font_size` → 텍스트 길이에 맞춰 폰트 크기 조정
+* `Calculator()` → 계산 상태 초기화
+
+  * `num=""`, `op1=None`, `op2=None`, `operator=None`, `result=0.0`
+* 화면 초기값 `0` 설정, 폰트 자동 조절
+
+### 버튼 연결
+
+* 숫자 버튼 (0~9) → `input_number()`
+* 소수점 버튼 → `input_number('.')`
+* 연산자 버튼 (+, -, X, /) → `input_operator()`
+* 특수 버튼 (% → `handle_percent()`, +/- → `handle_negative_positive()`)
+* = 버튼 → `handle_equal()`
+* AC / MODE 버튼 → `handle_reset()`
+
+> 여기서 **GUI와 계산 로직(Calculator)**이 연결되었습니다.
 
 ---
 
-# 3️⃣ 버튼 이벤트 연결
-
-* 숫자 버튼: `btn_0 ~ btn_9` + 소수점 버튼 → `input_number()` 호출
-* 연산자 버튼: `+, -, X, /` → `input_operator()` 호출
-* 기타 기능 버튼: `AC / MODE` → `handle_reset()`, `= → handle_equal()`, `% → handle_percent()`, `+/- → handle_negative_positive()`
-
-> 즉, 버튼 클릭 → 연결된 메서드 실행
-
----
-
-# 4️⃣ 숫자 입력 (`input_number`)
+## 3️⃣ 숫자 입력 (`input_number()`)
 
 ```python
-def input_number(self, digit: str):
-    if self.equals_pressed:
-        self.handle_reset()
-    ...
-    self.calc.num += digit
-    self.led.setText(self.calc.num)
+if self.equals_pressed: self.handle_reset()
+if digit == "." and "." in self.calc.num: return
+self.calc.num = digit if self.calc.num=="0" and digit!="." else self.calc.num + digit
+self.update_display(self.calc.num)
 ```
 
-실행 순서:
+* = 버튼 이후 새 입력이면 초기화
+* 이미 소수점이 있으면 중복 방지
+* 입력 숫자를 문자열로 누적 (`self.calc.num`)
+* 화면에 갱신 (`update_display()` → 폰트 자동 조절 포함)
 
-1. `=` 이후 숫자를 누르면 자동으로 초기화 (`handle_reset()`)
-2. 소수점 중복 체크 (`"."` 이미 있으면 무시)
-3. 0 초기 상태에서 덮어쓰기
-4. 입력 숫자를 `self.calc.num`에 누적
-5. 디스플레이 업데이트 (`self.led.setText`) + 폰트 조정
-
-> 여기서 **`self.calc.num`**은 **문자열 형태로 현재 입력 중인 숫자**를 관리
+> 즉, **사용자가 1, 2, 3 누르면 `num='123'`**이 됩니다.
 
 ---
 
-# 5️⃣ 연산자 입력 (`input_operator`)
+## 4️⃣ 연산자 입력 (`input_operator()`)
 
 ```python
-def input_operator(self, op: str):
-    if self.calc.num:
-        ...
-        self.calc.operator = op
-        self.calc.num = ""
-    else:
-        ...
-        self.calc.operator = op  # 연속 입력 시 교체
+if self.calc.num:
+    self.calc.op1 = float(self.calc.num) if self.calc.op1 is None else self.calc.equal()
+    self.calc.operator = op
+    self.calc.num = ""
+elif self.calc.op1 is not None:
+    self.calc.operator = op
+elif op == "-":
+    self.calc.num = "-"
+self.update_display(self.display_with_operator())
 ```
 
-실행 순서:
+* 숫자를 입력한 상태에서 연산자 클릭:
 
-1. 숫자 입력 후 연산자:
+  1. `op1`이 없으면 → `num`을 `float`로 변환 → `op1`에 저장
+  2. `op1`이 이미 있으면 → **연속 연산 수행** (`equal()` 호출)
 
-   * `op1` 없으면 `op1 = num`
-   * `op1` 있으면 `equal()` 호출 → `op1 + num` 계산 후 결과 `op1`에 저장
-2. 연산자 연속 입력:
+     * 이전 계산 결과를 `op1`에 갱신
+* `operator`에 연산자 저장
+* `num` 초기화 → 다음 숫자 입력 준비
+* 화면 갱신 → `op1 operator` 표시
 
-   * 숫자가 없고 `op1`만 있으면 **연산자만 교체**
-   * 화면 표시도 마지막 연산자로 업데이트
-3. 화면 표시: `op1`과 연산자 같이 표시 (`"2 +"`)
-
-> 여기서 **연산자 연속 입력 기능**이 실제 스마트폰 계산기처럼 동작하게 만듦
+> 여기서 **연산부 계산 흐름**이 시작됩니다.
 
 ---
 
-# 6️⃣ `=` 버튼 처리 (`handle_equal`)
+## 5️⃣ = 버튼 입력 (`handle_equal()`)
 
 ```python
-result = self.calc.equal()
-if result == "Error":
-    self.led.setText("Error")
+try:
+    result = self.calc.equal()
+except CalcError as e:
+    self.show_error(str(e))
+    return
+self.update_display(self.format_number(result))
+self.equals_pressed = True
 ```
 
-실행 순서:
-
-1. `Calculator.equal()` 호출 → `op1`, `num`, `operator`를 기반으로 계산
-2. 계산 후:
-
-   * 결과가 정수면 정수형으로 표시
-   * 결과가 실수면 소수점 그대로 표시
-3. `equals_pressed = True` → 다음 숫자 입력 시 새 계산 시작
-4. 에러 발생 시 화면에 `"Error"` 표시
+* `equal()` 호출 → **실제 계산 수행**
+* 오류 발생 시 → 화면에 `Error` 표시
+* 정상 계산 시 → 결과 화면 표시
+* `equals_pressed = True` → 다음 입력 시 초기화 신호
 
 ---
 
-# 7️⃣ 퍼센트 버튼 (`handle_percent`)
+## 6️⃣ Calculator 계산 로직 (`equal()` → `calculate()`)
+
+### 6-1. 입력 확인
+
+```python
+if self.op1 is None or not self.num: raise CalcError("입력이 불완전합니다.")
+self.op2 = float(self.num)
+```
+
+* `op1`이 없거나 숫자를 입력하지 않으면 오류
+* 입력 숫자를 `float`로 변환 → `op2`에 저장
+
+---
+
+### 6-2. 실제 연산 (`calculate()`)
+
+```python
+if self.operator == "+": self.op1 += self.op2
+elif self.operator == "-": self.op1 -= self.op2
+elif self.operator == "X": self.op1 *= self.op2
+elif self.operator == "/":
+    if self.op2 == 0: raise CalcError("0으로 나눌 수 없습니다.")
+    self.op1 /= self.op2
+elif self.operator == "%":
+    self.op2 = self.op1 * (self.op2 / 100)
+    self.op1 += self.op2
+```
+
+* 연산자별로 op1과 op2를 계산
+* `/` → 0 나누기 방지
+* `%` → `op1 * (op2 / 100)` 후 더하기
+* 결과는 **op1에 저장** → 연속 계산 가능
+
+---
+
+### 6-3. 결과 저장 및 반환
+
+```python
+self.result = round(self.op1, 10)
+self.op1 = self.result
+self.num = ""
+self.operator = None
+return self.result
+```
+
+* 소수점 10자리 반올림
+* `op1`에 결과 저장 → 다음 연산 가능
+* 입력 초기화, 연산자 초기화
+* 결과 반환 → GUI에서 화면 갱신
+
+---
+
+## 7️⃣ +/- 버튼 (`handle_negative_positive()`)
+
+```python
+if self.calc.num:
+    self.calc.negative_positive()
+elif self.calc.op1 is not None and self.calc.operator is None:
+    self.calc.op1 = -self.calc.op1
+else:
+    self.calc.num = "-0"
+self.update_display(self.display_with_operator())
+```
+
+* 입력 중 숫자 → 부호 반전
+* 계산된 결과 → 부호 반전
+* 초기 상태 → `-0` 표시
+
+---
+
+## 8️⃣ % 버튼 (`handle_percent()`)
 
 ```python
 self.calc.percent()
-if self.calc.num:
-    self.led.setText(self.calc.num)
-elif self.calc.op1 is not None:
-    self.led.setText(str(self.calc.op1))
+self.update_display(self.display_with_operator())
 ```
 
-실행 순서:
-
-1. 현재 입력 숫자(`num`) 있으면 `num /= 100`
-2. `op1`만 있으면 `op1 /= 100`
-3. 화면 표시 + 폰트 조정
+* 입력 중 숫자 → 100으로 나누기
+* 계산 결과 → 100으로 나누기
+* 화면 갱신
 
 ---
 
-# 8️⃣ 부호 반전 버튼 (`handle_negative_positive`)
+## 🔹 정리: 계산 흐름
 
-```python
-self.calc.negative_positive()
-```
+1. **숫자 입력** → `num`에 누적
+2. **연산자 입력** → `op1` 저장, 연속 연산 시 `equal()` 호출
+3. **두 번째 숫자 입력** → `num`에 누적
+4. **= 버튼 입력** → `equal()` 호출
 
-실행 순서:
+   * `op2 = float(num)` → 연산 수행 → `op1`에 결과 저장
+5. **화면 갱신** → `update_display()`
+6. **연속 연산** → `op1`은 결과 유지, 다음 연산 준비
 
-1. 현재 입력 숫자(`num`) 있으면 부호 반전
-2. `op1` 있고 연산자가 없으면 `op1` 부호 반전
-3. 화면 업데이트 + 폰트 조정
-
----
-
-# 9️⃣ AC / MODE 버튼 (`handle_reset`)
-
-```python
-self.calc.reset()
-self.led.setText("0")
-```
-
-실행 순서:
-
-1. `Calculator.reset()` → 모든 상태 초기화 (`num`, `op1`, `op2`, `operator`)
-2. 화면 `"0"` 표시
-3. `equals_pressed = False`
+> 즉, **실제 계산은 Calculator 클래스의 `equal()` → `calculate()`**에서 수행되며,
+> UI는 단순히 `num`, `op1`, `op2`, `operator` 상태를 반영하고 화면에 표시하는 역할만 합니다.
 
 ---
 
-# 🔹 핵심 실행 흐름 요약
+원하면 제가 **실제 계산 예제 시나리오** (예: `12 + 3 X 2 =`)를
+각 버튼 누를 때 상태(`op1`, `op2`, `num`, `operator`)가 어떻게 바뀌는지
+표로 만들어서 보여드릴 수도 있습니다.
 
-1. 앱 시작 → GUI 생성 → 이벤트 루프 대기
-2. 숫자 버튼 클릭 → `num` 누적 + 화면 표시
-3. 연산자 클릭 → `op1` 저장, 필요시 연산 수행 → 화면 표시
-4. 연속 연산자 클릭 → 마지막 연산자 교체 → 화면 표시
-5. `=` 클릭 → `equal()` 호출 → 결과 화면 표시 → `equals_pressed = True`
-6. 퍼센트/부호/AC 버튼 → 해당 메서드 호출 → 상태/화면 업데이트
-
-> 모든 입력은 **`Calculator` 객체에서 실제 계산** → **MainWindow는 화면과 이벤트 처리만 담당**
-> 이렇게 분리하면 계산 로직과 UI 로직이 깔끔하게 유지됩니다.
+혹시 그걸 만들어드릴까요?
+좋아요 😎 그럼 예제 시나리오로 **`12 + 3 × 2 =`**를 기준으로 **각 버튼 누를 때 상태 변화**를 표로 보여드릴게요.
 
 ---
 
-원하면 제가 **각 단계마다 실제 변수 상태 변화(예: num, op1, op2, operator)와 화면 표시를 그림으로 흐름도로** 시각화해서 보여드릴 수도 있어요.
+## 버튼 입력 시 상태 변화
 
-좋아요! 😄
-그럼 이번에는 **실제 계산 과정과 변수 상태 변화를 그림처럼 시각화**해서 보여드릴게요.
-예시로 `2 + 3 X 4 =` 시퀀스를 기준으로 설명할게요.
-
----
-
-# 1️⃣ 초기 상태
-
-| 변수               | 값     | 화면 표시 |
-| ---------------- | ----- | ----- |
-| `num`            | ""    | "0"   |
-| `op1`            | None  | "0"   |
-| `op2`            | None  | "0"   |
-| `operator`       | None  | "0"   |
-| `equals_pressed` | False | "0"   |
+| 버튼 | `num` | `op1` | `op2` | `operator` | `result` | 화면 표시 |
+| -- | ----- | ----- | ----- | ---------- | -------- | ----- |
+| 1  | "1"   | None  | None  | None       | 0.0      | 1     |
+| 2  | "12"  | None  | None  | None       | 0.0      | 12    |
+| +  | ""    | 12.0  | None  | "+"        | 0.0      | 12 +  |
+| 3  | "3"   | 12.0  | None  | "+"        | 0.0      | 3     |
+| ×  | ""    | 15.0  | None  | "X"        | 15.0     | 15 X  |
+| 2  | "2"   | 15.0  | None  | "X"        | 15.0     | 2     |
+| =  | ""    | 30.0  | 2.0   | None       | 30.0     | 30    |
 
 ---
 
-# 2️⃣ 숫자 2 입력 (`btn_2` 클릭)
+### 단계별 설명
 
-* `input_number("2")` 호출
+1. **숫자 입력** (`1` → `2`)
 
-| 변수         | 값    | 화면 표시 |
-| ---------- | ---- | ----- |
-| `num`      | "2"  | "2"   |
-| `op1`      | None | "2"   |
-| `op2`      | None | "2"   |
-| `operator` | None | "2"   |
+   * `num`에 숫자 누적
+   * `op1`은 아직 없음
+   * 화면: 입력한 숫자 그대로 표시
 
----
+2. **연산자 입력** (`+`)
 
-# 3️⃣ `+` 연산자 입력 (`btn_plus` 클릭)
+   * `op1 = float(num)` → 12.0 저장
+   * `operator = "+"`
+   * `num` 초기화
+   * 화면: `12 +` 표시
 
-* `input_operator("+")` 호출
-* `op1 = float(num) = 2`
-* `num` 초기화
-* 화면 표시 `"2 +"`
+3. **두 번째 숫자 입력** (`3`)
 
-| 변수         | 값    | 화면 표시 |
-| ---------- | ---- | ----- |
-| `num`      | ""   | "2 +" |
-| `op1`      | 2    | "2 +" |
-| `op2`      | None | "2 +" |
-| `operator` | "+"  | "2 +" |
+   * `num = "3"`
+   * 화면: 3 표시
 
----
+4. **연속 연산 입력** (`×`)
 
-# 4️⃣ 숫자 3 입력 (`btn_3` 클릭)
+   * `op2 = float(num) = 3`
+   * `calculate()` 호출 → 12 + 3 = 15
+   * `op1 = result = 15`
+   * `operator = "X"`
+   * `num` 초기화
+   * 화면: `15 X` 표시
 
-* `num += "3"` → `"3"`
-* 화면 표시 `"3"`
+5. **세 번째 숫자 입력** (`2`)
 
-| 변수         | 값    | 화면 표시 |
-| ---------- | ---- | ----- |
-| `num`      | "3"  | "3"   |
-| `op1`      | 2    | "3"   |
-| `op2`      | None | "3"   |
-| `operator` | "+"  | "3"   |
+   * `num = "2"`
+   * 화면: 2 표시
 
----
+6. **= 버튼**
 
-# 5️⃣ `X` 연산자 입력 (`btn_multiply` 클릭)
-
-* `input_operator("X")` 호출
-* `op2 = float(num) = 3`
-* `equal()` 호출 → `op1 + op2 = 2 + 3 = 5`
-* 결과 `op1 = 5`
-* `operator = "X"`
-* `num` 초기화
-* 화면 표시 `"5 X"`
-
-| 변수         | 값   | 화면 표시 |
-| ---------- | --- | ----- |
-| `num`      | ""  | "5 X" |
-| `op1`      | 5   | "5 X" |
-| `op2`      | 3   | "5 X" |
-| `operator` | "X" | "5 X" |
+   * `op2 = float(num) = 2`
+   * `calculate()` 호출 → 15 × 2 = 30
+   * `result = op1 = 30`
+   * `num` 초기화, `operator` 초기화
+   * 화면: 30 표시
 
 ---
 
-# 6️⃣ 숫자 4 입력 (`btn_4` 클릭)
+### 🔹 핵심 포인트
 
-* `num += "4"` → `"4"`
-* 화면 표시 `"4"`
-
-| 변수         | 값    | 화면 표시 |
-| ---------- | ---- | ----- |
-| `num`      | "4"  | "4"   |
-| `op1`      | 5    | "4"   |
-| `op2`      | None | "4"   |
-| `operator` | "X"  | "4"   |
+* `num` : **현재 입력 중인 숫자**
+* `op1` : **첫 번째 피연산자 또는 이전 결과**
+* `op2` : **두 번째 피연산자 (연산 수행 시)**
+* `operator` : **현재 연산자**
+* **연속 연산 시** `equal()` 호출 → 이전 계산 결과를 `op1`에 저장
 
 ---
 
-# 7️⃣ `=` 버튼 입력 (`btn_equals` 클릭)
+원하면 제가 이걸 **그림으로 시각화**해서
+각 단계에 `num`, `op1`, `op2`, `operator`, `화면 표시`를 한눈에 보여주는 **상태 다이어그램**으로 만들어 드릴 수도 있어요.
 
-* `handle_equal()` 호출
-* `op2 = float(num) = 4`
-* `equal()` 호출 → `op1 * op2 = 5 * 4 = 20`
-* `op1 = 20`, `num = ""`, `operator = None`
-* 화면 표시 `"20"`
-* `equals_pressed = True`
+그림으로 만들어드릴까요?
 
-| 변수               | 값    | 화면 표시 |
-| ---------------- | ---- | ----- |
-| `num`            | ""   | "20"  |
-| `op1`            | 20   | "20"  |
-| `op2`            | 4    | "20"  |
-| `operator`       | None | "20"  |
-| `equals_pressed` | True | "20"  |
 
----
-
-### 🔹 정리 흐름도
-
-```
-[0 화면] -> 2 -> [+] -> 3 -> [X] -> 4 -> [=]
- 0         2     2+       3     5X      4       20
- num=""   num="2" op1=2   num="3" op1=2   num="4" op1=5  num="" op1=20
- operator=None operator="+" operator="+" operator="X" operator=None
-```
-
-* **핵심 포인트**:
-
-  1. 숫자 입력 → `num` 누적
-  2. 연산자 입력 → 이전 숫자와 `num`으로 연산 후 `op1` 저장, `num` 초기화
-  3. 연산자 연속 입력 → `operator`만 교체
-  4. `=` 입력 → 최종 계산, 결과 `op1`에 저장, `num` 초기화, 화면 표시
-  5. 다음 입력 시 `equals_pressed=True` → 새 계산 시작
-
----
-
-원하면 제가 이걸 **모든 연산자 조합과 +/-/%까지 포함한 완전 상태 변화 그림**으로 만들어서
-한눈에 보고 흐름을 이해할 수 있는 **종합 시각화표**로 만들어 드릴 수도 있어요.
