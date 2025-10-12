@@ -12,6 +12,11 @@ os.chdir(os.path.dirname(__file__))
 
 # Qt Designer로 만든 calculator.ui 파일을 불러옴
 form_class = uic.loadUiType("calculator.ui")[0]  # UI 클래스 로드
+# 역할: .ui 파일(Qt Designer로 만든 GUI 파일)을 Python 클래스 형태로 동적으로 로드합니다.
+# 반환값이 튜플입니다:
+# form_class → UI 안의 위젯과 레이아웃 정의 클래스
+# base_class → 보통 QMainWindow나 QDialog 같은 기본 Qt 윈도우 클래스
+
 
 # 메인 윈도우 클래스 정의 (QMainWindow + 불러온 UI 클래스 상속)
 class MainWindow(QMainWindow, form_class):
@@ -23,6 +28,12 @@ class MainWindow(QMainWindow, form_class):
 
         # 디스플레이(led) 초기화 — 처음에는 "0" 표시
         self.led.setText("0")
+        
+        # QFont 객체 한 번만 생성하고 재사용
+        self.display_font = QFont()
+        self.display_font.setBold(True)
+        self.led.setFont(self.display_font)
+
         # 초기 글꼴 크기 설정 (문자 길이에 맞게)
         self.set_display_font_size("0")
 
@@ -54,28 +65,30 @@ class MainWindow(QMainWindow, form_class):
         self.btn_mode.clicked.connect(self.handle_reset)
 
     # --------------------------
+    # 버튼이 눌릴 때 그 문자를 표시하는 메서드
+    def show_text(self, text):
+        """눌린 버튼의 문자를 이어 붙여서 표시"""
+        current = self.led.text()          # 현재 표시된 글자 가져오기
+        if current == "0":
+            self.led.setText(text)         # 처음 0이면 새 글자로 대체
+        else:
+            self.led.setText(current + text)  # 기존 글자 뒤에 이어 붙이기
+        self.set_display_font_size(self.led.text())  # 글자 길이에 맞춰 글꼴 조정
+
+    # --------------------------
     # 글꼴 크기를 자동 조정하는 메서드
     def set_display_font_size(self, text):
         """입력된 문자열 길이에 따라 글꼴 크기를 동적으로 조절"""
-        font = QFont()           # QFont 객체 생성
-        font.setBold(True)       # 글꼴을 굵게 설정
         length = len(text)       # 문자열 길이 확인
 
         # 길이에 따라 글꼴 크기 자동 조정 (기본은 48pt)
         if length <= 10:
-            font.setPointSize(48)  # 10자리 이하 → 큰 글씨 유지
+            self.display_font.setPointSize(48)  # 10자리 이하 → 큰 글씨 유지
         else:
-            font.setPointSize(int(480 / length))  # 길어질수록 작게 조정
+            self.display_font.setPointSize(int(480 / length))  # 길어질수록 작게 조정
 
         # 계산된 글꼴 크기를 디스플레이에 적용
-        self.led.setFont(font)
-
-    # --------------------------
-    # 버튼이 눌릴 때 그 문자를 표시하는 메서드
-    def show_text(self, text):
-        """눌린 버튼의 문자만 표시"""
-        self.led.setText(text)               # 표시창에 해당 문자 표시
-        self.set_display_font_size(text)     # 표시된 문자 길이에 맞춰 글꼴 크기 재조정
+        self.led.setFont(self.display_font)
 
     # --------------------------
     # AC 버튼이 눌렸을 때 디스플레이 초기화
