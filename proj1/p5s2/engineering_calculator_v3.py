@@ -215,7 +215,8 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QtWidgets.QApplication(sys.argv)  # 앱 생성
-    w = MainWindow(); w.show()  # 메인 윈도우 표시
+    w = MainWindow(); #윈도우 객체 생성
+    w.show()  # 메인 윈도우 표시
     sys.exit(app.exec())  # 이벤트 루프
 
 if __name__=="__main__":

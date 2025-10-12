@@ -1,3 +1,168 @@
+좋아요! 😄
+요청하신 **공학용 계산기 실행 순서 + 버튼 클릭 시 호출 관계**를 단계별로 정리해드릴게요.
+
+---
+
+## 1️⃣ 프로그램 시작
+
+1. `main()` 호출 → `QApplication` 객체 생성
+2. `MainWindow()` 생성 → UI 로드 (`uic.loadUi`)
+3. `EngineeringCalculator()` 엔진 생성 → 기본 상태 초기화 (`last_result=None`, `angle_mode_rad=False`)
+4. `QLineEdit` 폰트 크기 초기화 (`_fit_font`)
+5. RAD/DEG 버튼 텍스트 동기화 (`_sync_rad_button_text`)
+
+> 이 시점에서 **화면은 빈 수식 입력창(le_expr)** + **결과창(le_result)**
+
+---
+
+## 2️⃣ 숫자 버튼 클릭 (`0~9`)
+
+* 예: `btnn_1` 클릭 → `on_btnn_1_pressed()` 호출 → `_append_digit("1")` → `_clear_if_pending()` → `_append("1")` → `le_expr` 업데이트
+* 중간 단계:
+
+  * `_pending_clear=True`이면 수식/결과 초기화 후 `_pending_clear=False`
+  * 기존 수식 뒤에 숫자 이어붙이기 (`_append`)
+* **최종 화면:** 수식 입력창에 `"1"` 표시
+
+> 다른 숫자 버튼도 모두 `_append_digit()`를 통해 입력됨.
+
+---
+
+## 3️⃣ 소수점 버튼 클릭 (`.`)
+
+* `on_btnn_dot_pressed()` → `_append_dot()`
+* 입력 문자열에서 현재 숫자 단위(`seg`) 확인
+* 이미 소수점 있으면 무시, 없으면 `_append(".")`
+
+---
+
+## 4️⃣ 함수 버튼 클릭 (`sin`, `cos`, `tan`, `sinh` 등)
+
+* 예: `btnf_sin` 클릭 → `on_btnf_sin_pressed()` → `_insert_func("sin")`
+* `_clear_if_pending()` → `_maybe_mul()` → `_append("sin(")`
+* **암시적 곱 처리:** 바로 앞 값이 숫자/괄호이면 `*` 추가
+
+---
+
+## 5️⃣ 연산자 버튼 클릭 (`+`, `-`, `*`, `/`)
+
+* 예: `btno_plus` 클릭 → `on_btno_plus_pressed()` → `_seed_ans_then("+")` → `_append("+")`
+* `_pending_clear=True`이면 `Ans` 삽입 후 클리어
+* 화면에는 수식 그대로 표시, 아직 계산 X
+
+---
+
+## 6️⃣ 괄호 버튼 클릭 (`(`, `)`)
+
+* `on_btno_open_paren_pressed()` → `_clear_if_pending()` → `_append("(")` or `"*("`
+* `on_btno_close_paren_pressed()` → `_append(")")`
+* `_auto_closed_expr(expr)` 통해 **열린 괄호 자동 닫기** → '=' 클릭 시 적용
+
+---
+
+## 7️⃣ AC/DEL 버튼 클릭
+
+* `AC` → `on_btns_ac_pressed()` → `_pending_clear=False` → 수식/결과 초기화
+* `DEL` → `on_btns_del_pressed()`
+
+  * 마지막 문자 삭제
+  * 함수 전체(`sin(`, `cos(` 등) 삭제 시 전체 제거
+
+---
+
+## 8️⃣ '=' 버튼 클릭 → 실제 계산
+
+1. `on_btno_equal_pressed()` 호출
+2. 수식 가져오기: `expr_display = _text()`
+3. **자동 괄호 닫기:** `self._auto_closed_expr(expr_display)`
+4. **엔진 평가:** `self.engine.evaluate_expr(expr, self.engine.angle_mode_rad)`
+
+* `evaluate_expr()` 내부 순서:
+
+  1. `², ³, %, X, ÷, π` 등 기호 변환 → eval용 수식 문자열 생성
+  2. 암시적 곱셈 처리 (`2sin(x)` → `2*sin(x)`)
+  3. `local_dict` 생성 → 함수, 상수, Ans 포함
+  4. `eval()` 안전 실행 → 계산 결과 반환
+
+5. 결과 저장: `self.engine.last_result = val` → 다음 `Ans` 입력 가능
+6. 결과 표시: `le_result.setText(fmt_number(val))`
+7. `_pending_clear=True` → 다음 입력 시 수식 초기화
+
+---
+
+## 9️⃣ DEG/RAD 버튼 클릭
+
+* `on_btns_rad_pressed()` → `angle_mode_rad = not angle_mode_rad` → `_sync_rad_button_text()`
+
+---
+
+## 🔟 Memory 버튼
+
+* `MC` → `self.engine.mem_clear()`
+* `MR` → 메모리 불러오기 후 `_maybe_mul()` → `_append()`
+* `M+` → `_current_value_for_memory()` → `self.engine.mem_add()`
+* `M-` → `_current_value_for_memory()` → `self.engine.mem_sub()`
+
+---
+
+### ⚡ 요약: 버튼 → 호출 흐름
+
+```
+숫자/점 → on_btnn_X_pressed / on_btnn_dot_pressed
+         → _append_digit / _append_dot
+         → _clear_if_pending → _append → 화면 갱신
+
+함수 → on_btnf_X_pressed
+      → _insert_func → _maybe_mul → _append → 화면 갱신
+
+연산자 → on_btno_X_pressed
+       → _seed_ans_then → _append → 화면 갱신
+
+괄호 → on_btno_open/close_paren_pressed
+      → _clear_if_pending → _append → 화면 갱신
+
+AC → on_btns_ac_pressed → 화면 초기화
+DEL → on_btns_del_pressed → 마지막 문자 삭제
+
+= → on_btno_equal_pressed
+  → _auto_closed_expr
+  → engine.evaluate_expr
+  → eval 계산
+  → le_result 업데이트
+  → last_result 저장
+  → _pending_clear=True
+
+RAD/DEG → on_btns_rad_pressed → angle_mode_rad 전환
+
+Memory → MC/MR/M+/M- → engine 메서드 호출
+```
+
+---
+
+원하면 제가 이걸 **그림 없이도 트리 구조**로 만들어서
+`MainWindow → 숫자 버튼, 함수 버튼, 연산 버튼, = 버튼 → 엔진 평가`처럼 계층별로 한눈에 볼 수 있게 정리해드릴 수도 있어요.
+
+그거 만들어드릴까요?
+좋아요 😊
+지금까지 완벽히 이해하고 계세요.
+
+정리하자면 —
+`equal()`은 **계산기 동작의 핵심 메서드**로,
+모든 숫자 입력(`num`)과 연산자(`operator`)를 **최종적으로 연산하고 결과를 반환**하는 단계입니다.
+
+이제 전체 흐름을 다시 짧게 요약하면 이렇게 됩니다 👇
+
+| 단계 | 동작       | 관련 메서드             | 설명                                      |
+| -- | -------- | ------------------ | --------------------------------------- |
+| ①  | 숫자 입력    | `input_number()`   | 입력 숫자를 `calc.num`에 쌓음                   |
+| ②  | 연산자 입력   | `input_operator()` | 이전 숫자를 `op1`로 저장, 연산자 설정                |
+| ③  | 다시 숫자 입력 | `input_number()`   | 두 번째 피연산자(`num`)를 입력                    |
+| ④  | `=` 클릭   | `equal()`          | `op1`, `num(op2)`, `operator`로 실제 계산 수행 |
+| ⑤  | 결과 표시    | `update_display()` | 계산 결과를 화면에 출력                           |
+| ⑥  | 연속 계산 지원 | `op1 = result`     | 결과가 다음 계산의 첫 번째 피연산자가 됨                 |
+
+원하신다면 `calculate()` 내부에서 **각 연산자별 처리 방식(+, -, ×, ÷ 등)** 도 단계별로 보여드릴까요?
+
 네, 지금까지 설명한 내용만 보면 **초기 코드 기준으로 주요 흐름과 기능은 거의 다 커버**되었습니다. 정리하면:
 
 ---
