@@ -1,16 +1,29 @@
 1. LinkedList, CirculaList
+   0. class Node(self,data):  (문제에는 없지만 구현해야함)
+      1. self.data = data 
+      2. self.next = None 구현해야함
    1. LinkedList 구현사항
-      1. insert(self,index,value)
-      2. delete(self,index)
-      3. to_list(self) 
-      4. __len__(self)->int : 노드수 반환
+      1. 문제에는 없지만 def __init__(self): self.head = None구현해야함
+      2. insert(self,index,value) : 0<= index < last 범위 벗어나는 index, raise IndexError 처리
+         1. self.head에 데이터가 없는 경우 있는 경우, index가 범위를 벗어나는 경우를 구분해서 return값및 에러 처리해야함
+      3. delete(self,index) : index 범위 벗어 날경우 raise IndexError
+      4. to_list(self) : 
+      5. __len__(self)->int : 노드수 반환
+      6. 문제에는 없지만 디버깅을 위해 disply를 만들자
    2. CircularList 구현 사항, last를 cursor라고 표현
-      1. insert(self,value)
-      2. delete(self,value)
-      3. get_next(self)
-      4. search(value)
+      1. 문제에는 없지만 def __init__(self): self.last = None 구현으로 시작
+      2. insert(self,value)
+         1. 추가시 self.last가 비었는지, 있는지 마지막인지를 잘 구분해서 처리해야함
+      3. delete(self,value)
+         1. 지울때도 없을때, 하나 있을때, 없을때 등등 상황 처리를 잘해야함
+      4. get_next(self) : 이건 last포인트를 last.next(즉 맨 처음)으로 바꾸고 출력하는것
+         1. self.last = self.last.next, return self.last.data(이전의 head data)
+      5. search(value) 아까 delete와 비슷 찾아지면 data return 하면 됨
+      6. 문제에는 없지만 디버깅을 위해 disply를 만들자
+      7. 구현후 모든 경우의 수 체크해보자
 2. Stack
-   1. 용량 10개로 고정 
+   1. 용량 10개로 고정 : 난 고정하지 않고 그때 그때 len(list)로 체크했음
+      1. class Stack: def __init__(): self.data = list() #노드 없이 리스트를 이용 구현했음
    2. push(self, value) -> bool
       1. value 추가후 true반환
       2. stack이 가득찬 경우 경고후 False
