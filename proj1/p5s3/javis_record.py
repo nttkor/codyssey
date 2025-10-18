@@ -9,8 +9,15 @@ import os
 import datetime
 import time
 
+
 # 녹음 파일 저장 경로 설정
-RECORDS_FOLDER = 'records'
+# 현재 실행 중인 파일의 디렉터리 경로를 가져옵니다.
+CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
+# 저장할 하위 폴더 이름을 정의합니다.
+RECORDS_FOLDER_NAME = 'records'
+# 전체 저장 폴더 경로를 구성합니다.
+RECORDS_FOLDER = os.path.join(CURRENT_FOLDER, RECORDS_FOLDER_NAME)
+
 if not os.path.exists(RECORDS_FOLDER):
     os.makedirs(RECORDS_FOLDER)
 

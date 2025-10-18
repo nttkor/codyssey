@@ -5,3 +5,4 @@
 **/ml-env/
 **/__pycache__/
 .vscode/settings.json
+.whisper/
