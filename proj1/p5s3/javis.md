@@ -88,7 +88,11 @@ recognize_google()를 호출하여 Google Speech API로 음성을 텍스트로 �
 * input() 함수로 사용자로부터 검색어를 받습니다.
 * isdigit() 메서드로 입력이 숫자인지 문자인지 판별합니다.
 * 숫자 검색: astype(str).str.contains()로 '음성 파일내에서의 시간' 열에서 검색합니다.
-* 문자 검색: str.replace(' ', '').str.contains()로 '인식된 텍스트' 열에서 공백을 제거한 뒤 검색합니다.
+*이 과정은 다음과 같은 순서로 진행됩니다.
+* 데이터를 행렬로 변환: df.astype(str).stack().str.contains(...)까지의 과정은 원래의 DataFrame 형태를 가진, 값들이 True 또는 False로 채워진 행렬을 만듭니다. True는 해당 셀에 키워드가 있다는 의미입니다.
+* 행(row)별로 압축: any(axis=1)가 이 행렬을 받으면, 각 행을 가로 방향(axis=1)으로 훑습니다.
+* 결과: 각 행에서 True가 한 번이라도 등장하면 해당 행의 결과는 True가 됩니다. 만약 모든 값이 False이면 False가 됩니다.
+* 최종 마스크 생성: 이렇게 만들어진 True/False Series(단일 열)가 df[mask]에서 필터링을 위한 최종 마스크로 사용됩니다. 
 * 검색 결과를 출력하고, 다음 반복을 위해 main() 함수로 돌아갑니다. 
 
 ## 9. 프로그램 종료

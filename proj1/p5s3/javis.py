@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- # 한글 주석을 위한 인코딩 명시
 
 import sounddevice as sd    # 마이크를 통해 음성을 녹음하기 위한 라이브러리
-import numpy as np          # 음성 데이터를 배열로 다루기 위한 라이브러리
+import numpy as np          # 음성 데이터를 배열로 다루기 위한 라이브러리, 현재 필요없음
 from scipy.io.wavfile import write # 녹음된 데이터를 WAV 파일로 저장하기 위한 라이브러리
 import os                   # 파일 경로와 관련된 작업을 위한 라이브러리
 import datetime             # 파일명에 날짜와 시간을 포함하기 위한 라이브러리
@@ -24,13 +24,12 @@ def record_audio(duration, fs): # 녹음 시간(duration)과 샘플링 주파수
     """
     지정된 시간(duration) 동안 마이크에서 음성을 녹음합니다.
     """
-    print("녹음을 시작합니다. 말씀하세요...")                     # 사용자에게 녹음 시작 알림
-    # 지정된 시간, 주파수, 채널, 데이터 타입으로 녹음 시작
-    recording = sd.rec(int(duration * fs), samplerate=fs, channels=2, dtype='float64')
-    sd.wait()                                                   # 녹음이 끝날 때까지 기다림
-    print("녹음을 완료했습니다.")                               # 녹음 완료 알림
-    return recording                                            # 녹음된 데이터를 반환
-
+    print("녹음을 시작합니다. 말씀하세요...")                    
+    # 지정된 시간, 주파수, 채널(모노,스테레오), 데이터 타입으로 녹음 시작
+    recording = sd.rec(int(duration * fs), samplerate=fs, channels=2, dtype='int32')
+    sd.wait()   # 녹음이 끝날 때까지 기다림, 안그러면 백그라운드 녹음이라 다음 코드 실행
+    print("녹음을 완료했습니다.")    
+    return recording           
 
 def save_recording(recording, fs): # 녹음 데이터와 샘플링 주파수를 인자로 받음
     """
@@ -39,14 +38,10 @@ def save_recording(recording, fs): # 녹음 데이터와 샘플링 주파수를 
     timestamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S') # 현재 시간을 '년월일-시간분초' 형식으로 포맷
     filename = os.path.join(RECORDS_FOLDER, f'{timestamp}.wav')   # 파일 경로 생성
 
-    # 1. -1.0 ~ 1.0 범위의 float64 데이터를 -32768 ~ 32767 범위의 int16으로 변환
-    recording_int16 = (recording * np.iinfo(np.int16).max).astype(np.int16)
+    write(filename,fs, recording) #scipy.io.wavfile.write() 함수
 
-    # 2. 16비트 정수형 PCM 데이터로 저장
-    write(filename, fs, recording_int16)
-
-    print(f"음성 파일이 저장되었습니다: {filename}")            # 저장된 파일 경로 출력
-    return filename                                             # 파일 경로 반환
+    print(f"음성 파일이 저장되었습니다: {filename}")  
+    return filename                                          
 
 
 def save_transcription_as_csv(text):    # 인식된 텍스트를 인자로 받음
@@ -58,10 +53,10 @@ def save_transcription_as_csv(text):    # 인식된 텍스트를 인자로 받�
     # 새로운 데이터프레임 생성
     new_data = pd.DataFrame([{'음성 파일내에서의 시간': timestamp_str, '인식된 텍스트': text}])
 
-    if not os.path.exists(CSV_FILE_PATH):   # CSV 파일이 없으면
-        new_data.to_csv(CSV_FILE_PATH, index=False, encoding='utf-8-sig') # 헤더와 함께 파일 생성
-    else:                                   # CSV 파일이 있으면
-        new_data.to_csv(CSV_FILE_PATH, mode='a', index=False, header=False, encoding='utf-8-sig') # 헤더 없이 데이터만 추가
+    if not os.path.exists(CSV_FILE_PATH):   # CSV 파일이 없으면 헤더와 함께 파일 생성
+        new_data.to_csv(CSV_FILE_PATH, index=False, encoding='utf-8-sig') 
+    else:                                   # CSV 파일이 있으면 헤더 없이 데이터만 추가
+        new_data.to_csv(CSV_FILE_PATH, mode='a', index=False, header=False, encoding='utf-8-sig') 
 
     print(f"STT 결과가 '{os.path.basename(CSV_FILE_PATH)}' 파일에 추가되었습니다.")
 
@@ -97,35 +92,50 @@ def search_keyword(): # 키워드 검색 기능
         return
 
     try:
-        df = pd.read_csv(CSV_FILE_PATH)     # CSV 파일 읽어오기
+        df = pd.read_csv(CSV_FILE_PATH)
         print("\n--- 전체 기록 ---")
-        print(df)                           # 전체 기록 출력
+        # to_string()에 index=True를 설정하여 기본 인덱스 번호를 표시합니다.
+        # col_space는 열의 개수(2)에 맞게 조정합니다.
+        print(df.to_string(justify='left', col_space=20, index=True)) 
 
-        keyword = input("\n찾고 싶은 단어나 숫자를 입력하세요: ").strip() # 사용자 입력
-        if not keyword:                     # 입력이 없으면
-            print("입력이 없어 검색을 건너뜁니다.")
-            return
+        while True:
+            keyword = input("\n찾고 싶은 단어나 인덱스 번호를 입력하세요 (종료하려면 'q'): ").strip()
 
-        is_numeric = keyword.isdigit()      # 입력이 숫자인지 확인
-        matches = pd.DataFrame()            # 결과를 저장할 빈 데이터프레임
+            if keyword.lower() == 'q':
+                print("프로그램을 종료합니다.")
+                raise KeyboardInterrupt
+            
+            if not keyword:
+                print("입력이 없어 검색을 건너뜁니다.")
+                continue
 
-        cleaned_keyword = keyword.replace(' ', '') # 검색어의 공백 제거
+            matches = pd.DataFrame()
+            
+            if keyword.isdigit():
+                try:
+                    idx_to_find = int(keyword)
+                    # loc를 사용하여 기본 인덱스 번호로 행을 찾습니다.
+                    if idx_to_find in df.index:
+                        matches = df.loc[[idx_to_find]]
+                    else:
+                        print(f"인덱스 '{keyword}'에 해당하는 기록이 없습니다.")
+                except ValueError:
+                    print("유효한 숫자를 입력하세요.")
+            else:
+                # 모든 열을 대상으로 키워드를 검색하는 안정적인 방법
+                mask = df.astype(str).stack().str.contains(keyword, case=False, na=False).unstack().any(axis=1)
+                matches = df[mask]
 
-        if is_numeric:  # 입력이 숫자일 경우
-            matches = df[df['음성 파일내에서의 시간'].astype(str).str.contains(cleaned_keyword, na=False)]
-        else:           # 입력이 문자일 경우
-            # '인식된 텍스트' 열의 공백 제거 후 검색
-            matches = df[df['인식된 텍스트'].str.replace(' ', '').str.contains(cleaned_keyword, case=False, na=False)]
+            if not matches.empty:
+                print(f"\n--- '{keyword}' 검색 결과 ---")
+                print(matches.to_string(justify='left', col_space=20, index=True))
+            elif not keyword.isdigit():
+                print(f"'{keyword}'에 해당하는 기록을 찾을 수 없습니다.")
 
-        if not matches.empty:   # 검색 결과가 있으면
-            print(f"\n--- '{keyword}'(으)로 검색된 기록 ---")
-            for index, row in matches.iterrows(): # 모든 검색 결과 출력
-                print(f"날짜: {row['음성 파일내에서의 시간']} | 내용: {row['인식된 텍스트']}")
-        else:                   # 검색 결과가 없으면
-            print(f"'{keyword}'가 포함된 기록을 찾을 수 없습니다.")
-
-    except Exception as e:      # 예외 발생 시
-        print(f"검색 중 오류가 발생했습니다: {e}")
+    except FileNotFoundError:
+        print(f"오류: {CSV_FILE_PATH} 파일을 찾을 수 없습니다. 파일 경로를 확인해주세요.")
+    except Exception as e:
+        print(f"오류가 발생했습니다: {e}")
 
 
 def main():                     # 메인 함수
