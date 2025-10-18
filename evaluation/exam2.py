@@ -79,11 +79,12 @@ def caesar_cipher_decode_lower_only():
         result = True
         while result:
             try:
-                print(final_list)
+                for i, text in enumerate(final_list):
+                    print(i,text)
                 input_text = int(input('\n저장하고 싶은 자릿수의 숫자를 입력하세요(범위 1~26): '))
-                store_text = final_list[int(input_text) - 1]
+                store_text = final_list[int(input_text)]
                 print(f'\n[결과] 암호 해독 저장 텍스트: {store_text}')
-                save_file(file_path=CAESAR_PASSWORD_SUCCESS_FILE, password=store_text)
+                #save_file(file_path=CAESAR_PASSWORD_SUCCESS_FILE, password=store_text)
 
                 result = False
             except (ValueError, IndexError):
