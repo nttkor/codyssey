@@ -18,37 +18,40 @@ def is_image(filename):
     return lower.endswith(".jpg") or lower.endswith(".jpeg") or lower.endswith(".png")
 
 # ----- NMS 함수 (변경 없음) -----
-def non_max_suppression(boxes, overlapThresh=0.3):
-    if len(boxes) == 0:
-        return []
-    boxes = np.array(boxes)
-    x1 = boxes[:,0]
-    y1 = boxes[:,1]
-    x2 = boxes[:,0] + boxes[:,2]
-    y2 = boxes[:,1] + boxes[:,3]
+# 이 코드는 여러 개의 겹치는 경계 상자(bounding box) 중에서 가장 적합한 하나를 선택하는 알고리즘을 구현한 것입니다.
+def non_max_suppression(boxes, overlapThresh=0.3): # 함수를 정의합니다. `boxes`는 경계 상자들의 리스트이고, `overlapThresh`는 중복을 판단하는 임계값입니다.
+    if len(boxes) == 0:                            # 만약 입력된 경계 상자가 없으면
+        return []                                  # 빈 리스트를 반환합니다.
+    
+    boxes = np.array(boxes)                        # 경계 상자 리스트를 NumPy 배열로 변환합니다.
+    x1 = boxes[:,0]                                # 모든 상자의 x1 좌표(좌측 상단 x)를 추출합니다.
+    y1 = boxes[:,1]                                # 모든 상자의 y1 좌표(좌측 상단 y)를 추출합니다.
+    x2 = boxes[:,0] + boxes[:,2]                   # 모든 상자의 x2 좌표(우측 하단 x)를 계산합니다. (x1 + 너비)
+    y2 = boxes[:,1] + boxes[:,3]                   # 모든 상자의 y2 좌표(우측 하단 y)를 계산합니다. (y1 + 높이)
 
-    areas = (x2 - x1 + 1) * (y2 - y1 + 1)
-    idxs = np.argsort(y2)
-    pick = []
+    areas = (x2 - x1 + 1) * (y2 - y1 + 1)          # 각 경계 상자의 넓이를 계산합니다.
+    idxs = np.argsort(y2)                          # 경계 상자들을 y2(바닥) 좌표를 기준으로 오름차순 정렬하고, 그 인덱스를 저장합니다.
+    pick = []                                      # 최종적으로 선택된 경계 상자들의 인덱스를 저장할 빈 리스트를 만듭니다.
 
-    while len(idxs) > 0:
-        last = idxs[-1]
-        pick.append(last)
+    while len(idxs) > 0:                           # 처리할 인덱스가 남아있는 동안 반복합니다.
+        last = idxs[-1]                            # 현재 리스트에서 가장 마지막(가장 큰 y2값)에 있는 경계 상자의 인덱스를 가져옵니다.
+        pick.append(last)                          # 이 상자를 최종 선택 리스트에 추가합니다.
 
-        xx1 = np.maximum(x1[last], x1[idxs[:-1]])
-        yy1 = np.maximum(y1[last], y1[idxs[:-1]])
-        xx2 = np.minimum(x2[last], x2[idxs[:-1]])
-        yy2 = np.minimum(y2[last], y2[idxs[:-1]])
+        xx1 = np.maximum(x1[last], x1[idxs[:-1]])  # 가장 큰 y2값을 가진 상자와 나머지 모든 상자들의 좌측 상단 x 좌표 중 더 큰 값을 찾습니다.
+        yy1 = np.maximum(y1[last], y1[idxs[:-1]])  # 가장 큰 y2값을 가진 상자와 나머지 모든 상자들의 좌측 상단 y 좌표 중 더 큰 값을 찾습니다.
+        xx2 = np.minimum(x2[last], x2[idxs[:-1]])  # 가장 큰 y2값을 가진 상자와 나머지 모든 상자들의 우측 하단 x 좌표 중 더 작은 값을 찾습니다.
+        yy2 = np.minimum(y2[last], y2[idxs[:-1]])  # 가장 큰 y2값을 가진 상자와 나머지 모든 상자들의 우측 하단 y 좌표 중 더 작은 값을 찾습니다.
 
-        w = np.maximum(0, xx2 - xx1 + 1)
-        h = np.maximum(0, yy2 - yy1 + 1)
+        w = np.maximum(0, xx2 - xx1 + 1)           # 겹치는 영역의 너비를 계산합니다. 겹치지 않으면 0이 됩니다.
+        h = np.maximum(0, yy2 - yy1 + 1)           # 겹치는 영역의 높이를 계산합니다. 겹치지 않으면 0이 됩니다.
 
-        overlap = (w * h) / areas[idxs[:-1]] 
+        overlap = (w * h) / areas[idxs[:-1]]       # 겹치는 영역의 넓이를 나머지 상자들의 넓이로 나누어 IoU(Intersection over Union)를 계산합니다.
 
-        idxs = np.delete(idxs, np.concatenate(([len(idxs)-1],
-            np.where(overlap > overlapThresh)[0])))
+        idxs = np.delete(idxs, np.concatenate(([len(idxs)-1], # 현재 처리한 상자를 제거하고, IoU 임계값을 초과하는 겹치는 상자들도 제거합니다.
+            np.where(overlap > overlapThresh)[0]))) # `np.where`는 임계값을 초과하는 인덱스를 반환합니다.
 
-    return boxes[pick].astype("int")
+    return boxes[pick].astype("int")               # 최종 선택된 경계 상자들을 반환합니다.
+
 
 # ----- Helper 클래스 -----
 class MasImageHelper:
@@ -104,7 +107,7 @@ class MasImageHelper:
         box_w, box_h = tw + 2 * margin, th + 2 * margin
         cv2.rectangle(overlay, (10, 10), (10 + box_w, 10 + box_h), (0, 0, 0), -1)
         alpha = 0.4
-        cv2.addWeighted(overlay, alpha, img, 1 - alpha, 0, img)
+        cv2.addWeighted(overlay, alpha, img, 1 - alpha, 0, img) #2이미지를 섞어준다
         cv2.putText(img, text, (10 + margin, 10 + box_h - margin),
                     font, scale, color, thickness, cv2.LINE_AA)
 
@@ -210,6 +213,7 @@ def problem2():
             state["img"] = new_img
             cv2.imshow("CCTV Search", new_img)
 
+    #OpenCV 윈도우에서 발생하는 마우스 이벤트를 사용자가 정의한 함수로 연결해주는 이벤트 핸들러 설정 함수
     cv2.setMouseCallback("CCTV Search", on_mouse)  
 
     # --- 메인 루프 ---
