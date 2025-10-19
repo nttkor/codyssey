@@ -2,6 +2,7 @@
 **/venv/
 **/.env/
 **/env/
+**/.ml/
 **/ml-env/
 **/__pycache__/
 .vscode/settings.json
