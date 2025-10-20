@@ -3,6 +3,7 @@
 **/.env/
 **/env/
 **/.ml/
+**/*.wav
 **/ml-env/
 **/__pycache__/
 .vscode/settings.json
