@@ -1,87 +1,98 @@
-# linked_list.py
+# test_linked_list_strict.py
 
-class Node:
-    """연결 리스트의 노드 클래스"""
-    def __init__(self, data):
-        self.data = data
-        self.next = None  # 다음 노드를 가리키는 포인터
+from linked_list import LinkedList, Node
 
+def check_node_structure(node):
+    """Node 내부 구조 검사"""
+    assert isinstance(node, Node), "Object is not Node"
+    assert hasattr(node, "data"), "Node missing 'data'"
+    assert hasattr(node, "next"), "Node missing 'next'"
 
-class LinkedList:
-    """단순 연결 리스트 클래스"""
-    def __init__(self):
-        self.head = None  # 리스트의 시작 노드
+def check_linked_list_structure(ll, expected_values):
+    """LinkedList 내부 구조 검사"""
+    assert isinstance(ll, LinkedList), "Object is not LinkedList"
+    current = ll.head
+    for val in expected_values:
+        assert current is not None, "Node missing in list"
+        check_node_structure(current)
+        assert current.data == val, f"Expected {val}, got {current.data}"
+        current = current.next
+    assert current is None, "Extra nodes exist after expected elements"
 
-    def append(self, data):
-        """리스트 끝에 새 노드를 추가"""
-        new_node = Node(data)
-        if self.head is None:  # 리스트가 비어있으면
-            self.head = new_node
-            return
-        current = self.head
-        while current.next:
-            current = current.next
-        current.next = new_node
-
-    def prepend(self, data):
-        """리스트 시작에 새 노드를 추가"""
-        new_node = Node(data)
-        new_node.next = self.head
-        self.head = new_node
-
-    def delete(self, key):
-        """값이 key인 노드를 삭제"""
-        current = self.head
-
-        # 헤드 노드가 삭제 대상일 경우
-        if current and current.data == key:
-            self.head = current.next
-            current = None
-            return
-
-        prev = None
-        while current and current.data != key:
-            prev = current
-            current = current.next
-
-        if current is None:  # key가 존재하지 않음
-            print(f"{key} not found in the list.")
-            return
-
-        # 노드 삭제
-        prev.next = current.next
-        current = None
-
-    def find(self, key):
-        """값이 key인 노드를 찾고 반환"""
-        current = self.head
-        while current:
-            if current.data == key:
-                return current
-            current = current.next
-        return None
-
-    def print_list(self):
-        """리스트를 출력"""
-        current = self.head
-        elements = []
-        while current:
-            elements.append(str(current.data))
-            current = current.next
-        print(" -> ".join(elements))
-
-
-# 테스트 예시
-if __name__ == "__main__":
+def test_append():
     ll = LinkedList()
-    ll.append(10)
-    ll.append(20)
+    ll.append(1)
+    ll.append(2)
+    ll.append(3)
+    check_linked_list_structure(ll, [1,2,3])
+
+def test_prepend():
+    ll = LinkedList()
+    ll.prepend(10)
     ll.prepend(5)
-    ll.print_list()  # 출력: 5 -> 10 -> 20
+    check_linked_list_structure(ll, [5,10])
 
-    ll.delete(10)
-    ll.print_list()  # 출력: 5 -> 20
+def test_insert():
+    ll = LinkedList()
+    ll.append(1)
+    ll.append(3)
+    ll.insert(1, 2)  # 1 -> 2 -> 3
+    ll.insert(0, 0)  # 0 -> 1 -> 2 -> 3
+    ll.insert(4, 4)  # 0 -> 1 -> 2 -> 3 -> 4
+    check_linked_list_structure(ll, [0,1,2,3,4])
 
-    node = ll.find(20)
-    if node:
-        print(f"Found: {node.data}")  # 출력: Found: 20
+def test_delete():
+    ll = LinkedList()
+    ll.append(1)
+    ll.append(2)
+    ll.append(3)
+    ll.delete(2)
+    check_linked_list_structure(ll, [1,3])
+    ll.delete(1)
+    check_linked_list_structure(ll, [3])
+    ll.delete(3)
+    check_linked_list_structure(ll, [])
+
+def test_find():
+    ll = LinkedList()
+    ll.append(5)
+    ll.append(10)
+    node = ll.find(5)
+    check_node_structure(node)
+    assert node.data == 5
+    assert ll.find(100) is None
+
+def test_len():
+    ll = LinkedList()
+    assert len(ll) == 0
+    ll.append(1)
+    ll.append(2)
+    assert len(ll) == 2
+    ll.delete(1)
+    assert len(ll) == 1
+
+def test_combined():
+    ll = LinkedList()
+    ll.append(1)
+    ll.append(3)
+    ll.insert(1,2)
+    ll.prepend(0)
+    ll.delete(2)
+    check_linked_list_structure(ll, [0,1,3])
+    assert len(ll) == 3
+    node = ll.find(1)
+    check_node_structure(node)
+
+if __name__ == "__main__":
+    tests = [
+        test_append,
+        test_prepend,
+        test_insert,
+        test_delete,
+        test_find,
+        test_len,
+        test_combined
+    ]
+    for test in tests:
+        test()
+    print("All strict tests passed successfully!")
