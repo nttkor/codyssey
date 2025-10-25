@@ -1,4 +1,4 @@
-# stack_adt.py
+# stack_adt.py by Lee Jin Gul
 
 class Node:
     def __init__(self, value):
