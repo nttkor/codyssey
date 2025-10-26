@@ -1,5 +1,10 @@
+import os
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # 화면 없이 PNG 저장만
 import matplotlib.pyplot as plt
+
+os.chdir(os.path.dirname(__file__))
 
 # 파일 읽기 (다운로드한 CSV 파일을 같은 폴더에 두고 실행)
 df = pd.read_csv("data.csv", dtype=str)

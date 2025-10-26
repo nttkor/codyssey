@@ -1,7 +1,10 @@
 import os
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # 화면 없이 PNG 저장만
 import matplotlib.pyplot as plt
 plt.rcParams['font.family'] ='Malgun Gothic'
+os.chdir(os.path.dirname(__file__))
 # --- 1. 읽기 및 전처리 ---
 df = pd.read_csv("data.csv", dtype=str)
 cols_keep = ["행정구역별(시군구)", "성별", "연령별", "시점", "일반가구원"]

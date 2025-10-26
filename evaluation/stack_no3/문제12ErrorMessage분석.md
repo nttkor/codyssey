@@ -1434,3 +1434,222 @@ LinkedList형으로 변환한 버전을 **단계별로 개조**해줄 수도 있
 
 그럴래?
 
+좋아요! 😄
+
+그럼 지금까지 논의한 내용을 바탕으로 **LinkedList, CircularList, Stack 구현**을 통합한 안전한 예제 코드를 만들어 드릴게요.
+
+* Pylance 경고 없이 타입 힌트 포함
+* insert/delete edge case 처리
+* Stack push/pop/peek/empty 처리
+* CircularList get_next, search 처리
+
+---
+
+```python
+# -*- coding: utf-8 -*-
+
+# -----------------------------
+# Node 정의
+# -----------------------------
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+
+# -----------------------------
+# LinkedList
+# -----------------------------
+class LinkedList:
+    def __init__(self):
+        self.head: Node | None = None
+        self.cnt = 0
+
+    def __len__(self) -> int:
+        return self.cnt
+
+    def insert(self, index: int, value):
+        if index < 0 or index > self.cnt:
+            raise IndexError("Index out of range")
+
+        new_node = Node(value)
+
+        if index == 0:
+            new_node.next = self.head
+            self.head = new_node
+        else:
+            current: Node | None = self.head
+            prev: Node | None = None
+            for _ in range(index):
+                prev = current
+                if current:
+                    current = current.next
+            new_node.next = current
+            if prev:
+                prev.next = new_node
+
+        self.cnt += 1
+
+    def delete(self, index: int):
+        if index < 0 or index >= self.cnt:
+            raise IndexError("Index out of range")
+
+        current: Node | None = self.head
+        prev: Node | None = None
+        for _ in range(index):
+            prev = current
+            if current:
+                current = current.next
+
+        if prev is None:
+            self.head = current.next if current else None
+        else:
+            prev.next = current.next if current else None
+
+        self.cnt -= 1
+        return current.value if current else None
+
+    def to_list(self):
+        result = []
+        current: Node | None = self.head
+        while current:
+            result.append(current.value)
+            current = current.next
+        return result
+
+# -----------------------------
+# CircularList
+# -----------------------------
+class CircularList:
+    def __init__(self):
+        self.last: Node | None = None
+        self.cnt = 0
+
+    def __len__(self) -> int:
+        return self.cnt
+
+    def insert(self, value):
+        new_node = Node(value)
+        if self.last is None:
+            new_node.next = new_node
+            self.last = new_node
+        else:
+            new_node.next = self.last.next
+            self.last.next = new_node
+            self.last = new_node
+        self.cnt += 1
+
+    def delete(self, value):
+        if self.last is None:
+            return False
+
+        prev = self.last
+        current = self.last.next
+        for _ in range(self.cnt):
+            if current.value == value:
+                if self.cnt == 1:
+                    self.last = None
+                else:
+                    prev.next = current.next
+                    if current == self.last:
+                        self.last = prev
+                self.cnt -= 1
+                return True
+            prev = current
+            current = current.next
+        return False
+
+    def get_next(self):
+        if not self.last:
+            return None
+        self.last = self.last.next
+        return self.last.value
+
+    def search(self, value):
+        if not self.last:
+            return None
+        current = self.last.next
+        for _ in range(self.cnt):
+            if current.value == value:
+                return current.value
+            current = current.next
+        return None
+
+# -----------------------------
+# Stack
+# -----------------------------
+class Stack:
+    def __init__(self):
+        self.capacity = 10
+        self.data: list = []
+
+    def push(self, value) -> bool:
+        if len(self.data) >= self.capacity:
+            print("Stack is full.")
+            return False
+        self.data.append(value)
+        return True
+
+    def pop(self):
+        if self.empty():
+            print("Stack is empty.")
+            return None
+        return self.data.pop()
+
+    def peek(self):
+        if self.empty():
+            print("Stack is empty.")
+            return None
+        return self.data[-1]
+
+    def empty(self):
+        return len(self.data) == 0
+
+# -----------------------------
+# 테스트용 main
+# -----------------------------
+if __name__ == "__main__":
+    print("=== Stack Test ===")
+    s = Stack()
+    print("Empty?", s.empty())
+    for i in range(12):
+        print(f"Push {i}: {s.push(i)}", s.data)
+    print("Peek:", s.peek())
+    while not s.empty():
+        print("Pop:", s.pop())
+    s.pop()
+
+    print("\n=== LinkedList Test ===")
+    ll = LinkedList()
+    ll.insert(0, "A")
+    ll.insert(1, "B")
+    ll.insert(1, "X")
+    print("List:", ll.to_list())
+    ll.delete(1)
+    print("After delete:", ll.to_list())
+
+    print("\n=== CircularList Test ===")
+    cl = CircularList()
+    cl.insert("A")
+    cl.insert("B")
+    cl.insert("C")
+    print("Get next:", cl.get_next())
+    print("Search B:", cl.search("B"))
+    cl.delete("B")
+    print("After delete B, get next:", cl.get_next())
+```
+
+---
+
+이 코드 특징:
+
+1. **prev/current 관리 + None 체크** → next attribute error 방지
+2. **for문/while문 모두 적용 가능 구조**
+3. **Stack, LinkedList, CircularList** 모두 시험 문제 기준 동작
+4. **Stack capacity 10** 초과시 메시지 출력, empty일 때 pop/peek → None 반환
+5. **Pylance 타입 힌트** 포함 (`Node | None`, `list`)
+
+---
+
+원하면 제가 이 구조를 **시험용 최소한 코드 + assert 기반 자동 체크** 버전으로도 만들어서 바로 테스트 가능하게 해줄 수 있어요.
+
+그거 만들어 드릴까요?
