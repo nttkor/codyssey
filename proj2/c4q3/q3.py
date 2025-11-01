@@ -113,7 +113,7 @@ def db_worker(stop_event):  # DB 쓰레드 함수
             sensor_name, temp, light, humi = data  # 데이터 분해
             insert_sensor_data(sensor_name, temp, light, humi)  # DB에 저장
             print(f"[DB] 저장됨 → {sensor_name}, temp:{temp}, light:{light}, humi:{humi}")  # 콘솔 출력
-        time.sleep(1)  # 1초 대기
+        time.sleep(0.1)  # 1초 대기
 
 # 시간대별 평균 온도를 센서별로 선 그래프로 표시합니다.
 # 습도가 90 이상인 시간대는 빨간색 선으로 강조합니다.
