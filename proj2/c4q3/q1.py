@@ -7,6 +7,9 @@ import sys                         # 시스템 입력 처리를 위한 모듈
 RED = "\033[91m"                   # 콘솔 출력용 빨간색 ANSI 코드
 RESET = "\033[0m"                  # 콘솔 출력 색상 초기화 코드
 
+# 센서 이름, 온도, 조도, 습도 속성을 가짐
+# SetData()로 무작위 데이터 생성
+# GetData()
 class ParmSensor:                  # 스마트 팜 센서 클래스 정의
     def __init__(self, name):      # 생성자: 센서 이름 초기화
         self.name = name           # 센서 고유 이름
@@ -22,6 +25,9 @@ class ParmSensor:                  # 스마트 팜 센서 클래스 정의
     def GetData(self):             # 센서 데이터 반환 함수
         return self.temperature, self.light, self.humidity  # 온도, 조도, 습도 반환
 
+# 각 센서가 10초 주기로 데이터를 생성
+# 습도가 90% 초과 시 빨간색으로 출력
+# stop_event가 설정되면 루프 종료
 def sensor_worker(sensor, stop_event):                  # 센서 쓰레드 함수
     while not stop_event.is_set():                      # 종료 이벤트가 설정되지 않은 동안 반복
         sensor.SetData()                                # 센서 데이터 생성
@@ -38,6 +44,10 @@ def sensor_worker(sensor, stop_event):                  # 센서 쓰레드 함�
                 break
             time.sleep(1)                                 # 10초 대기 후 반복
 
+# 센서 5개 생성 (Parm-1 ~ Parm-5)
+# 각 센서에 대해 쓰레드 실행
+# 사용자 입력을 기다리며 'q' 입력 시 모든 쓰레드 종료
+# 종료 후 메시지 출력
 def main():                                              # 프로그램 실행 함수
     stop_event = threading.Event()                      # 종료 이벤트 생성
     sensors = [ParmSensor(f"Parm-{i}") for i in range(1, 6)]  # 센서 5개 생성

@@ -16,6 +16,8 @@ class Node:  # 큐의 노드 클래스 정의
         self.data = data  # 저장할 데이터
         self.next = None  # 다음 노드 참조
 
+# 센서 데이터를 안전하게 저장하고 꺼내기 위한 FIFO 큐입니다.
+# 멀티 쓰레드 환경에서도 동기화를 위해 threading.Lock()을 사용합니다.
 class NodeQueue:  # 노드 기반 FIFO 큐 클래스 정의
     def __init__(self):  # 큐 초기화
         self.front = None  # 큐의 앞쪽 노드
@@ -61,15 +63,18 @@ class ParmSensor:  # 센서 클래스 정의
 
     def GetData(self):  # 센서 데이터를 반환
         return self.temperature, self.light, self.humidity  # 튜플로 반환
-
+    
+# SQLite를 사용하여 parm_data 테이블에 센서 데이터를 저장합니다.
+# insert_sensor_data()로 삽입하고, get_sensor_data()로 조회합니다.
 def insert_sensor_data(sensor_name, temperature, light, humidity):  # 센서 데이터를 DB에 저장
     conn = sqlite3.connect("smartfarm.db")  # DB 연결
     cursor = conn.cursor()  # 커서 생성
     # 데이터 삽입 SQL 실행
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # ✅ 문자열로 변환
     cursor.execute("""  
         INSERT INTO parm_data (sensor_name, timestamp, temperature, light, humidity)
         VALUES (?, ?, ?, ?, ?)
-    """, (sensor_name, datetime.now(), temperature, light, humidity))  # 현재 시간 포함 삽입
+    """, (sensor_name, timestamp, temperature, light, humidity))  # 현재 시간 포함 삽입
     conn.commit()  # 변경사항 저장
     conn.close()  # 연결 종료
 
@@ -85,6 +90,8 @@ def get_sensor_data():  # DB에서 센서 데이터를 조회
 RED = "\033[91m"  # 빨간색 ANSI 코드
 RESET = "\033[0m"  # 색상 초기화 코드
 
+
+# 각 센서가 2초마다 데이터를 생성하고 큐에 넣습니다.
 def sensor_worker(sensor, stop_event):  # 센서 쓰레드 함수
     while not stop_event.is_set():  # 종료 이벤트가 설정되지 않은 동안 반복
         sensor.SetData()  # 센서 데이터 설정
@@ -98,6 +105,7 @@ def sensor_worker(sensor, stop_event):  # 센서 쓰레드 함수
 
         time.sleep(2)
 
+# 큐에서 데이터를 꺼내 DB에 저장합니다.
 def db_worker(stop_event):  # DB 쓰레드 함수
     while not stop_event.is_set():  # 종료 이벤트가 설정되지 않은 동안 반복
         data = sensorQ.get()  # 큐에서 데이터 꺼내기
@@ -107,6 +115,9 @@ def db_worker(stop_event):  # DB 쓰레드 함수
             print(f"[DB] 저장됨 → {sensor_name}, temp:{temp}, light:{light}, humi:{humi}")  # 콘솔 출력
         time.sleep(1)  # 1초 대기
 
+# 시간대별 평균 온도를 센서별로 선 그래프로 표시합니다.
+# 습도가 90 이상인 시간대는 빨간색 선으로 강조합니다.
+# 결과는 sensor_plot.png로 저장됩니다.
 def plot_sensor_data():  # 그래프 시각화 함수
     data = get_sensor_data()  # DB에서 데이터 조회
     if not data:  # 데이터가 없으면 종료
@@ -143,6 +154,12 @@ def plot_sensor_data():  # 그래프 시각화 함수
     print("📊 그래프가 sensor_plot.png 파일로 저장되었습니다.")  # 저장 완료 메시지
 
 # 메인 함수
+# 실행 흐름 요약
+# 센서 객체 5개 생성 (Parm-1 ~ Parm-5)
+# 각 센서에 대해 쓰레드 실행 → 센서 데이터 생성 및 큐에 저장
+# DB 쓰레드 실행 → 큐에서 데이터 꺼내 DB에 저장
+# 사용자 입력으로 'q'를 입력하면 모든 쓰레드 종료
+# 종료 후 DB 데이터를 기반으로 그래프 생성 및 저장
 def main():  # 프로그램의 시작점 정의
     stop_event = threading.Event()  # 쓰레드 종료를 제어할 이벤트 객체 생성
 

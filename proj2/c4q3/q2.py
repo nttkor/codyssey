@@ -28,18 +28,84 @@ class ParmSensor:  # 센서 클래스 정의
 def insert_sensor_data(sensor_name, temperature, light, humidity):  # 센서 데이터를 DB에 저장
     conn = sqlite3.connect("smartfarm.db")  # 데이터베이스 연결
     cursor = conn.cursor()  # 커서 객체 생성
-    cursor.execute("""  # 데이터 삽입 SQL 실행
+    # 데이터 삽입 SQL 실행
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # 문자열로 변환
+    cursor.execute("""  
         INSERT INTO parm_data (sensor_name, timestamp, temperature, light, humidity)
         VALUES (?, ?, ?, ?, ?)
-    """, (sensor_name, datetime.now(), temperature, light, humidity))  # 현재 시간 포함 데이터 삽입
+    """, (sensor_name, timestamp, temperature, light, humidity))  # 현재 시간 포함 데이터 삽입
     conn.commit()  # 변경사항 커밋
     conn.close()  # 연결 종료
+
+def print_all_data():
+    conn = sqlite3.connect("smartfarm.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM parm_data ORDER BY timestamp")
+    rows = cursor.fetchall()
+
+    print("\n[전체 센서 데이터]")
+    for row in rows:
+        print(row)
+
+    conn.close()
+
+def print_recent_data(start_time):
+    conn = sqlite3.connect("smartfarm.db")
+    cursor = conn.cursor()
+    #SQL 쿼리를 데이터베이스에 전달하고 실행합니다.
+    cursor.execute("""
+        SELECT * FROM parm_data
+        WHERE timestamp >= ?
+        ORDER BY timestamp
+    """, (start_time,))
+    # execute()로 실행된 쿼리의 결과를 모두 가져옵니다.
+    rows = cursor.fetchall()
+
+    print("\n[이번 실행 중 추가된 센서 데이터]")
+    for row in rows:
+        print(row)
+
+    conn.close()
+
+
+def analyze_data():  # 센서 데이터 분석 함수 정의
+    conn = sqlite3.connect("smartfarm.db")  # SQLite 데이터베이스 연결
+    cursor = conn.cursor()  # 커서 객체 생성
+
+    print("\n[센서별 데이터 수]")  # 센서별 데이터 개수 출력 제목
+    # 센서별로 데이터 개수를 집계하는 SQL 실행
+    cursor.execute("""  
+        SELECT sensor_name, COUNT(*) 
+        FROM parm_data 
+        GROUP BY sensor_name
+    """)
+    for row in cursor.fetchall():  # 쿼리 결과를 반복하며 출력
+        print(f"{row[0]}: {row[1]}개")  # 센서 이름과 데이터 개수 출력
+
+    print("\n[시간대별 평균 데이터]")  # 시간대별 평균 데이터 출력 제목
+    # 센서별, 시간대별 평균 온도, 조도, 습도 계산 SQL 실행
+    cursor.execute("""  
+        SELECT sensor_name, strftime('%Y-%m-%d %H', timestamp) AS hour,
+               AVG(temperature), AVG(light), AVG(humidity)
+        FROM parm_data
+        GROUP BY sensor_name, hour
+        ORDER BY sensor_name, hour
+    """)
+    for row in cursor.fetchall():  # 쿼리 결과를 반복하며 출력
+        print(f"{row[0]} {row[1]}시 - 평균 온도: {row[2]:.2f}, 조도: {row[3]:.2f}, 습도: {row[4]:.2f}")  # 센서 이름, 시간대, 평균값 출력
+
+    conn.close()  # 데이터베이스 연결 종료
+
+
 
 def sensor_worker(sensor, stop_event):  # 센서 쓰레드 함수
     while not stop_event.is_set():  # 종료 이벤트가 설정되지 않은 동안 반복
         sensor.SetData()  # 센서 데이터 설정
         temp, light, humi = sensor.GetData()  # 센서 데이터 가져오기
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # 현재 시간 문자열로 저장
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+  # 현재 시간 문자열로 저장
 
         insert_sensor_data(sensor.name, temp, light, humi)  # 데이터베이스에 저장
 
@@ -54,6 +120,8 @@ def sensor_worker(sensor, stop_event):  # 센서 쓰레드 함수
             time.sleep(1)  # 1초 대기
 
 def main():  # 프로그램 시작 함수
+    start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # 실행 시작 시간 기록
+    print(f"센서 모니터링 시작 시간: {start_time}")  # 시작 시간 출력
     stop_event = threading.Event()  # 종료 이벤트 객체 생성
     sensors = [ParmSensor(f"Parm-{i}") for i in range(1, 6)]  # 센서 객체 5개 생성
     threads = []  # 쓰레드 리스트 초기화
@@ -65,17 +133,25 @@ def main():  # 프로그램 시작 함수
 
     print("센서 모니터링 중... 종료하려면 'q'를 입력하세요.")  # 사용자 안내 메시지 출력
 
-    while True:  # 사용자 입력 대기 루프
-        user_input = input()  # 사용자 입력 받기
-        if user_input.strip().lower() == 'q':  # 입력이 'q'이면
-            print("종료 중...")  # 종료 메시지 출력
-            stop_event.set()  # 종료 이벤트 설정
-            break  # 루프 탈출
+    # while True:  # 사용자 입력 대기 루프
+    #     user_input = input()  # 사용자 입력 받기
+    #     if user_input.strip().lower() == 'q':  # 입력이 'q'이면
+    #         print("종료 중...")  # 종료 메시지 출력
+    #         stop_event.set()  # 종료 이벤트 설정
+    #         break  # 루프 탈출
+    user_input = input()  # 사용자 입력 받기
+    print("종료 중...")  # 종료 메시지 출력
+    stop_event.set()  # 종료 이벤트 설정
+
 
     for thread in threads:  # 모든 쓰레드에 대해
         thread.join()  # 쓰레드 종료 대기
 
     print("모든 센서 쓰레드가 종료되었습니다.")  # 종료 완료 메시지 출력
+
+    # print_all_data()       # 전체 데이터 출력
+    print_recent_data(start_time)  # 이번 실행 중 추가된 데이터만 출력
+    analyze_data()         # 보너스 과제 분석
 
 if __name__ == '__main__':  # 이 파일이 직접 실행될 경우
     main()  # main 함수 실행
