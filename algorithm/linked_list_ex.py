@@ -2,23 +2,30 @@ class Node:
     def __init__(self, data):
         self.data = data
         self.next = None
-    
-class Linked_list:
+
+class LinkedList:
     def __init__(self):
-        self.head = None
+        self.head : Node | None = None
+        
     def __len__(self):
-        cnt = 0
+        count = 0
         current = self.head
         while current:
+            count += 1
             current = current.next
-            cnt += 1
-        return cnt
-    def insert(self,data):
+        return count
+        
+    def insert(self,index, data):
+        if index < 0 or index > len(self):
+            raise IndexError("Index out of bountds")
         new_node = Node(data)
-        if self.head == None:
-            self.head == new_node
+        if index == 0:
+            new_node.next = self.head
+            self.head = new_node
             return
-        if self.head:
-            
-            
-            
+        current = self.head
+        for _ in range(index - 1):
+            current = current.next
+        new_node.next = current.next
+        current.next = new_node
+
