@@ -3,3 +3,5 @@
 [권창범](https://github.com/7eerup/david)
 [김대웅](https://github.com/Daeung-03/Codyssey_mariner.git)
 [김대웅git](https://github.com/Daeung-03/Codyssey_mariner.git)
+[황성준git](https://github.com/get6/)
+[현우]https://github.com/yh90minopdgklm
