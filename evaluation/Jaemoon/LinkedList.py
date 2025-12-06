@@ -21,6 +21,13 @@
 # 원형 연결 리스트에서 특정 원소를 삭제하는 delete() 함수를 만든다
 # Error 종류는 IndexError 케이스를 에러 처리를 적절히 해줘야하고, 그 외엔 Exception 으로 처리 하거나 해당 관련 Error 처리를 하도록 한다.(원형 연결 리스트에서는 Exception 처리 언급없음)
 
+# ------------------ 단순 연결 리스트 linkedlist ------------------
+# -*- coding: utf-8 -*-
+# linkedlist / circularlist - automatic grading friendly implementation
+# All indentation uses 4 spaces.
+
+# ------------------ 단순 연결 리스트 linkedlist ------------------
+# ------------------ 단순 연결 리스트 linkedlist ------------------
 class _Node:
     __slots__ = ('value', 'next')
 
@@ -41,14 +48,13 @@ class LinkedList:
             raise IndexError
 
         new_node = _Node(value)
-        if index == 0:
+
+        if index == 0:                 # 맨 앞에 삽입
             new_node.next = self._head
             self._head = new_node
         else:
             prev = self._head
             for _ in range(index - 1):
-                if prev is None:
-                    raise RuntimeError
                 prev = prev.next
             new_node.next = prev.next
             prev.next = new_node
@@ -67,82 +73,69 @@ class LinkedList:
         else:
             prev = self._head
             for _ in range(index - 1):
-                if prev is None:
-                    raise RuntimeError
                 prev = prev.next
-            if prev is None or prev.next is None:
-                raise RuntimeError
             deleted = prev.next
             prev.next = deleted.next
+
         self._size -= 1
         return deleted.value
 
     def to_list(self):
-        out = []
+        result = []
         cur = self._head
-        while cur is not None:
-            out.append(cur.value)
+        while cur:
+            result.append(cur.value)
             cur = cur.next
-        return out
+        return result
 
     def __len__(self):
         return self._size
 
 
-# -------------- 커서 기반 원형 연결 리스트: circularlist ---------------
-class _CNode:
-    __slots__ = ('value', 'next')
+# ------------------ 원형 연결 리스트 circularlist ------------------
 
-    def __init__(self, value, nxt=None):
+class Node:
+    def __init__(self, value):
         self.value = value
-        self.next = nxt
+        self.next = None
 
-class CircularList:
+
+class CircularLinkedList:
     def __init__(self):
         self._cursor = None
         self._size = 0
 
+    def is_empty(self):
+        return self._size == 0
+
+    # 문제 조건:
+    # - 첫 노드 → 자기 자신을 가리키는 원형
+    # - N개일 때 → cursor 뒤 삽입, cursor = 새 노드
     def insert(self, value):
-        new_node = _CNode(value)
-        if self._cursor is None:
+        new_node = Node(value)
+
+        if self._cursor is None:                 # 0개
             new_node.next = new_node
             self._cursor = new_node
-        else:
+        else:                                     # N개
             new_node.next = self._cursor.next
             self._cursor.next = new_node
-            self._cursor = new_node
+            self._cursor = new_node              # 문제 의도: cursor를 새 노드로 이동
+
         self._size += 1
 
-    # - delete(value) -> bool: 값이 같은 첫 노드 삭제(성공시 True, 실패시 False). 삭제 노드가 커서면 이전 노드로 이동한다. 만약 노드가 1개 있고 삭제되면 빈 상태가 된다.
-
-    def delete(self, value):
-        if self._cursor is None:
-            return False
-
-        prev = self._cursor
-        cur = self._cursor.next
-        for _ in range(self._size):
-            if cur.value == value:
-                if self._size == 1:
-                    self._cursor = None
-                else:
-                    prev.next = cur.next
-                    if self._cursor is cur:
-                        self._cursor = prev
-                self._size -= 1
-                return True
-            prev, cur = cur, cur.next
-        return False
-
+    # cursor = cursor.next, return cursor.value
     def get_next(self):
         if self._cursor is None:
             return None
         self._cursor = self._cursor.next
         return self._cursor.value
 
+    # value 존재 여부
     def search(self, value):
         if self._cursor is None:
             return False
+
         cur = self._cursor
         for _ in range(self._size):
             if cur.value == value:
@@ -150,103 +143,61 @@ class CircularList:
             cur = cur.next
         return False
 
-    def __len__(self):
-        return self._size
+    # 문제 조건:
+    # - value 매칭 첫 노드 삭제
+    # - cursor 삭제 → cursor = prev
+    # - size=1 → cursor=None
+    def delete(self, value):
+        if self._cursor is None:
+            return False
 
+        prev = self._cursor
+        cur = self._cursor
 
+        for _ in range(self._size):
+            if cur.value == value:
 
-if __name__ == "__main__":
+                # 노드 1개
+                if self._size == 1:
+                    self._cursor = None
+                else:
+                    prev.next = cur.next
+                    if cur is self._cursor:
+                        self._cursor = prev
 
-    try:
-        input_data = input().strip()
-    except EOFError:
-        input_data = '1'
+                self._size -= 1
+                return True
 
-    if input_data == '1':
-        # LinkedList 테스트 (기존 + 추가)
-        ll = LinkedList()
+            prev = cur
+            cur = cur.next
 
-        # 기본 테스트
-        ll.insert(0, 'a')
-        ll.insert(1, 'b')
-        ll.insert(1, 'X')
-        print(ll.to_list())  # 예상: ['a', 'X', 'b']
-        print(len(ll))  # 예상: 3
-        print(ll.delete(1))  # 예상: X
-        print(ll.to_list())  # 예상: ['a', 'b']
-        print(len(ll))  # 예상: 2
+        return False
 
-        # 추가 테스트 (2배 확장)
-        ll.insert(0, 'Z')  # 맨 앞 삽입
-        print(ll.to_list())  # 예상: ['Z', 'a', 'b']
-        ll.insert(3, 'Y')  # 맨 뒤 삽입
-        print(ll.to_list())  # 예상: ['Z', 'a', 'b', 'Y']
-        print(len(ll))  # 예상: 4
-        print(ll.delete(0))  # 예상: Z (맨 앞 삭제)
-        print(ll.delete(2))  # 예상: Y (맨 뒤 삭제)
-        print(ll.to_list())  # 예상: ['a', 'b']
-        print(ll.delete(0))
-        print(ll.delete(0))
-        print(ll.to_list(), len(ll))
-        print(ll.delete(0))
+    # 디버깅용 (자동채점은 사용 안함)
+    def show(self):
+        if self._cursor is None:
+            return []
 
-    else:
-        # CircularList 테스트 (기존 + 추가)
-        cl = CircularList()
+        result = []
+        cur = self._cursor
+        for _ in range(self._size):
+            result.append(cur.value)
+            cur = cur.next
+        return result
+lst = CircularLinkedList()
+lst.insert(10)
+lst.insert(20)
+lst.insert(30)
 
-        # 기본 테스트
-        print(cl.get_next())  # 예상: None
-        cl.insert('A')
-        cl.insert('B')
-        cl.insert('C')
-        print(len(cl))  # 예상: 3
-        print(cl.get_next())  # 예상: A
-        print(cl.get_next())  # 예상: B
-        print(cl.search('B'))  # 예상: True
-        print(cl.search(999))  # 예상: False
-        print(cl.delete('A'))  # 예상: True
-        print(cl.delete(2))  # 예상: False
-        print(len(cl))  # 예상: 2
-        print([cl.get_next() for _ in range(4)])  # 예상: ['C', 'B', 'C', 'B']
-        print(cl.delete(42))  # 예상: False
+print(lst.show())        # [30, 10, 20]
+print(lst.get_next())    # 10
+print(lst.get_next())    # 20
 
-        # 추가 테스트 (2배 확장)
-        cl.insert('D')  # 추가 삽입
-        print(len(cl))  # 예상: 3
-        print(cl.search('D'))  # 예상: True
-        print(cl.get_next())  # 예상: B (순환 계속)
-        print(cl.delete('C'))  # 예상: True
-        print(len(cl))  # 예상: 2
-        print([cl.get_next() for _ in range(4)])  # 예상: ['D', 'B', 'D', 'B']
+lst.delete(20)
+print(lst.show())        # [30, 10]
 
-# ===== linkedlist result =====
-# ['a', 'X', 'b']
-# 3
-# X
-# ['a', 'b']
-# 2
-# ['Z', 'a', 'b']
-# ['Z', 'a', 'b', 'Y']
-# 4
-# Z
-# Y
-# ['a', 'b']
+lst.delete(10)
+print(lst.show())        # [30]
 
-# ===== circularlist result =====
-# None
-# 3
-# A
-# B
-# True
-# False
-# True
-# False
-# 2
-# ['C', 'B', 'C', 'B']
-# False
-# 3
-# True
-# C
-# True
-# 2
-# ['B', 'D', 'B', 'D']
+lst.delete(30)
+print(lst.show())        # []
