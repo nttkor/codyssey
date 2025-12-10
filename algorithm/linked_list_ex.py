@@ -1,31 +1,41 @@
 class Node:
     def __init__(self, data):
         self.data = data
-        self.next = None
+        self.next : Node | None = None
 
 class LinkedList:
     def __init__(self):
         self.head : Node | None = None
-        
-    def __len__(self):
-        count = 0
-        current = self.head
-        while current:
-            count += 1
+        self.tail : Node | None = None
+        self.length = 0
+    def __len__(self) -> int:
+        return self.length
+    def display(self):
+        if self.length == 0:
+            print("Empty")
+        else:
+            current = self.head
+            while current:
+                print(current.data,end='->')
             current = current.next
-        return count
-        
-    def insert(self,index, data):
-        if index < 0 or index > len(self):
-            raise IndexError("Index out of bountds")
-        new_node = Node(data)
+            print()
+    def to_list(self):
+        current = self.head
+        list_list = []
+        while current:
+            list_list.append(current.data)
+            current = current.next
+        return list_list
+    def insert(self, index: int, value: int) -> None:
+        if index <- or index > len(self):
+            raise IndexError
+        new_node = Node(value)
+        self.length += 1
         if index == 0:
             new_node.next = self.head
             self.head = new_node
-            return
-        current = self.head
-        for _ in range(index - 1):
-            current = current.next
-        new_node.next = current.next
-        current.next = new_node
-
+            if self.length == 1:
+                self.tail = new_node
+        else:
+            
+            
