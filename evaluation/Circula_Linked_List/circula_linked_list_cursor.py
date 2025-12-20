@@ -168,58 +168,29 @@ class circularlist:
     # ----------------------------
     # delete(value)
     # ----------------------------
-    def delete(self, value):
-        """
-        cursor 위치부터 순회하여 '처음 만나는' value를 가진 노드를 삭제한다.
-        반환: 삭제 성공하면 True, 못 찾으면 False
-
-        세부 동작:
-        - 빈 리스트이면 False 반환
-        - 순회하며 prev와 cur을 유지
-        - 만약 삭제 대상이 리스트의 유일한 노드라면 cursor=None, size=0
-        - 만약 prev가 None인 채로 cur이 삭제 대상이면(=cursor가 삭제 대상):
-            이때 prev를 찾기 위해 last() 호출 (O(n))
-          prev.next = cur.next 로 연결 끊기
-        - 만약 삭제 대상이 cursor이면 cursor를 prev.next(=삭제 후의 다음 노드)로 이동시킴
-        """
-        if self.is_empty():
+    def delete(self,value):
+        if self.cursor == None:
             return False
-
+        prev = self.cursor
+        while prev.next != self.cursor:
+            prev = prev.next
         cur = self.cursor
-        prev = None
 
-        # 리스트를 최대 size만큼 순회
         for _ in range(self._size):
             if cur.value == value:
-                # --- 삭제 대상 처리 ---
-                # 1) 노드가 1개 있는 경우: 삭제 후 빈 리스트
-                if self._size == 1:
-                    self.cursor = None
-                    self._size = 0
-                    return True
-
-                # 2) prev가 None이면 현재 cursor가 삭제 대상 => prev를 last()로 찾음
-                #    (cursor 삭제 시 이전 노드가 필요하므로 last() 사용)
-                if prev is None:
-                    prev = self.last()  # O(n) 호출 (리스트 길이에 비례)
-
-                # 3) 링크 끊기: prev.next를 건너뛰도록 설정
+                # 링크 제거
                 prev.next = cur.next
-
-                # 4) 만약 삭제한 노드가 cursor였다면 cursor를 삭제된 노드의 다음 노드로 이동
-                #    (즉, 삭제 후 cursor는 원래 cur.next가 됨)
+                # cursor 삭제 → 이전 노드로 이동
                 if cur is self.cursor:
-                    self.cursor = prev.next
-
-                # 5) 크기 감소 및 성공 반환
+                    self.cursor = prev
                 self._size -= 1
+                if self._size == 0:
+                    self.cursor = None
                 return True
 
-            # 순회 진행: prev <- cur, cur <- cur.next
             prev = cur
             cur = cur.next
 
-        # 루프 끝까지 발견 못함
         return False
 
     # ----------------------------
