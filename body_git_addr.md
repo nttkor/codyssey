@@ -1,9 +1,9 @@
-[백동제](https://github.com/VectorSophie)
-[박영세](https://github.com/MetaStudy999)
-[주재문](https://github.com/OliverJoo/david)
-[이동현](https://github.com/cauchy-P/la-codyssey)
-[권창범](https://github.com/7eerup/david)
-[김대웅](https://github.com/Daeung-03/Codyssey_mariner.git)
-[김대웅git](https://github.com/Daeung-03/Codyssey_mariner.git)
-[황성준git](https://github.com/get6/)
-[현우]https://github.com/yh90minopdgklm
+* [백동제](https://github.com/VectorSophie)
+* [박영세](https://github.com/MetaStudy999)
+* [주재문](https://github.com/OliverJoo/david)
+* [이동현](https://github.com/cauchy-P/la-codyssey)
+* [권창범](https://github.com/7eerup/david)
+* [김대웅](https://github.com/Daeung-03/Codyssey_mariner.git)
+* [김대웅git](https://github.com/Daeung-03/Codyssey_mariner.git)
+* [황성준git](https://github.com/get6/)
+* [현우]https://github.com/yh90minopdgklm
